@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db658d66042a68489b0d36206ef37cb, type: 3}
+  m_Name: Arma_Rifle
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
+  id: 97b022385d244ac4d96541e0444014fa
+  displayName: "Rifle de Precis\xE3o (provis\xF3rio)"
+  description: Arma de fogo de longo alcance. Segure o ataque para um tiro mirado.
+  icon: {fileID: 21300000, guid: a9e81fcd8715b974aabc7256a2711e4a, type: 3}
+  itemCategory: 0
+  rarity: 2
+  gridWidth: 2
+  gridHeight: 4
+  maxStack: 1
+  weight: 7
+  value: 120
+  worldModel: {fileID: 0}
+  category: 8
+  handling: 1
+  viewModelPrefab: {fileID: 6804104896005050314, guid: 1fd6944eea1dec34b8063618a49540ae, type: 3}
+  modelPose:
+    position: {x: 0, y: -0.02, z: -0.1}
+    rotation: {x: 88, y: 0, z: 0}
+  holdingArmPose:
+    position: {x: 0.16, y: -0.36, z: 0.16}
+    rotation: {x: -2, y: -4, z: 0}
+  supportArmPose:
+    position: {x: 0.02, y: -0.4, z: 0.36}
+    rotation: {x: -4, y: 10, z: 0}
+  damage: 30
+  attackSpeed: 0.6
+  range: 40
+  lightAttackStamina: 4
+  heavyAttackStamina: 8
+  heavyDamageMultiplier: 1.6
+  spellProjectile: {fileID: 4073508624902433359, guid: 868a990a79c931241bcef9dac978968b, type: 3}
+  spellManaCost: 0
+  spellSpeed: 90
+  projectileSound: {fileID: 8300000, guid: 4259bae2e4ce2c64898a4cc69515f2de, type: 3}

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec6ab6b0e0b0fb747827caf7f5ac856a, type: 3}
+  m_Name: Item_PocaoVigor
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.ConsumableData
+  id: 34ceb1cc4a874064d85919060248138d
+  displayName: "Po\xE7\xE3o de Vigor Menor"
+  description: "Devolve o f\xF4lego em meio ao combate."
+  icon: {fileID: 21300000, guid: 7a45357348bcdb545bc720fb67f78b32, type: 3}
+  itemCategory: 8
+  rarity: 0
+  gridWidth: 1
+  gridHeight: 1
+  maxStack: 5
+  weight: 0.3
+  value: 20
+  worldModel: {fileID: 8516854631755225528, guid: 146578a06c314714cbe9b8aa34fd4826, type: 3}
+  effect: 1
+  amount: 60

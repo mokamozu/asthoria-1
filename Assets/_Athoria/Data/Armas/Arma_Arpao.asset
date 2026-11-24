@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db658d66042a68489b0d36206ef37cb, type: 3}
+  m_Name: Arma_Arpao
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
+  id: 4c8e9c6a1cd043344a98ff898f8808e5
+  displayName: "Arp\xE3o de Ca\xE7a (provis\xF3rio)"
+  description: "Arp\xE3o de pesca e ca\xE7a da Costa dos Ventos. Estocadas de longo alcance com uma m\xE3o."
+  icon: {fileID: 21300000, guid: 5acbefeb4aaadb04fafd1dafe85dbd21, type: 3}
+  itemCategory: 0
+  rarity: 0
+  gridWidth: 1
+  gridHeight: 4
+  maxStack: 1
+  weight: 4
+  value: 40
+  worldModel: {fileID: 0}
+  category: 4
+  handling: 0
+  viewModelPrefab: {fileID: 6332820042535206452, guid: 5b5dae3291be71a4eb9c964264d71d8f, type: 3}
+  modelPose:
+    position: {x: 0, y: 0, z: -0.15}
+    rotation: {x: 82, y: 0, z: 0}
+  holdingArmPose:
+    position: {x: 0.22, y: -0.4, z: 0.26}
+    rotation: {x: -4, y: -6, z: 0}
+  supportArmPose:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+  damage: 17
+  attackSpeed: 1.3
+  range: 2.6
+  lightAttackStamina: 10
+  heavyAttackStamina: 22
+  heavyDamageMultiplier: 1.8
+  spellProjectile: {fileID: 0}
+  spellManaCost: 12
+  spellSpeed: 18
+  projectileSound: {fileID: 0}

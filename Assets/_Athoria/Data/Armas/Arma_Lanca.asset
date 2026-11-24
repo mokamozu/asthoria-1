@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db658d66042a68489b0d36206ef37cb, type: 3}
+  m_Name: Arma_Lanca
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
+  id: f0e643fee3370cc4da461060d194c3d9
+  displayName: "Lan\xE7a (provis\xF3ria)"
+  description: "Maior alcance. Duas m\xE3os."
+  icon: {fileID: 21300000, guid: d5f685d9d7acff748894e408bf0675c4, type: 3}
+  itemCategory: 0
+  rarity: 0
+  gridWidth: 1
+  gridHeight: 4
+  maxStack: 1
+  weight: 5
+  value: 45
+  worldModel: {fileID: 0}
+  category: 4
+  handling: 1
+  viewModelPrefab: {fileID: 561734089064043737, guid: 442696b0e54609c439b1631b392d7364, type: 3}
+  modelPose:
+    position: {x: 0, y: 0, z: -0.05}
+    rotation: {x: 82, y: 0, z: 0}
+  holdingArmPose:
+    position: {x: 0.22, y: -0.42, z: 0.26}
+    rotation: {x: -4, y: -6, z: 0}
+  supportArmPose:
+    position: {x: 0, y: -0.46, z: 0.42}
+    rotation: {x: -6, y: 8, z: 0}
+  damage: 20
+  attackSpeed: 1
+  range: 3
+  lightAttackStamina: 14
+  heavyAttackStamina: 28
+  heavyDamageMultiplier: 1.8
+  spellProjectile: {fileID: 0}
+  spellManaCost: 12
+  spellSpeed: 18
+  projectileSound: {fileID: 0}

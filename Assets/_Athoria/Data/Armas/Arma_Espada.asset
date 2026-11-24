@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db658d66042a68489b0d36206ef37cb, type: 3}
+  m_Name: Arma_Espada
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
+  id: f8fff857436728a4b988bae8b9913468
+  displayName: "Espada de Ferro (provis\xF3ria)"
+  description: "L\xE2mina reta equilibrada. Arma de uma m\xE3o."
+  icon: {fileID: 21300000, guid: e8e0066cfb88bed45a215a46f2953917, type: 3}
+  itemCategory: 0
+  rarity: 0
+  gridWidth: 1
+  gridHeight: 3
+  maxStack: 1
+  weight: 3
+  value: 40
+  worldModel: {fileID: 0}
+  category: 0
+  handling: 0
+  viewModelPrefab: {fileID: 4366740145464288223, guid: 101f16317715d2142b73782b5662383d, type: 3}
+  modelPose:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 50, y: 0, z: 18}
+  holdingArmPose:
+    position: {x: 0.26, y: -0.42, z: 0.32}
+    rotation: {x: -14, y: -12, z: 0}
+  supportArmPose:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+  damage: 18
+  attackSpeed: 1.4
+  range: 2.1
+  lightAttackStamina: 12
+  heavyAttackStamina: 25
+  heavyDamageMultiplier: 1.8
+  spellProjectile: {fileID: 0}
+  spellManaCost: 12
+  spellSpeed: 18
+  projectileSound: {fileID: 0}

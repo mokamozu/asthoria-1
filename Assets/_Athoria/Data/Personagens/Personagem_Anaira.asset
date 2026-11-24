@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffe5364e6e1a2b147a9b70db1c642122, type: 3}
+  m_Name: Personagem_Anaira
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Characters.CharacterData
+  id: c3f71e35732a5f648bad896e642eba66
+  displayName: "Ana\xEDra"
+  description: "Alta, de pele escura e sorriso contagiante, Ana\xEDra \xE9 a alma alegre e vibrante da Costa dos Ventos, terra de praias, festividades e com\xE9rcio mar\xEDtimo. \xC9 uma grande navegadora e luta com um khopesh."
+  icon: {fileID: 21300000, guid: 8f32a4adafd446049be05045abe92858, type: 3}
+  title: Cavaleira de Costa dos Ventos
+  characterClass: "Ca\xE7adora dos Mares"
+  region: Costa dos Ventos
+  accentColor: {r: 0.96, g: 0.7, b: 0.3, a: 1}
+  portrait: {fileID: 21300000, guid: 09510480707f8e941919f71e03488eb2, type: 3}
+  portraitSmall: {fileID: 21300000, guid: 8f32a4adafd446049be05045abe92858, type: 3}
+  fullBody: {fileID: 21300000, guid: 9fd824b5021eeca4d8d5e8abeb66ac6c, type: 3}
+  regionEmblem: {fileID: 21300000, guid: 9cfeae0580b28e045ad7f0784916d4d2, type: 3}
+  baseHealth: 100
+  baseStamina: 110
+  baseMana: 40
+  traits:
+  - name: Navegadora
+    description: +10% de velocidade de movimento.
+    effect: 4
+    value: 10
+    category: 0
+  - name: "L\xE2mina Curva"
+    description: +15% de dano com espadas.
+    effect: 5
+    value: 15
+    category: 0
+  startingWeapons:
+  - {fileID: 11400000, guid: e51f09a1576a0674597e6f47c7991476, type: 2}
+  - {fileID: 11400000, guid: e208e481ce532cd44b9256de96509f12, type: 2}
+  startingOffHand: {fileID: 0}

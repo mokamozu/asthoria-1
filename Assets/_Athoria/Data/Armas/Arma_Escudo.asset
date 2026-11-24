@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db658d66042a68489b0d36206ef37cb, type: 3}
+  m_Name: Arma_Escudo
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
+  id: 67c0eee2804f0a2429fd72095e9c7a13
+  displayName: "Escudo de Madeira (provis\xF3rio)"
+  description: "M\xE3o secund\xE1ria. Bloqueia ataques frontais."
+  icon: {fileID: 21300000, guid: e574570ddf3d46e44a52083751c24e06, type: 3}
+  itemCategory: 5
+  rarity: 0
+  gridWidth: 2
+  gridHeight: 3
+  maxStack: 1
+  weight: 6
+  value: 35
+  worldModel: {fileID: 0}
+  category: 5
+  handling: 2
+  viewModelPrefab: {fileID: 2111084754611482932, guid: 61f9566ffea5a9940a7fd3f2915563bb, type: 3}
+  modelPose:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: -12, z: 0}
+  holdingArmPose:
+    position: {x: -0.34, y: -0.46, z: 0.34}
+    rotation: {x: -5, y: 14, z: 0}
+  supportArmPose:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+  damage: 4
+  attackSpeed: 1
+  range: 1.4
+  lightAttackStamina: 10
+  heavyAttackStamina: 15
+  heavyDamageMultiplier: 1.5
+  spellProjectile: {fileID: 0}
+  spellManaCost: 12
+  spellSpeed: 18
+  projectileSound: {fileID: 0}

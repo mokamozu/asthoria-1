@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fe9d74eb00c16242b888e272b248f77, type: 3}
+  m_Name: FeedbackCombate
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Combat.CombatFeedback
+  swingLight:
+  - {fileID: 8300000, guid: 74786817afe3bd64baf7b38750b05d49, type: 3}
+  - {fileID: 8300000, guid: 2978f8e48760eb94782de19d1eefaea1, type: 3}
+  - {fileID: 8300000, guid: 43138d203257b12408e3cb308aa091b9, type: 3}
+  swingHeavy: {fileID: 8300000, guid: 0f75e98a04e218142b8229deb006a8f0, type: 3}
+  dodge: {fileID: 8300000, guid: 07c65e0a53781254691f15ce42e6a3f0, type: 3}
+  block: {fileID: 8300000, guid: 95e9a8f6a9a9bc94cb3f844d362ae63f, type: 3}
+  guardBreak: {fileID: 8300000, guid: 4237058f4e2ee5d43b578a5ea4a44de6, type: 3}
+  blockParticles: {fileID: 2683393203413731882, guid: 43a1386dbcd74d847b8c6c95aa0df4e4, type: 3}
+  playerHurt: {fileID: 8300000, guid: ca9fc277aca8b6348a04e1e752fada7d, type: 3}
+  surfaces:
+  - kind: 0
+    sounds:
+    - {fileID: 8300000, guid: 61062b837ec2e9846be30cdc88d24f3c, type: 3}
+    particles: {fileID: 7261448471915393141, guid: 834206e8e20f55a41ac4184c987f480e, type: 3}
+  - kind: 1
+    sounds:
+    - {fileID: 8300000, guid: 1988d2abf9b8a5e4eaccfe48ff4cfdb6, type: 3}
+    particles: {fileID: 2495343356205927330, guid: b02a965c3e4092b4bb762be1e11fbd52, type: 3}
+  - kind: 2
+    sounds:
+    - {fileID: 8300000, guid: 3900220837275734bb51bd5c7461ed9d, type: 3}
+    particles: {fileID: 2683393203413731882, guid: 43a1386dbcd74d847b8c6c95aa0df4e4, type: 3}
+  - kind: 3
+    sounds:
+    - {fileID: 8300000, guid: 15d97ab3c13d48042832d75de1244c89, type: 3}
+    particles: {fileID: 423156880780984409, guid: b465bb1d1a7323044ba61aae7f5e2fe0, type: 3}
+  - kind: 4
+    sounds:
+    - {fileID: 8300000, guid: 20e16729c1d6150479c1fd738aae6d5f, type: 3}
+    particles: {fileID: 6514831903026843402, guid: 6c5c6a6dd822d0d4f9621eb8f8f0945b, type: 3}

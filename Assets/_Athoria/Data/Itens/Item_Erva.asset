@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afbd96d410cac6842a0377ae1e9dda49, type: 3}
+  m_Name: Item_Erva
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.ItemData
+  id: 1fda017d94f71f643aa899953bf9bf52
+  displayName: "Erva do P\xE2ntano"
+  description: "Material comum para preparos e rem\xE9dios."
+  icon: {fileID: 21300000, guid: adfe295a55f66b34fb6a2693c4b85bf2, type: 3}
+  itemCategory: 9
+  rarity: 0
+  gridWidth: 1
+  gridHeight: 1
+  maxStack: 20
+  weight: 0.1
+  value: 4
+  worldModel: {fileID: 1749461508076829549, guid: 08487282c21b63b4fbff5f4f54ea4b50, type: 3}
