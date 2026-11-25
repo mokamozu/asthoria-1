@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db658d66042a68489b0d36206ef37cb, type: 3}
+  m_Name: Arma_Escopeta
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
+  id: f57c5504af5e9994fa9920caab44fdf5
+  displayName: Escopeta Calibre 12
+  description: "Escopeta antiga de dois canos, heran\xE7a dos piratas da Costa dos Ventos. Devastadora de perto; os chumbos se espalham."
+  icon: {fileID: 21300000, guid: 08e05e7f0b705c74f95d702aa672479a, type: 3}
+  itemCategory: 0
+  rarity: 2
+  gridWidth: 2
+  gridHeight: 3
+  maxStack: 1
+  weight: 6
+  value: 110
+  worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
+  category: 8
+  handling: 1
+  viewModelPrefab: {fileID: 7624598085590588747, guid: 6a37b8a68eed4a54ca18b22ab4306416, type: 3}
+  modelPose:
+    position: {x: 0, y: 0, z: -0.04}
+    rotation: {x: 86, y: -10, z: 0}
+  holdingArmPose:
+    position: {x: 0.2, y: -0.26, z: 0.22}
+    rotation: {x: -2, y: -6, z: 0}
+  supportArmPose:
+    position: {x: 0.04, y: -0.4, z: 0.4}
+    rotation: {x: -32, y: 14, z: 0}
+  damage: 9
+  attackSpeed: 0.7
+  range: 14
+  lightAttackStamina: 4
+  heavyAttackStamina: 8
+  heavyDamageMultiplier: 1.4
+  spellProjectile: {fileID: 419156310309603871, guid: 1ac4a4bd0e43ef2458a1d2aae7b3f14b, type: 3}
+  spellManaCost: 0
+  spellSpeed: 70
+  projectileSound: {fileID: 8300000, guid: 4259bae2e4ce2c64898a4cc69515f2de, type: 3}
+  projectileCount: 8
+  projectileSpread: 7
+  magazineSize: 2
+  reloadTime: 1.8
+  attackSet: 5

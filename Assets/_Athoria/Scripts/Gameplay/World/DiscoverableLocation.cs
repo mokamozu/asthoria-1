@@ -52,6 +52,11 @@ namespace Athoria.Gameplay.World
             if (string.IsNullOrEmpty(id)) id = name;
         }
 
+        private void Start()
+        {
+            if (WorldState.Has(WorldState.LocationKey(id))) MarkDiscovered();
+        }
+
         /// <summary>Marca como já descoberto sem dar XP (carregamento de save).</summary>
         public void MarkDiscovered() => _discovered = true;
 

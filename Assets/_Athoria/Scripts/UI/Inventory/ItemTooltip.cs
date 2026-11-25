@@ -29,7 +29,7 @@ namespace Athoria.UI.Inventory
             nameText.color = ItemText.RarityColor(item.Rarity);
             typeText.text = $"{ItemText.Category(item.ItemType)}  •  {ItemText.Rarity(item.Rarity)}";
 
-            var stats = item.TooltipStats;
+            var stats = item.FullTooltipStats;
             statsText.text = stats;
             statsText.gameObject.SetActive(!string.IsNullOrEmpty(stats));
             descriptionText.text = item.Description;

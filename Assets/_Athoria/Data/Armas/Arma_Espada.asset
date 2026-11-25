@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Arma_Espada
   m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
   id: f8fff857436728a4b988bae8b9913468
-  displayName: "Espada de Ferro (provis\xF3ria)"
+  displayName: Espada Longa
   description: "L\xE2mina reta equilibrada. Arma de uma m\xE3o."
   icon: {fileID: 21300000, guid: e8e0066cfb88bed45a215a46f2953917, type: 3}
   itemCategory: 0
@@ -24,6 +24,9 @@ MonoBehaviour:
   weight: 3
   value: 40
   worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
   category: 0
   handling: 0
   viewModelPrefab: {fileID: 4366740145464288223, guid: 101f16317715d2142b73782b5662383d, type: 3}
@@ -31,8 +34,8 @@ MonoBehaviour:
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 50, y: 0, z: 18}
   holdingArmPose:
-    position: {x: 0.26, y: -0.42, z: 0.32}
-    rotation: {x: -14, y: -12, z: 0}
+    position: {x: 0.24, y: -0.34, z: 0.3}
+    rotation: {x: -20, y: -14, z: 0}
   supportArmPose:
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 0, y: 0, z: 0}
@@ -46,3 +49,8 @@ MonoBehaviour:
   spellManaCost: 12
   spellSpeed: 18
   projectileSound: {fileID: 0}
+  projectileCount: 1
+  projectileSpread: 0
+  magazineSize: 0
+  reloadTime: 2
+  attackSet: 0

@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c34b504f86725849a4431bfbf31eb50, type: 3}
+  m_Name: Inimigo_EsqueletoArqueiro
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.AI.EnemyData
+  id: d1964a0d2ae9f6042adc527fc7664133
+  displayName: Esqueleto Arqueiro
+  description: "Mant\xE9m dist\xE2ncia e atira de onde tiver linha de vis\xE3o. Se voc\xEA chegar perto, recua para mirar de novo."
+  icon: {fileID: 0}
+  maxHealth: 45
+  physicalReduction: 0
+  poise: 1
+  staggerDuration: 0.7
+  canBlock: 0
+  blockChance: 0.4
+  blockAngle: 70
+  blockDuration: 1.2
+  blockAbsorb: 1
+  guardHits: 3
+  riposteChance: 0.5
+  walkSpeed: 1.4
+  runSpeed: 3.4
+  turnSpeed: 300
+  agentRadius: 0.4
+  agentHeight: 1.8
+  sightRange: 22
+  sightAngle: 120
+  senseRadius: 2
+  hearingRange: 8
+  memoryTime: 4
+  alertRadius: 10
+  leashRange: 26
+  patrolRadius: 0
+  patrolWait: {x: 2, y: 5}
+  attackInterval: {x: 1.2, y: 2.2}
+  circlesTarget: 0
+  preferredDistance: 9
+  retreatHealthFraction: 0
+  retreatDuration: 3
+  returnRegenPerSecond: 15
+  sneakAttackMultiplier: 2
+  attacks:
+  - name: Flecha
+    pose: 4
+    minRange: 2.5
+    maxRange: 22
+    damage: 10
+    damageType: 0
+    windup: 0.9
+    activeTime: 0.1
+    recovery: 0.5
+    arc: 80
+    stagger: 1
+    heavy: 0
+    lunge: 0
+    projectile: {fileID: 519803537182782536, guid: d39bee48a86cbb8428ba93e6b0438193, type: 3}
+    projectileSpeed: 26
+    cooldown: 0
+    weight: 1
+    chainChance: 0
+    chainTo: -1
+    sound: {fileID: 8300000, guid: ea2d9bea4ade7d54d918e96173c583cc, type: 3}
+  - name: "Empurr\xE3o"
+    pose: 2
+    minRange: 0
+    maxRange: 1.6
+    damage: 6
+    damageType: 0
+    windup: 0.4
+    activeTime: 0.12
+    recovery: 0.5
+    arc: 90
+    stagger: 1
+    heavy: 0
+    lunge: 0
+    projectile: {fileID: 0}
+    projectileSpeed: 22
+    cooldown: 0
+    weight: 1
+    chainChance: 0
+    chainTo: -1
+    sound: {fileID: 0}
+  experience: 30
+  loot: {fileID: 11400000, guid: b05a296ae04c953438fe5504942a039f, type: 2}
+  alertSound: {fileID: 8300000, guid: 06d41aa61fe2b15408e01f22359edcb9, type: 3}
+  attackSounds: []
+  hurtSound: {fileID: 8300000, guid: 06d41aa61fe2b15408e01f22359edcb9, type: 3}
+  deathSound: {fileID: 8300000, guid: 635873d78a330384ca8d6947cc4921e7, type: 3}

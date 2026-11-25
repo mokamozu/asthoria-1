@@ -46,6 +46,10 @@ namespace Athoria.Gameplay.Combat
         [SerializeField, Tooltip("Braço esquerdo apoiando a arma de duas mãos na defesa.")]
         private ViewPose twoHandGuardLeft = new(new Vector3(-0.08f, -0.36f, 0.36f), new Vector3(-10f, 20f, 0f));
 
+        [Header("Enquadramento")]
+        [SerializeField, Tooltip("Desloca braços e armas juntos na tela (sobe as mãos acima da barra de atalhos).")]
+        private Vector3 viewOffset = new(0f, 0.07f, -0.02f);
+
         [Header("Recuo (impacto em parede/bloqueio)")]
         [SerializeField] private float recoilStiffness = 260f;
         [SerializeField] private float recoilDamping = 18f;
@@ -93,6 +97,7 @@ namespace Athoria.Gameplay.Combat
         private bool _actionBothArms;
         private float _blockBlend;
         private Vector3 _recoil, _recoilVel;
+        private HandGrip _leftGrip;
 
         public WeaponData ShownMainHand => _shownMain;
         public WeaponData ShownOffHand => _shownOff;
@@ -136,6 +141,7 @@ namespace Athoria.Gameplay.Combat
                 return;
             }
 
+            _leftGrip = leftArm.GetComponent<HandGrip>();
             _viewModelLayer = LayerMask.NameToLayer(ViewModelLayerName);
             if (_viewModelLayer < 0)
                 Debug.LogWarning($"[Athoria] Layer '{ViewModelLayerName}' não existe; a arma pode atravessar paredes.", this);
@@ -174,15 +180,62 @@ namespace Athoria.Gameplay.Combat
             _state = EquipState.Lowering;
         }
 
+        private ViewPose _shownMainPose, _shownOffPose;
+
+        /// <summary>Mudou a pose da arma no Inspector com o jogo rodando: recoloca a arma na mão na hora.</summary>
+        private void RefreshEditedPoses()
+        {
+            static bool Changed(WeaponData w, ViewPose shown) =>
+                w != null && (w.ModelPose.position != shown.position || w.ModelPose.rotation != shown.rotation);
+            if (_state == EquipState.Ready && (Changed(_shownMain, _shownMainPose) || Changed(_shownOff, _shownOffPose)))
+                SwapModels(_shownMain, _shownOff);
+        }
+
         private void LateUpdate()
         {
             var dt = Time.deltaTime;
             if (dt <= 0f) return;
+#if UNITY_EDITOR
+            RefreshEditedPoses();
+#endif
 
             UpdateEquip(dt);
             UpdateArmPoses(dt);
             UpdateMotion(dt);
+            SnapSupportHand();
         }
+
+        /// <summary>
+        /// Armas de duas mãos: a mão esquerda segura o cabo de verdade (à frente da direita
+        /// em lanças e armas de fogo; abaixo dela em espadas e martelos), com o pulso alinhado ao cabo. Corrige só a posição do braço esquerdo
+        /// depois da pose/animação do quadro, então acompanha golpes, defesa e balanço.
+        /// </summary>
+        private void SnapSupportHand()
+        {
+            if (_mainModel == null || _shownMain == null || !_shownMain.IsTwoHanded || _leftGrip == null || !_leftGrip.IsValid) return;
+            var weapon = _mainModel.transform;
+            var target = weapon.position + weapon.up * SupportDistance(_shownMain.Category);
+            // Armas de fogo e de haste: o cano/haste cruza a palma, o pulso dobra só um pouco (pose natural).
+            _leftGrip.Align(Quaternion.Inverse(leftArm.rotation) * weapon.rotation, SupportWristFollow(_shownMain.Category));
+            leftArm.position += target - _leftGrip.Point.position;
+        }
+
+        private static float SupportWristFollow(WeaponCategory category) => category switch
+        {
+            WeaponCategory.Firearm => 0.3f,
+            WeaponCategory.Spear => 0.5f,
+            WeaponCategory.Magic => 0.5f,
+            _ => 1f
+        };
+
+        private static float SupportDistance(WeaponCategory category) => category switch
+        {
+            WeaponCategory.Spear => 0.42f,      // lança: mão de apoio à frente, no cabo
+            WeaponCategory.Firearm => 0.3f,     // arma de fogo: no guarda-mão
+            WeaponCategory.Magic => 0.36f,
+            WeaponCategory.Hammer => -0.2f,     // martelo: mão de apoio abaixo, perto do fim do cabo
+            _ => -0.12f                         // espada de duas mãos: logo abaixo da mão direita, no punho
+        };
 
         private void UpdateEquip(float dt)
         {
@@ -300,7 +353,7 @@ namespace Athoria.Gameplay.Combat
 
             var lowerEase = Mathf.SmoothStep(0f, 1f, _lowerBlend);
 
-            var pos = _bob
+            var pos = viewOffset + _bob
                       + Vector3.up * (breath + _landing)
                       + sprintOffset.position * sprintEase
                       + loweredOffset * lowerEase;
@@ -323,14 +376,31 @@ namespace Athoria.Gameplay.Combat
             _offModel = Spawn(off, leftSocket);
             _shownMain = main;
             _shownOff = off;
+            _shownMainPose = main != null ? main.ModelPose : default;
+            _shownOffPose = off != null ? off.ModelPose : default;
         }
 
         private GameObject Spawn(WeaponData data, Transform socket)
         {
+            var grip = socket.GetComponentInParent<HandGrip>();
+            if (grip != null) grip.ResetPose();
             if (data == null || data.ViewModelPrefab == null) return null;
 
-            var model = Instantiate(data.ViewModelPrefab, socket);
-            model.transform.SetLocalPositionAndRotation(data.ModelPose.position, data.ModelPose.Rotation);
+            GameObject model;
+            if (grip != null && grip.IsValid)
+            {
+                // Mão de verdade: o pulso se inclina para o cabo e a arma vai para o centro do punho.
+                grip.Align(data.ModelPose.Rotation);
+                model = Instantiate(data.ViewModelPrefab, grip.Point);
+                model.transform.SetPositionAndRotation(
+                    grip.Point.position + grip.transform.rotation * data.ModelPose.position,
+                    grip.transform.rotation * data.ModelPose.Rotation);
+            }
+            else
+            {
+                model = Instantiate(data.ViewModelPrefab, socket);
+                model.transform.SetLocalPositionAndRotation(data.ModelPose.position, data.ModelPose.Rotation);
+            }
 
             // View model é só visual: sem colisão, sem sombra projetada no mundo.
             foreach (var col in model.GetComponentsInChildren<Collider>()) Destroy(col);

@@ -168,6 +168,7 @@ namespace Athoria.Gameplay.Player
 
         private void OnPause(InputAction.CallbackContext _)
         {
+            if (GameBootstrap.BackRequested != null && GameBootstrap.BackRequested()) return;
             if (GameBootstrap.Instance != null) GameBootstrap.Instance.TogglePause();
         }
     }

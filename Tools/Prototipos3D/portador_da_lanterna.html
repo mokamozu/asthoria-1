@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portador da Lanterna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+/* VOICE: tela de visualização de personagem de jogo de PS1, seca e direta.
+   IDEA: o "visualizador de modelo" de um jogo antigo — personagem no meio, menu de poses no canto.
+   PICTURE: a figura de crânio e lanterna em baixa resolução, vértices tremendo, só a lanterna iluminando.
+   COLOUR and TYPE: cinza-chumbo #3a3a3e do pedido, painéis quase pretos com moldura cinza, destaque âmbar da lanterna; VT323.
+   LAYOUT: 3D em tela cheia; título no alto à esquerda, menu de animações embaixo à esquerda, ajuda embaixo à direita. */
+:root{color-scheme:dark;--bg:#3a3a3e;--panel:#141417;--edge:#8f8c86;--edge2:#4a4950;--ink:#ece4d2;--dim:#a8a399;--hot:#ffcf5a}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:22px/1.15 "VT323",ui-monospace,monospace;overflow:hidden}
+#view{position:fixed;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;display:block;cursor:grab;touch-action:none}
+#view:active{cursor:grabbing}
+.panel{position:absolute;background:var(--panel);border:3px solid var(--edge);box-shadow:0 0 0 3px var(--edge2),6px 6px 0 3px rgba(0,0,0,.35);padding:8px 16px}
+.title{top:20px;left:20px}
+.title h1{margin:0;font-weight:400;font-size:clamp(30px,4.2vw,50px);letter-spacing:.06em;line-height:1}
+.title p{margin:6px 0 0;color:var(--dim);font-size:clamp(19px,2vw,26px);letter-spacing:.08em}
+.menu{left:20px;bottom:20px;display:flex;flex-direction:column;gap:8px;width:min(660px,calc(100% - 40px));padding:10px}
+.acts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.act{min-height:46px;background:#1c1c20;border:2px solid var(--edge2);color:var(--dim);font:inherit;font-size:22px;letter-spacing:.04em;cursor:pointer;padding:2px 6px;text-align:left;white-space:nowrap;overflow:hidden}
+.act small{display:block;font-size:15px;color:#77736b}
+.act[aria-pressed=true]{border-color:var(--ink);color:var(--ink);background:#2a2a2f}
+.act[aria-pressed=true]::before{content:"▶ ";color:var(--hot)}
+.act:hover{color:var(--ink)}
+.act:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.status{font-size:24px;letter-spacing:.05em;min-height:28px}
+.status b{font-weight:400;color:var(--hot)}
+.help{position:absolute;right:20px;bottom:20px;color:var(--dim);font-size:18px;text-align:right;text-shadow:2px 2px 0 #000}
+@media(max-width:700px){
+  html,body{font-size:20px}
+  .help{display:none}
+  .title{top:12px;left:12px;right:12px}
+  .menu{left:12px;bottom:12px;width:calc(100% - 24px)}
+  .acts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+</head>
+<body>
+<canvas id="view" aria-label="Personagem de crânio com lanterna em 3D; arraste para girar"></canvas>
+
+<div class="panel title">
+  <h1>PORTADOR DA LANTERNA</h1>
+  <p>MODELO PS1 · 4 ANIMAÇÕES</p>
+</div>
+
+<div class="panel menu" role="group" aria-label="Animações">
+  <div class="acts">
+    <button class="act" data-s="idle" aria-pressed="true">PARADO<small>tecla 1</small></button>
+    <button class="act" data-s="call" aria-pressed="false">CHAMANDO<small>tecla 2</small></button>
+    <button class="act" data-s="talk" aria-pressed="false">FALANDO<small>tecla 3</small></button>
+    <button class="act" data-s="laugh" aria-pressed="false">RINDO<small>tecla 4</small></button>
+  </div>
+  <div class="status" id="status" aria-live="polite">ANIMAÇÃO: <b>PARADO</b></div>
+</div>
+
+<div class="help">arraste: girar · roda: zoom<br>1 2 3 4 / ← →: animação</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+{
+// =====================================================================
+// 1. Renderizador em baixa resolução (cada pixel do "PS1" = 3 da tela)
+// =====================================================================
+const canvas = document.getElementById('view');
+const PIX = 3;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+renderer.setPixelRatio(1);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x3a3a3e);
+scene.fog = new THREE.Fog(0x3a3a3e, 5.5, 11);
+const camera = new THREE.PerspectiveCamera(38, 1, 0.05, 40);
+camera.position.set(1.7, 1.5, 4.3);
+const controls = new THREE.OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.target.set(0, 1.12, 0); controls.minDistance = 1.6; controls.maxDistance = 7;
+controls.maxPolarAngle = Math.PI * 0.53;
+
+// Luz sombria: ambiente fraco e frio; quem ilumina de verdade é a lanterna
+scene.add(new THREE.HemisphereLight(0x8a90a8, 0x1c1a1c, 0.42));
+const moon = new THREE.DirectionalLight(0x9aa4c4, 0.32); moon.position.set(-2, 4, 3); scene.add(moon);
+const back = new THREE.DirectionalLight(0x6a5a80, 0.22); back.position.set(2, 2, -3); scene.add(back);
+
+// =====================================================================
+// 2. Texturas procedurais (canvas pequeno, sem filtro)
+// =====================================================================
+const rnd = (a, b) => a + Math.random() * (b - a);
+const ri = (a, b) => Math.floor(rnd(a, b));
+function tex(w, h, paint) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'); paint(g, w, h);
+  const t = new THREE.CanvasTexture(c);
+  t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.generateMipmaps = false;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+function noise(g, w, h, n, colors, alpha = 1) {
+  for (let i = 0; i < n; i++) { g.globalAlpha = alpha; g.fillStyle = colors[ri(0, colors.length)]; g.fillRect(ri(0, w), ri(0, h), 1, 1); }
+  g.globalAlpha = 1;
+}
+function moss(g, w, h, blobs, yMin = 0, yMax = 1) {   // musgo verde-oliva em manchas pixeladas
+  for (let b = 0; b < blobs; b++) {
+    const cx = rnd(0, w), cy = rnd(h * yMin, h * yMax), r = rnd(2, 6);
+    for (let k = 0; k < r * 9; k++) {
+      g.fillStyle = Math.random() < 0.6 ? '#4e5d28' : '#3c4a1f';
+      g.fillRect((cx + rnd(-r, r)) | 0, (cy + rnd(-r * 1.6, r * 0.6)) | 0, 1, 1);
+    }
+  }
+}
+function ragged(g, w, h, depth, cols) {   // barra rasgada: recorta a ponta com alfa
+  g.globalCompositeOperation = 'destination-out';
+  for (let x = 0; x < w; x += cols) { const d = ri(0, depth); g.fillRect(x, h - d, cols, d); }
+  g.globalCompositeOperation = 'source-over';
+}
+function rune(g, x, y, s, color) {        // runa pixelada simples
+  g.fillStyle = color;
+  const shapes = [
+    [[1,0],[1,1],[1,2],[0,1],[2,1]], [[0,0],[2,0],[1,1],[0,2],[2,2]], [[0,0],[1,0],[2,0],[1,1],[1,2]],
+    [[0,0],[0,1],[0,2],[1,1],[2,0],[2,2]], [[1,0],[0,1],[2,1],[1,2]],
+  ];
+  for (const [px, py] of shapes[ri(0, shapes.length)]) g.fillRect(x + px * s, y + py * s, s, s);
+}
+
+const T = {
+  bone: tex(32, 32, (g, w, h) => {
+    g.fillStyle = '#c8bfa8'; g.fillRect(0, 0, w, h);
+    noise(g, w, h, 180, ['#d8d0bb', '#b3aa93', '#a89f88']);
+    g.fillStyle = '#8f8672'; for (let i = 0; i < 5; i++) { let x = ri(0, w), y = ri(0, h); for (let k = 0; k < 6; k++) { g.fillRect(x, y, 1, 1); x += ri(-1, 2); y += 1; } }
+  }),
+  horn: tex(16, 16, (g, w, h) => { g.fillStyle = '#242021'; g.fillRect(0, 0, w, h); g.fillStyle = '#3a3334'; for (let y = 0; y < h; y += 3) g.fillRect(0, y, w, 1); }),
+  fur: tex(32, 32, (g, w, h) => {
+    g.fillStyle = '#3d332f'; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 70; i++) { g.fillStyle = ['#4d423c', '#2c2421', '#574a42'][ri(0, 3)]; g.fillRect(ri(0, w), ri(0, h), 1, ri(2, 6)); }
+  }),
+  lock: tex(16, 32, (g, w, h) => {
+    g.fillStyle = '#7a5a3e'; g.fillRect(0, 0, w, h);
+    for (let x = 0; x < w; x += 2) { g.fillStyle = x % 4 ? '#8d6b4a' : '#664a33'; g.fillRect(x, 0, 1, h); }
+    ragged(g, w, h, 8, 2);
+  }),
+  scarf: tex(32, 32, (g, w, h) => {
+    g.fillStyle = '#5e2c4d'; g.fillRect(0, 0, w, h);
+    noise(g, w, h, 120, ['#6b3558', '#4f243f']);
+    for (let i = 0; i < 3; i++) rune(g, 6 + i * 8, 20, 1, '#2a1424');
+    ragged(g, w, h, 4, 2);
+  }),
+  poncho: tex(64, 32, (g, w, h) => {
+    g.fillStyle = '#385358'; g.fillRect(0, 0, w, h);
+    noise(g, w, h, 300, ['#3f5d62', '#30484c', '#456569']);
+    g.fillStyle = '#2c4246'; for (let y = 0; y < 6; y += 3) g.fillRect(0, y + 1, w, 1);   // listras na barra (v baixo = barra)
+    for (let x = 0; x < w; x += ri(4, 9)) { g.fillStyle = '#4b6c70'; g.fillRect(x, ri(6, h), 1, ri(4, 12)); } // dobras
+    moss(g, w, h, 9, 0.35, 1);
+  }),
+  tunic: tex(64, 64, (g, w, h) => {
+    g.fillStyle = '#222c2a'; g.fillRect(0, 0, w, h);
+    noise(g, w, h, 400, ['#28332f', '#1b2322', '#2e3a36']);
+    moss(g, w, h, 12, 0.7, 1);
+    moss(g, w, h, 4, 0.1, 0.5);
+    ragged(g, w, h, 6, 3);
+  }),
+  robe: tex(32, 64, (g, w, h) => {
+    g.fillStyle = '#4a2a26'; g.fillRect(0, 0, w, h);
+    for (let x = 0; x < w; x += 3) { g.fillStyle = '#3c221f'; g.fillRect(x, 0, 1, h); }
+    noise(g, w, h, 150, ['#55322d', '#341d1a']);
+  }),
+  sash: tex(32, 64, (g, w, h) => {
+    g.fillStyle = '#683254'; g.fillRect(0, 0, w, h);
+    noise(g, w, h, 180, ['#733a5e', '#57284a']);
+    for (let i = 0; i < 4; i++) rune(g, ri(3, 24), 18 + i * 9, 1, '#2d1427');
+    rune(g, 10, 6, 2, '#2d1427');
+    ragged(g, w, h, 12, 3);
+  }),
+  bandage: tex(16, 32, (g, w, h) => {
+    g.fillStyle = '#8a8478'; g.fillRect(0, 0, w, h);
+    for (let y = 0; y < h; y += 4) { g.fillStyle = '#6d685e'; g.fillRect(0, y, w, 1); g.fillStyle = '#a19b8e'; g.fillRect(0, y + 1, w, 1); }
+  }),
+  bandageBlood: tex(16, 32, (g, w, h) => {
+    g.fillStyle = '#8a8478'; g.fillRect(0, 0, w, h);
+    for (let y = 0; y < h; y += 4) { g.fillStyle = '#6d685e'; g.fillRect(0, y, w, 1); g.fillStyle = '#a19b8e'; g.fillRect(0, y + 1, w, 1); }
+    g.fillStyle = '#6a2420'; g.fillRect(9, 14, 3, 2); g.fillRect(10, 16, 2, 2); g.fillStyle = '#4a1816'; g.fillRect(10, 15, 1, 1);
+  }),
+  glove: tex(16, 16, (g, w, h) => {
+    g.fillStyle = '#2f2b36'; g.fillRect(0, 0, w, h);
+    noise(g, w, h, 60, ['#3a3542', '#25222b']);
+    g.fillStyle = '#9a2c4a'; g.fillRect(5, 4, 6, 1); g.fillRect(7, 5, 2, 4); g.fillRect(5, 9, 6, 1); g.fillRect(4, 6, 1, 3); g.fillRect(11, 6, 1, 3);
+  }),
+  metal: tex(16, 16, (g, w, h) => { g.fillStyle = '#29272c'; g.fillRect(0, 0, w, h); noise(g, w, h, 50, ['#3a373e', '#1c1a1f', '#4a3b2c']); }),
+  leather: tex(16, 8, (g, w, h) => { g.fillStyle = '#3e2c22'; g.fillRect(0, 0, w, h); g.fillStyle = '#2c1f18'; g.fillRect(0, 0, w, 1); g.fillRect(0, h - 1, w, 1); }),
+  cloth: tex(16, 16, (g, w, h) => { g.fillStyle = '#6a3040'; g.fillRect(0, 0, w, h); noise(g, w, h, 60, ['#7a3a4c', '#4f2230']); ragged(g, w, h, 5, 2); }),
+  feather: tex(8, 32, (g, w, h) => {
+    g.fillStyle = '#e8e4da'; g.fillRect(1, 0, 6, h);
+    g.fillStyle = '#1e1c1e'; g.fillRect(1, 22, 6, 10); g.fillStyle = '#e8e4da'; g.fillRect(2, 25, 4, 2);
+    g.fillStyle = '#9a9488'; g.fillRect(3, 0, 1, h);
+    ragged(g, w, h, 3, 1);
+  }),
+  spiral: tex(16, 24, (g) => {     // espiral vinho na testa + traços abaixo
+    g.fillStyle = '#8e1f24';
+    const p = [[5,2],[6,2],[7,2],[8,2],[9,2],[10,3],[11,4],[11,5],[11,6],[11,7],[10,8],[9,9],[8,9],[7,9],[6,8],[5,7],[5,6],[6,5],[7,5],[8,5],[9,6],[8,7]];
+    p.forEach(([x, y]) => g.fillRect(x, y, 1, 1));
+    g.fillRect(7, 12, 2, 4); g.fillRect(5, 14, 6, 1);           // símbolo central
+    g.fillRect(2, 18, 3, 1); g.fillRect(3, 17, 1, 3);           // tracinhos
+    g.fillRect(11, 18, 3, 1); g.fillRect(12, 17, 1, 3);
+  }),
+};
+
+// =====================================================================
+// 3. Materiais: iluminação por vértice (Lambert) + faces chapadas + tremor de vértices
+// =====================================================================
+const snapRes = { value: new THREE.Vector2(160, 120) };
+function snap(m) {
+  m.onBeforeCompile = (s) => {
+    s.uniforms.uSnap = snapRes;
+    s.vertexShader = 'uniform vec2 uSnap;\n' + s.vertexShader.replace('#include <project_vertex>',
+      '#include <project_vertex>\n  gl_Position.xy = floor(gl_Position.xy / gl_Position.w * uSnap + 0.5) / uSnap * gl_Position.w;');
+  };
+  return m;
+}
+const psx = (map, opts = {}) => snap(new THREE.MeshLambertMaterial({ map, side: THREE.DoubleSide, alphaTest: opts.cut ? 0.5 : 0, color: opts.color ?? 0xffffff }));
+const M = {
+  bone: psx(T.bone), horn: psx(T.horn), fur: psx(T.fur), lock: psx(T.lock, { cut: true }),
+  scarf: psx(T.scarf, { cut: true }), poncho: psx(T.poncho), tunic: psx(T.tunic, { cut: true }), robe: psx(T.robe),
+  sash: psx(T.sash, { cut: true }), bandage: psx(T.bandage), blood: psx(T.bandageBlood), glove: psx(T.glove),
+  metal: psx(T.metal), leather: psx(T.leather), cloth: psx(T.cloth, { cut: true }), feather: psx(T.feather, { cut: true }),
+  spiral: snap(new THREE.MeshLambertMaterial({ map: T.spiral, transparent: true, alphaTest: 0.5, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 })),
+  hole: new THREE.MeshBasicMaterial({ color: 0x0a0809 }),
+  bead: psx(null, { color: 0xddd5c0 }),
+  claw: psx(null, { color: 0x6e6a7e }),
+  glass: snap(new THREE.MeshBasicMaterial({ color: 0xffd76a, transparent: true, opacity: 0.92 })),
+};
+
+// =====================================================================
+// 4. Construção do modelo (olha para +Z; o lado DIREITO do personagem é -X)
+// =====================================================================
+// Toda malha vira não indexada: cada face com a própria normal = visual chapado do PS1.
+function mesh(geo, mat, parent, pos = [0, 0, 0], rot = [0, 0, 0], scl = [1, 1, 1]) {
+  const g = geo.index ? geo.toNonIndexed() : geo;
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g, mat);
+  m.position.set(...pos); m.rotation.set(...rot); m.scale.set(...scl);
+  parent.add(m); return m;
+}
+function joint(parent, pos = [0, 0, 0]) { const g = new THREE.Group(); g.position.set(...pos); parent.add(g); return g; }
+function taper(geo, top, bottom = 1, axis = 'y') {   // afina a caixa/cilindro de uma ponta à outra
+  const p = geo.attributes.position; geo.computeBoundingBox();
+  const bb = geo.boundingBox; const lo = bb.min[axis], hi = bb.max[axis];
+  for (let i = 0; i < p.count; i++) {
+    const t = (p['get' + axis.toUpperCase()](i) - lo) / (hi - lo || 1);
+    const k = bottom + (top - bottom) * t;
+    if (axis === 'y') { p.setX(i, p.getX(i) * k); p.setZ(i, p.getZ(i) * k); }
+    else if (axis === 'z') { p.setX(i, p.getX(i) * k); p.setY(i, p.getY(i) * k); }
+  }
+  return geo;
+}
+function jitter(geo, amt) {                           // vértices irregulares (tecido, pelo)
+  const p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) p.setXYZ(i, p.getX(i) + rnd(-amt, amt), p.getY(i) + rnd(-amt, amt), p.getZ(i) + rnd(-amt, amt));
+  return geo;
+}
+
+const root = joint(scene);
+const J = {};   // juntas animáveis
+
+// --- quadril, túnica, faixa, cinto ---
+J.hips = joint(root, [0, 1.0, 0]);
+// túnica inferior verde-musgo com fenda na frente-esquerda (lado +X)
+const skirtGeo = new THREE.CylinderGeometry(0.27, 0.44, 0.98, 9, 1, true, 0.9, Math.PI * 2 - 0.75);
+mesh(jitter(skirtGeo, 0.015), M.tunic, J.hips, [0, -0.5, 0]);
+// veste interna marrom (aparece entre a faixa e a fenda)
+mesh(taper(new THREE.BoxGeometry(0.34, 0.92, 0.02), 0.85, 1.05), M.robe, J.hips, [0.0, -0.5, 0.24]);
+// faixa roxa rasgada, frente e costas
+mesh(taper(new THREE.PlaneGeometry(0.2, 0.62, 1, 3), 1.1, 0.9), M.sash, J.hips, [-0.02, -0.33, 0.3], [-0.1, 0, 0]);
+mesh(taper(new THREE.PlaneGeometry(0.22, 0.66, 1, 3), 1.1, 0.9), M.sash, J.hips, [0, -0.36, -0.29], [0.1, Math.PI, 0]);
+// cinto de couro + fivela de osso
+mesh(new THREE.CylinderGeometry(0.29, 0.3, 0.06, 9, 1, true), M.leather, J.hips, [0, 0.02, 0], [0.05, 0, 0.04]);
+mesh(new THREE.ConeGeometry(0.03, 0.12, 4), M.bone, J.hips, [0.07, 0.0, 0.3], [0.2, 0, 2.3]);
+
+// --- pernas e pés com garras ---
+function leg(side, visible) {
+  const hip = joint(J.hips, [side * 0.11, -0.05, 0.02]);
+  if (visible) {
+    mesh(taper(new THREE.CylinderGeometry(0.065, 0.075, 0.45, 5), 0.9, 1), M.bandage, hip, [0, -0.25, 0]);
+    mesh(taper(new THREE.CylinderGeometry(0.05, 0.065, 0.42, 5), 0.9, 1), M.blood, hip, [0, -0.68, 0.02]);
+  }
+  const foot = joint(hip, [0, -0.9, 0.04]);
+  mesh(taper(new THREE.BoxGeometry(0.12, 0.08, 0.22), 0.6, 1, 'z'), M.glove, foot, [0, -0.04, 0.05]);
+  for (let k = -1; k <= 1; k++) mesh(new THREE.ConeGeometry(0.014, 0.05, 3), M.claw, foot, [k * 0.035, -0.06, 0.17], [Math.PI / 2, 0, 0]);
+  return hip;
+}
+J.legL = leg(1, true);    // esquerda (+X), aparece pela fenda
+J.legR = leg(-1, false);
+
+// --- tronco ---
+J.torso = joint(J.hips, [0, 0.04, 0]);
+J.chest = joint(J.torso, [0, 0.0, 0]);
+mesh(taper(new THREE.BoxGeometry(0.4, 0.5, 0.26), 1.15, 0.85), M.robe, J.chest, [0, 0.25, 0]);
+// poncho azul-petróleo: desce pela linha dos ombros e cai rente ao corpo, com dobras e barra assimétrica
+const ponchoGeo = new THREE.LatheGeometry([
+  new THREE.Vector2(0.15, 0.25),   // gola
+  new THREE.Vector2(0.25, 0.21),   // caimento do ombro
+  new THREE.Vector2(0.32, 0.13),   // ponta do ombro
+  new THREE.Vector2(0.34, 0.0),
+  new THREE.Vector2(0.35, -0.12),
+  new THREE.Vector2(0.37, -0.25),  // barra
+], 12);
+{
+  const p = ponchoGeo.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    const a = Math.atan2(x, z);
+    const below = Math.max(0, 0.13 - y) / 0.38;                 // 0 no ombro, 1 na barra
+    const fold = 1 + Math.sin(a * 6) * 0.05 * below;             // dobras do tecido, mais fortes embaixo
+    const flat = z > 0 ? 0.78 : 0.82;                            // tronco achatado (frente/costas)
+    p.setX(i, x * fold);
+    p.setZ(i, z * fold * flat);
+    if (y < -0.2) p.setY(i, y - (x < 0 ? 0.07 : -0.01) - (z > 0 ? 0.03 : 0) + Math.sin(a * 5) * 0.02);   // barra irregular, mais longa à direita
+  }
+}
+mesh(ponchoGeo, M.poncho, J.chest, [0, 0.34, 0]);
+// cachecol roxo enrolado no pescoço + pontas caídas na frente + pingente de dente
+mesh(jitter(new THREE.CylinderGeometry(0.15, 0.2, 0.14, 8, 1, true), 0.01), M.scarf, J.chest, [0, 0.58, 0.01]);
+mesh(taper(new THREE.PlaneGeometry(0.2, 0.34, 1, 2), 0.5, 1), M.scarf, J.chest, [-0.03, 0.4, 0.21], [-0.25, 0, 0.05]);
+mesh(taper(new THREE.PlaneGeometry(0.12, 0.26, 1, 2), 0.6, 1), M.scarf, J.chest, [0.1, 0.4, 0.2], [-0.2, 0, -0.08]);
+mesh(new THREE.BoxGeometry(0.004, 0.14, 0.004), M.hole, J.chest, [0.0, 0.48, 0.2]);
+mesh(new THREE.ConeGeometry(0.015, 0.05, 4), M.bead, J.chest, [0.0, 0.39, 0.205], [Math.PI, 0, 0]);
+// musgo extra nos ombros (placas)
+for (const s of [-1, 1]) mesh(jitter(new THREE.PlaneGeometry(0.12, 0.1), 0.01), snap(new THREE.MeshLambertMaterial({ color: 0x4e5d28, side: THREE.DoubleSide })), J.chest, [s * 0.24, 0.5, 0.05], [-1.0, 0, s * 0.5]);
+
+// --- cabeça: crânio de animal, chifres, juba, mechas, pena ---
+J.neck = joint(J.chest, [0, 0.64, 0]);
+J.head = joint(J.neck, [0, 0.08, 0.02]);
+J.head.scale.setScalar(1.35);   // crânio e juba grandes, como na referência
+const skull = joint(J.head, [0, 0.0, 0]);
+mesh(taper(new THREE.BoxGeometry(0.21, 0.2, 0.19), 0.88, 1), M.bone, skull, [0, 0.1, 0]);            // crânio
+// focinho longo para baixo: largo junto do crânio, estreito na ponta
+mesh(taper(new THREE.BoxGeometry(0.15, 0.3, 0.11), 1, 0.4), M.bone, skull, [0, -0.13, 0.035], [0.22, 0, 0]);
+mesh(new THREE.BoxGeometry(0.045, 0.05, 0.02), M.hole, skull, [-0.062, 0.045, 0.092]);              // órbitas vazias
+mesh(new THREE.BoxGeometry(0.045, 0.05, 0.02), M.hole, skull, [0.062, 0.045, 0.092]);
+mesh(new THREE.BoxGeometry(0.016, 0.03, 0.02), M.hole, skull, [-0.016, -0.26, 0.07], [0.22, 0, 0]);   // narinas
+mesh(new THREE.BoxGeometry(0.016, 0.03, 0.02), M.hole, skull, [0.016, -0.26, 0.07], [0.22, 0, 0]);
+mesh(new THREE.PlaneGeometry(0.09, 0.135), M.spiral, skull, [0, 0.11, 0.097]);                         // espiral na testa
+// chifres: o DIREITO (-X) inteiro e pontudo; o ESQUERDO (+X) quebrado ao meio
+function horn(side, broken) {
+  const base = joint(skull, [side * 0.06, 0.16, -0.02]);
+  base.rotation.set(-0.25, 0, -side * 0.18);
+  mesh(new THREE.CylinderGeometry(0.022, 0.03, 0.12, 5), M.horn, base, [0, 0.06, 0]);
+  const mid = joint(base, [0, 0.12, 0]); mid.rotation.set(-0.2, 0, -side * 0.1);
+  if (broken) {
+    const g = new THREE.CylinderGeometry(0.017, 0.022, 0.07, 5);
+    const p = g.attributes.position;            // ponta lascada: topo irregular
+    for (let i = 0; i < p.count; i++) if (p.getY(i) > 0) p.setY(i, p.getY(i) + rnd(-0.03, 0.02));
+    mesh(g, M.horn, mid, [0, 0.035, 0]);
+  } else {
+    mesh(new THREE.CylinderGeometry(0.016, 0.022, 0.12, 5), M.horn, mid, [0, 0.06, 0]);
+    const tip = joint(mid, [0, 0.12, 0]); tip.rotation.set(-0.15, 0, -side * 0.05);
+    mesh(new THREE.ConeGeometry(0.016, 0.14, 5), M.horn, tip, [0, 0.07, 0]);
+  }
+}
+horn(-1, false); horn(1, true);
+// juba espessa e pontuda em volta do crânio
+J.mane = joint(J.head, [0, 0.02, -0.06]);
+for (let k = 0; k < 22; k++) {
+  const a = rnd(-2.3, 2.3), up = rnd(-0.2, 1.0);
+  const dir = new THREE.Vector3(Math.sin(a) * 0.8, up, -Math.cos(a) * 0.6 - 0.25).normalize();
+  const len = rnd(0.16, 0.3);
+  const cone = mesh(new THREE.ConeGeometry(rnd(0.04, 0.07), len, 4), M.fur, J.mane, dir.clone().multiplyScalar(0.09 + len * 0.4).toArray());
+  cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+}
+mesh(jitter(new THREE.SphereGeometry(0.15, 6, 4), 0.02), M.fur, J.mane, [0, 0.02, -0.02], [0, 0, 0], [1.1, 1.05, 1]);
+// mechas marrom-claras penduradas nas laterais, com contas e ossinhos
+J.locks = [];
+for (const [x, z, len] of [[-0.12, 0.04, 0.42], [-0.09, 0.09, 0.34], [0.12, 0.04, 0.4], [0.08, 0.09, 0.3]]) {
+  const lk = joint(J.head, [x, 0.02, z]);
+  mesh(taper(new THREE.PlaneGeometry(0.07, len, 1, 2), 0.7, 1), M.lock, lk, [0, -len / 2, 0], [0, Math.sign(x) * 0.5, 0]);
+  mesh(new THREE.BoxGeometry(0.02, 0.02, 0.02), M.bead, lk, [0, -len * 0.7, 0.01]);
+  mesh(new THREE.ConeGeometry(0.008, 0.04, 3), M.bead, lk, [0, -len - 0.01, 0.01], [Math.PI, 0, 0]);
+  J.locks.push(lk);
+}
+// pena branca/preta presa do lado esquerdo (+X)
+J.feather = joint(J.head, [0.14, 0.04, -0.01]);
+mesh(new THREE.PlaneGeometry(0.045, 0.2), M.feather, J.feather, [0, -0.1, 0], [0, 0.9, 0.12]);
+mesh(new THREE.PlaneGeometry(0.035, 0.16), M.feather, J.feather, [0.02, -0.09, -0.02], [0, 1.2, -0.1]);
+
+// --- braços: ataduras, luvas peludas com garras e símbolos ---
+function arm(side) {
+  const sh = joint(J.chest, [side * 0.27, 0.48, 0]);
+  mesh(taper(new THREE.CylinderGeometry(0.05, 0.06, 0.3, 5), 0.85, 1), M.bandage, sh, [0, -0.15, 0]);
+  const el = joint(sh, [0, -0.3, 0]);
+  mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.14, 5), M.bandage, el, [0, -0.07, 0]);
+  mesh(jitter(taper(new THREE.CylinderGeometry(0.06, 0.055, 0.14, 6), 1.2, 0.9), 0.008), M.glove, el, [0, -0.19, 0]);   // antebraço peludo
+  const wr = joint(el, [0, -0.27, 0]);
+  mesh(new THREE.BoxGeometry(0.09, 0.1, 0.06), M.glove, wr, [0, -0.04, 0]);
+  for (let k = -1; k <= 1; k++) mesh(new THREE.ConeGeometry(0.01, 0.06, 3), M.claw, wr, [k * 0.025, -0.12, 0.01], [Math.PI, 0, 0]);
+  mesh(new THREE.ConeGeometry(0.01, 0.05, 3), M.claw, wr, [-side * 0.05, -0.08, 0.02], [Math.PI, 0, side * 0.5]);
+  return { sh, el, wr };
+}
+const AR = arm(-1);   // direito (segura a lanterna)
+const AL = arm(1);    // esquerdo
+
+// --- lanterna (pendurada por um fio, balança como pêndulo) ---
+const lanternPivot = joint(scene);          // segue a mão; a rotação é do pêndulo
+const STRING = 0.32;
+mesh(new THREE.BoxGeometry(0.006, STRING, 0.006), M.hole, lanternPivot, [0, -STRING / 2, 0]);
+const lantern = joint(lanternPivot, [0, -STRING, 0]);
+mesh(new THREE.TorusGeometry(0.02, 0.006, 4, 6), M.metal, lantern, [0, -0.01, 0]);
+mesh(new THREE.ConeGeometry(0.11, 0.1, 4), M.metal, lantern, [0, -0.08, 0], [0, Math.PI / 4, 0]);           // topo piramidal
+mesh(new THREE.BoxGeometry(0.15, 0.015, 0.15), M.metal, lantern, [0, -0.13, 0]);
+mesh(new THREE.BoxGeometry(0.11, 0.15, 0.11), M.glass, lantern, [0, -0.215, 0]);                              // vidros acesos
+for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) mesh(new THREE.BoxGeometry(0.014, 0.16, 0.014), M.metal, lantern, [x * 0.056, -0.215, z * 0.056]);
+mesh(new THREE.BoxGeometry(0.13, 0.02, 0.13), M.metal, lantern, [0, -0.3, 0]);
+mesh(jitter(new THREE.CylinderGeometry(0.07, 0.085, 0.16, 6, 1, true), 0.01), M.cloth, lantern, [0, -0.38, 0]);    // pano amarrado
+mesh(new THREE.ConeGeometry(0.012, 0.05, 4), M.bead, lantern, [0.05, -0.48, 0.05], [Math.PI, 0, 0]);         // dentinho
+const lampLight = new THREE.PointLight(0xffdd77, 1.8, 4.2, 1.6);
+lampLight.position.set(0, -0.22, 0); lantern.add(lampLight);
+const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex(16, 16, (g) => {
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { const d = Math.hypot(x - 7.5, y - 7.5) / 8; if (d < 1 && Math.random() < 1 - d) { g.fillStyle = `rgba(255,214,110,${(1 - d) * 0.5})`; g.fillRect(x, y, 1, 1); } }
+}), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+glow.scale.set(0.55, 0.55, 1); glow.position.set(0, -0.22, 0); lantern.add(glow);
+
+// partículas quadradas amarelas flutuando em volta da lanterna
+const NP = 36;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(NP * 3);
+const parts = Array.from({ length: NP }, () => ({ p: new THREE.Vector3(), life: 0, max: 1, v: new THREE.Vector3() }));
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const pMat = new THREE.PointsMaterial({ color: 0xffd65a, size: 0.028, sizeAttenuation: true, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending });
+scene.add(new THREE.Points(pGeo, pMat));
+const lampWorld = new THREE.Vector3();
+function respawn(pt) {
+  pt.p.copy(lampWorld).add(new THREE.Vector3(rnd(-0.22, 0.22), rnd(-0.25, 0.15), rnd(-0.22, 0.22)));
+  pt.v.set(rnd(-0.04, 0.04), rnd(0.03, 0.12), rnd(-0.04, 0.04));
+  pt.life = 0; pt.max = rnd(1.2, 3);
+}
+
+// chão escuro que recebe a luz da lanterna
+const floor = new THREE.Mesh(new THREE.CircleGeometry(9, 12), snap(new THREE.MeshLambertMaterial({ color: 0x2b2a2e })));
+floor.rotation.x = -Math.PI / 2; scene.add(floor);
+
+// =====================================================================
+// 5. Animações procedurais (poses somadas à pose de repouso, com mistura suave)
+// =====================================================================
+const REST = {   // pose de repouso (rotações em radianos)
+  shR: [-0.25, 0, -0.55], elR: [-1.35, 0.1, 0.25], wrR: [0, 0, 0.5],
+  shL: [0.05, 0, 0.1], elL: [-0.15, 0, 0], wrL: [0, 0, -0.1],
+};
+const S = Math.sin;
+const STATES = {
+  idle: { name: 'PARADO', pose: (t) => ({
+    hipsY: S(t * 1.6) * 0.006,
+    chest: [S(t * 1.6) * 0.02, 0, 0], breath: 1 + S(t * 1.6) * 0.018,
+    neck: [0, 0, 0], head: [S(t * 0.9) * 0.04, S(t * 0.5) * 0.06, S(t * 0.7) * 0.05],
+    shR: [S(t * 1.6) * 0.02, 0, 0], elR: [0, 0, 0], wrR: [0, 0, 0],
+    shL: [S(t * 1.6 + 1) * 0.03, 0, 0], elL: [0, 0, 0], wrL: [0, 0, 0],
+  }) },
+  call: { name: 'CHAMANDO', pose: (t) => {
+    const c = S(t * 5.5);                         // dedos/garras puxando "venha cá"
+    return {
+      hipsY: 0, chest: [0.06, 0.12, 0], breath: 1,
+      neck: [0.05, 0, 0.18], head: [0.08, -0.15, 0.32 + S(t * 1.3) * 0.05],      // cabeça inclinada, curiosa
+      shR: [-0.35 + S(t * 1.1) * 0.08, -0.1, 0], elR: [0.1, 0, 0], wrR: [0, 0, 0], // lanterna à frente
+      shL: [-1.05, 0.2, 0.25], elL: [-1.0 + c * 0.55, 0, 0], wrL: [-0.6 + c * 0.5, 0, 0],
+    };
+  } },
+  talk: { name: 'FALANDO', pose: (t) => ({
+    hipsY: S(t * 3.2) * 0.008,
+    chest: [S(t * 1.7) * 0.05, S(t * 1.1) * 0.12, S(t * 2.3) * 0.03], breath: 1 + S(t * 3.2) * 0.012,
+    neck: [0, 0, 0], head: [0.06 + S(t * 6.5) * 0.1, S(t * 2.1) * 0.22, S(t * 1.6) * 0.12],   // acena com o crânio
+    shR: [S(t * 1.1) * 0.06, 0, 0], elR: [0, 0, 0], wrR: [0, 0, 0],
+    shL: [-0.7 + S(t * 2.4) * 0.35, S(t * 1.7) * 0.3, 0.35 + S(t * 3.1) * 0.25],
+    elL: [-1.0 + S(t * 3.3 + 1) * 0.45, 0, 0], wrL: [S(t * 4.1) * 0.5, 0, S(t * 2.7) * 0.4],
+  }) },
+  laugh: { name: 'RINDO', pose: (t) => {
+    const k = Math.abs(S(t * 13));                // espasmos rápidos
+    return {
+      hipsY: k * 0.03,
+      chest: [-0.12 + k * 0.08, 0, S(t * 2.1) * 0.05], breath: 1 + k * 0.03,
+      neck: [-0.15, 0, 0], head: [-0.4 + k * 0.12, S(t * 1.5) * 0.12, S(t * 2.7) * 0.08],     // cabeça para trás
+      shR: [k * 0.18, 0, k * 0.12], elR: [k * 0.15, 0, 0], wrR: [0, 0, 0],
+      shL: [-0.55 + k * 0.1, 0, 0.35], elL: [-1.35, 0, 0], wrL: [0, 0, 0],                    // mão na barriga
+    };
+  } },
+};
+const JOINTS = ['chest', 'neck', 'head', 'shR', 'elR', 'wrR', 'shL', 'elL', 'wrL'];
+const target = { chest: J.chest, neck: J.neck, head: J.head, shR: AR.sh, elR: AR.el, wrR: AR.wr, shL: AL.sh, elL: AL.el, wrL: AL.wr };
+let current = 'idle', previous = 'idle', blendStart = -10;
+const BLEND = 0.45;
+function applyPose(time) {
+  const w = Math.min(1, (time - blendStart) / BLEND);
+  const e = w * w * (3 - 2 * w);
+  const a = STATES[previous].pose(time), b = STATES[current].pose(time);
+  for (const j of JOINTS) {
+    const r = REST[j] || [0, 0, 0], pa = a[j], pb = b[j];
+    target[j].rotation.set(r[0] + pa[0] + (pb[0] - pa[0]) * e, r[1] + pa[1] + (pb[1] - pa[1]) * e, r[2] + pa[2] + (pb[2] - pa[2]) * e);
+  }
+  J.hips.position.y = 1.0 + a.hipsY + (b.hipsY - a.hipsY) * e;
+  const br = a.breath + (b.breath - a.breath) * e;
+  J.chest.scale.set(1 + (br - 1) * 0.6, br, 1 + (br - 1) * 0.8);
+  // mechas e pena acompanham a cabeça com atraso
+  J.locks.forEach((lk, i) => { lk.rotation.x = -J.head.rotation.x * 0.6 + S(time * 2 + i) * 0.04; lk.rotation.z = -J.head.rotation.z * 0.7; });
+  J.feather.rotation.z = -J.head.rotation.z * 0.8 + S(time * 2.4) * 0.06;
+  J.mane.rotation.x = S(time * 1.3) * 0.03;
+}
+
+// Pêndulo da lanterna: reage à aceleração da mão (sem animação pronta, é "física")
+const pend = { ax: 0, az: 0, vx: 0, vz: 0 };
+const handPos = new THREE.Vector3(), handPrev = new THREE.Vector3(), handVel = new THREE.Vector3(), handVelPrev = new THREE.Vector3();
+let handInit = false;
+function updateLantern(dt) {
+  AR.wr.updateWorldMatrix(true, false);
+  handPos.setFromMatrixPosition(AR.wr.matrixWorld).add(new THREE.Vector3(0, -0.08, 0));
+  if (!handInit) { handPrev.copy(handPos); handInit = true; }
+  handVel.copy(handPos).sub(handPrev).divideScalar(Math.max(dt, 1e-3));
+  const acc = handVel.clone().sub(handVelPrev).divideScalar(Math.max(dt, 1e-3));
+  handVelPrev.copy(handVel); handPrev.copy(handPos);
+  acc.clampLength(0, 40);
+  const g = 9.8, L = STRING + 0.2, damp = 1.6;
+  // ângulo em X (frente/trás) e Z (lados)
+  pend.vx += (-(g / L) * Math.sin(pend.ax) + (acc.z / L) * Math.cos(pend.ax) - damp * pend.vx) * dt;
+  pend.vz += (-(g / L) * Math.sin(pend.az) - (acc.x / L) * Math.cos(pend.az) - damp * pend.vz) * dt;
+  pend.ax = THREE.MathUtils.clamp(pend.ax + pend.vx * dt, -1, 1);
+  pend.az = THREE.MathUtils.clamp(pend.az + pend.vz * dt, -1, 1);
+  lanternPivot.position.copy(handPos);
+  lanternPivot.rotation.set(-pend.ax, 0, -pend.az);
+  lantern.rotation.y += dt * 0.25 * Math.sin(performance.now() / 1700);
+}
+
+// =====================================================================
+// 6. Interface
+// =====================================================================
+const buttons = [...document.querySelectorAll('.act')];
+const statusEl = document.getElementById('status');
+const order = buttons.map(b => b.dataset.s);
+let clock = 0;
+function setState(s) {
+  if (s === current) return;
+  previous = current; current = s; blendStart = clock;
+  buttons.forEach(b => b.setAttribute('aria-pressed', b.dataset.s === s));
+  statusEl.innerHTML = `ANIMAÇÃO: <b>${STATES[s].name}</b>`;
+}
+buttons.forEach(b => b.addEventListener('click', () => setState(b.dataset.s)));
+addEventListener('keydown', (e) => {
+  const i = order.indexOf(current);
+  if (e.key >= '1' && e.key <= '4') setState(order[+e.key - 1]);
+  else if (e.key === 'ArrowRight') setState(order[(i + 1) % 4]);
+  else if (e.key === 'ArrowLeft') setState(order[(i + 3) % 4]);
+});
+
+// =====================================================================
+// 7. Laço: resolução baixa, luz tremeluzente, partículas
+// =====================================================================
+function resize() {
+  const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
+  const rw = Math.max(160, Math.floor(w / PIX)), rh = Math.max(120, Math.floor(h / PIX));
+  renderer.setSize(rw, rh, false);
+  snapRes.value.set(rw / 2, rh / 2);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(canvas); resize();
+parts.forEach(respawn);
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now; clock += dt;
+  applyPose(clock);
+  updateLantern(dt);
+  // chama: tremor de intensidade em degraus (cara de PS1)
+  const flick = 1.65 + Math.sin(clock * 9) * 0.12 + Math.sin(clock * 23.7) * 0.08 + (Math.random() < 0.04 ? -0.35 : 0);
+  lampLight.intensity = flick;
+  M.glass.color.setRGB(1, 0.82 + (flick - 1.65) * 0.25, 0.42);
+  lantern.updateWorldMatrix(true, false);
+  lampWorld.setFromMatrixPosition(lampLight.matrixWorld);
+  for (let i = 0; i < NP; i++) {
+    const pt = parts[i]; pt.life += dt;
+    pt.p.addScaledVector(pt.v, dt); pt.v.x += Math.sin(clock * 2 + i) * 0.02 * dt;
+    if (pt.life > pt.max || pt.p.distanceTo(lampWorld) > 0.55) respawn(pt);
+    pPos[i * 3] = pt.p.x; pPos[i * 3 + 1] = pt.p.y; pPos[i * 3 + 2] = pt.p.z;
+  }
+  pGeo.attributes.position.needsUpdate = true;
+  pMat.opacity = 0.65 + Math.sin(clock * 6) * 0.25;
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+window.__view = { camera, controls };   // ajuda para testes automáticos
+}
+</script>
+</body>
+</html>

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Arma_Rifle
   m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
   id: 97b022385d244ac4d96541e0444014fa
-  displayName: "Rifle de Precis\xE3o (provis\xF3rio)"
-  description: Arma de fogo de longo alcance. Segure o ataque para um tiro mirado.
+  displayName: Carabina de Tambor
+  description: "Carabina de alavanca com tambor de rev\xF3lver: 6 tiros calibre .38. R recarrega, V inspeciona."
   icon: {fileID: 21300000, guid: a9e81fcd8715b974aabc7256a2711e4a, type: 3}
   itemCategory: 0
   rarity: 2
@@ -24,20 +24,23 @@ MonoBehaviour:
   weight: 7
   value: 120
   worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
   category: 8
   handling: 1
   viewModelPrefab: {fileID: 6804104896005050314, guid: 1fd6944eea1dec34b8063618a49540ae, type: 3}
   modelPose:
-    position: {x: 0, y: -0.02, z: -0.1}
-    rotation: {x: 88, y: 0, z: 0}
+    position: {x: 0, y: 0, z: -0.04}
+    rotation: {x: 86, y: -10, z: 0}
   holdingArmPose:
-    position: {x: 0.16, y: -0.36, z: 0.16}
-    rotation: {x: -2, y: -4, z: 0}
+    position: {x: 0.2, y: -0.26, z: 0.22}
+    rotation: {x: -2, y: -6, z: 0}
   supportArmPose:
-    position: {x: 0.02, y: -0.4, z: 0.36}
-    rotation: {x: -4, y: 10, z: 0}
-  damage: 30
-  attackSpeed: 0.6
+    position: {x: 0.04, y: -0.4, z: 0.4}
+    rotation: {x: -32, y: 14, z: 0}
+  damage: 26
+  attackSpeed: 1.1
   range: 40
   lightAttackStamina: 4
   heavyAttackStamina: 8
@@ -46,3 +49,8 @@ MonoBehaviour:
   spellManaCost: 0
   spellSpeed: 90
   projectileSound: {fileID: 8300000, guid: 4259bae2e4ce2c64898a4cc69515f2de, type: 3}
+  projectileCount: 1
+  projectileSpread: 0
+  magazineSize: 6
+  reloadTime: 2.8
+  attackSet: 6

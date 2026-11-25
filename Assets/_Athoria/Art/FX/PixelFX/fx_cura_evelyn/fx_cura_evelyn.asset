@@ -1,0 +1,549 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac856ae9dab969a4fad46a943793a374, type: 3}
+  m_Name: fx_cura_evelyn
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Effects.SpriteFxAnimation
+  texture: {fileID: 2800000, guid: 77da589d6f813c847a2975b90329ca07, type: 3}
+  frames:
+  - serializedVersion: 2
+    x: 0
+    y: 1632
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 1632
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 1632
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 1632
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 1632
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 1632
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 1632
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 1496
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 1496
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 1496
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 1496
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 1496
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 1496
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 1496
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 1360
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 1360
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 1360
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 1360
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 1360
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 1360
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 1360
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 1224
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 1224
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 1224
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 1224
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 1224
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 1224
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 1224
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 1088
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 1088
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 1088
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 1088
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 1088
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 1088
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 1088
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 952
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 952
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 952
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 952
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 952
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 952
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 952
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 816
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 816
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 816
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 816
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 816
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 816
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 816
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 680
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 680
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 680
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 680
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 680
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 680
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 680
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 544
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 544
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 544
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 544
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 544
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 544
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 544
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 408
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 408
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 408
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 408
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 408
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 408
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 408
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 272
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 272
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 272
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 272
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 272
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 272
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 272
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 136
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 136
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 136
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 136
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1024
+    y: 136
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1280
+    y: 136
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 1536
+    y: 136
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 0
+    y: 0
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 256
+    y: 0
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 512
+    y: 0
+    width: 256
+    height: 136
+  - serializedVersion: 2
+    x: 768
+    y: 0
+    width: 256
+    height: 136
+  durations:
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  - 0.033
+  pivot: {x: 0.5, y: 0.23529412}
+  loop: 0
+  pixelsPerUnit: 64
+  worldScale: 0.85

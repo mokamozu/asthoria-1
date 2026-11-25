@@ -12,10 +12,25 @@ namespace Athoria.Editor
     [InitializeOnLoad]
     public static class PlayModeStartScene
     {
-        private const string MenuPath = "Athoria/Play começa pela Seleção de Personagens";
+        private const string MenuPath = "Athoria/Play começa pelo Menu Principal";
         private const string PrefKey = "Athoria.PlayFromSelection";
 
-        static PlayModeStartScene() => EditorApplication.delayCall += Apply;
+        static PlayModeStartScene()
+        {
+            EditorApplication.delayCall += Apply;
+            EditorApplication.playModeStateChanged += OnPlayModeChanged;
+        }
+
+        /// <summary>Lembra a cena aberta: depois da seleção, o jogo vai para ela.</summary>
+        private static void OnPlayModeChanged(PlayModeStateChange change)
+        {
+            if (change != PlayModeStateChange.ExitingEditMode) return;
+            var active = EditorSceneManager.GetActiveScene();
+            var isGameScene = !string.IsNullOrEmpty(active.path) && active.path != CharacterSelectSceneBuilder.ScenePath
+                              && active.path != MainMenuSceneBuilder.ScenePath
+                              && !active.name.StartsWith("TA_");   // pedaços do mundo abrem a região inteira
+            SessionState.SetString("Athoria.PlayTarget", isGameScene ? active.name : string.Empty);
+        }
 
         private static bool Enabled
         {
@@ -39,10 +54,10 @@ namespace Athoria.Editor
 
         private static void Apply()
         {
-            var scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(CharacterSelectSceneBuilder.ScenePath);
+            var scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(MainMenuSceneBuilder.ScenePath);
             EditorSceneManager.playModeStartScene = Enabled ? scene : null;
             if (Enabled && scene == null)
-                Debug.LogWarning("[Athoria] Cena de seleção não encontrada; rode Athoria > Reconstruir tudo.");
+                Debug.LogWarning("[Athoria] Menu principal não encontrado; rode Athoria > Reconstruir tudo.");
         }
     }
 }

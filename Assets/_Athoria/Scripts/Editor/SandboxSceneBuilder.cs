@@ -3,6 +3,7 @@ using System.Linq;
 using Athoria.Core;
 using Athoria.Gameplay.Combat;
 using Athoria.Gameplay.World;
+using Unity.AI.Navigation;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -110,12 +111,15 @@ namespace Athoria.Editor
             var dsSo = new SerializedObject(doorSurface);
             dsSo.FindProperty("kind").enumValueIndex = (int)SurfaceKind.Wood;
             dsSo.ApplyModifiedPropertiesWithoutUndo();
+            hinge.AddComponent<NavMeshModifier>().ignoreFromBuild = true;   // porta abre: não é parede no NavMesh
             var panel = Box(hinge.transform, "Folha da Porta", Vector3.zero, new Vector3(1.96f, 2.18f, 0.12f), bronze);
             panel.isStatic = false;
             panel.transform.localPosition = new Vector3(0.99f, 1.1f, 0f);
 
             // Combate: bonecos de treino depois da porta e armadilha de dardos à direita.
-            CombatContentFactory.GenerateAll();
+            var items = ItemContentFactory.GenerateAll();
+            var lootTables = LootContentFactory.GenerateAll(items);
+            var feedback = CombatContentFactory.GenerateAll();
             var dummyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(CombatContentFactory.DummyPath);
             var combatArea = new GameObject("Area de Combate").transform;
             combatArea.SetParent(root);
@@ -135,6 +139,10 @@ namespace Athoria.Editor
                 var trap = (GameObject)PrefabUtility.InstantiatePrefab(trapPrefab, combatArea);
                 trap.transform.SetPositionAndRotation(new Vector3(16f, 1.6f, -6f), Quaternion.Euler(0f, -90f, 0f));
             }
+
+            // Inimigos (Etapa 11)
+            BuildEnemies(root, feedback, stone, blood, lootTables);
+            BuildChests(root);
 
             // Locais descobríveis (XP de exploração)
             var places = new GameObject("Locais").transform;
@@ -159,7 +167,6 @@ namespace Athoria.Editor
             if (inventoryPrefab != null) PrefabUtility.InstantiatePrefab(inventoryPrefab);
 
             // Itens no chão perto do início (teste de pegar itens)
-            var items = ItemContentFactory.GenerateAll();
             var loot = new GameObject("Itens no Chao").transform;
             loot.SetParent(root);
             PlaceItem(loot, items["PocaoVida"], 2, new Vector3(2f, 0f, -3f));
@@ -173,16 +180,90 @@ namespace Athoria.Editor
             PlaceItem(loot, items["AnelResistencia"], 1, new Vector3(3f, 0f, -6.5f));
             PlaceItem(loot, items["AnelAgilidade"], 1, new Vector3(-1f, 0f, -8f));
             PlaceItem(loot, items["Amuleto"], 1, new Vector3(1f, 0f, -8f));
+            // Itens são pequenos e somem quando pegos: não entram no NavMesh.
+            loot.gameObject.AddComponent<NavMeshModifier>().ignoreFromBuild = true;
 
             var hudPrefab = HudPrefabBuilder.GetOrBuild();
             if (hudPrefab != null) PrefabUtility.InstantiatePrefab(hudPrefab);
 
-            new GameObject("_GameBootstrap").AddComponent<GameBootstrap>();
+            var bootstrap = new GameObject("_GameBootstrap");
+            bootstrap.AddComponent<GameBootstrap>();
+            Athoria.Editor.WorldBuildKit.AddFog(bootstrap, new Color(0.10f, 0.10f, 0.12f), 18f, 70f);
+
+            // NavMesh: gerado ao carregar a cena a partir de tudo dentro de "Geometria".
+            var surface = root.gameObject.AddComponent<NavMeshSurface>();
+            surface.collectObjects = CollectObjects.Children;
+            surface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.RenderMeshes;
+            root.gameObject.AddComponent<RuntimeNavMeshBaker>();
 
             Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddToBuildSettings(ScenePath);
             Debug.Log("[Athoria] Cena Sandbox criada em " + ScenePath);
+        }
+
+        private static void BuildChests(Transform geometry)
+        {
+            var common = AssetDatabase.LoadAssetAtPath<GameObject>(LootContentFactory.ChestPath);
+            var locked = AssetDatabase.LoadAssetAtPath<GameObject>(LootContentFactory.LockedChestPath);
+            var chests = new GameObject("Baus").transform;
+            chests.SetParent(geometry);
+            PlaceChest(chests, common, "sandbox_bau_inicio", new Vector3(7f, 0f, -9f), -65f);
+            PlaceChest(chests, common, "sandbox_bau_covil", new Vector3(28.5f, 0f, 27.5f), -135f);
+            // Trancado atrás do altar do Cavaleiro: a Chave Enferrujada está no chão perto do início.
+            PlaceChest(chests, locked, "sandbox_bau_ruinas", new Vector3(-38.6f, 0f, 30f), 90f);
+        }
+
+        private static void PlaceChest(Transform parent, GameObject prefab, string id, Vector3 position, float yaw)
+        {
+            if (prefab == null) return;
+            var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
+            go.transform.SetPositionAndRotation(position, Quaternion.Euler(0f, yaw, 0f));
+            var so = new SerializedObject(go.GetComponent<Athoria.Gameplay.World.Chest>());
+            so.FindProperty("id").stringValue = id;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void BuildEnemies(Transform geometry, CombatFeedback feedback, Material stone, Material blood,
+            System.Collections.Generic.Dictionary<string, Athoria.Gameplay.Loot.LootTable> loot)
+        {
+            var prefabs = EnemyContentFactory.GenerateAll(feedback, loot);
+            var enemies = new GameObject("Inimigos").transform;
+
+            // Matilha de lobos — leste, depois da rampa.
+            Enemy(enemies, prefabs[EnemyContentFactory.Wolf], new Vector3(24f, 0f, 22f), 200f);
+            Enemy(enemies, prefabs[EnemyContentFactory.Wolf], new Vector3(26.5f, 0f, 24f), 220f);
+            Enemy(enemies, prefabs[EnemyContentFactory.Wolf], new Vector3(23f, 0f, 25.5f), 190f);
+
+            // Esqueletos atrás dos pilares — norte (os pilares dão cobertura contra o arqueiro).
+            Enemy(enemies, prefabs[EnemyContentFactory.Skeleton], new Vector3(-4f, 0f, 38f), 180f);
+            Enemy(enemies, prefabs[EnemyContentFactory.Skeleton], new Vector3(4f, 0f, 38f), 180f);
+            Enemy(enemies, prefabs[EnemyContentFactory.Archer], new Vector3(0f, 0f, 44f), 180f);
+
+            // Cavaleiro Corrompido guardando ruínas — oeste.
+            var ruins = new GameObject("Ruinas do Cavaleiro").transform;
+            ruins.SetParent(geometry);
+            Box(ruins, "Coluna Quebrada A", new Vector3(-33f, 1.2f, 26f), new Vector3(1.4f, 2.4f, 1.4f), stone);
+            Box(ruins, "Coluna Quebrada B", new Vector3(-33f, 0.7f, 34f), new Vector3(1.4f, 1.4f, 1.4f), stone);
+            Box(ruins, "Altar", new Vector3(-36f, 0.5f, 30f), new Vector3(1.2f, 1f, 3f), blood);
+            Enemy(enemies, prefabs[EnemyContentFactory.Knight], new Vector3(-31f, 0f, 30f), 90f);
+
+            var places = new GameObject("Locais dos Inimigos").transform;
+            places.SetParent(geometry);
+            Discoverable(places, "sandbox_covil", "Covil dos Lobos", false, 25, new Vector3(24.5f, 1.5f, 23.5f), new Vector3(10f, 3f, 10f));
+            Discoverable(places, "sandbox_ruinas", "Ruínas do Cavaleiro", false, 40, new Vector3(-32f, 1.5f, 30f), new Vector3(10f, 3f, 12f));
+        }
+
+        private static void Enemy(Transform parent, GameObject prefab, Vector3 position, float yaw)
+        {
+            if (prefab == null) return;
+            var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
+            go.transform.SetPositionAndRotation(position, Quaternion.Euler(0f, yaw, 0f));
+            // No Sandbox os inimigos voltam depois de mortos, para dar para testar de novo.
+            var ai = go.GetComponent<Athoria.Gameplay.AI.EnemyAI>();
+            var so = new SerializedObject(ai);
+            so.FindProperty("respawnDelay").floatValue = 30f;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void PlaceItem(Transform parent, Athoria.Gameplay.Items.ItemData item, int qty, Vector3 pos)
@@ -256,7 +337,7 @@ namespace Athoria.Editor
         {
             var scenes = EditorBuildSettings.scenes.ToList();
             if (scenes.Any(s => s.path == path)) return;
-            scenes.Insert(0, new EditorBuildSettingsScene(path, true));
+            scenes.Add(new EditorBuildSettingsScene(path, true));
             EditorBuildSettings.scenes = scenes.ToArray();
         }
     }

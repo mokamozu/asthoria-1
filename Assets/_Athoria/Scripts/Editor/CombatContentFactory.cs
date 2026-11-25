@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using Athoria.Gameplay.Combat;
+using Athoria.Gameplay.Effects;
 using Athoria.Gameplay.Items;
 using Athoria.Gameplay.Stats;
 using Athoria.Gameplay.World;
@@ -40,6 +41,7 @@ namespace Athoria.Editor
             Directory.CreateDirectory(WorldFolder);
             AssetDatabase.Refresh();
 
+            PixelFxImporter.ImportAll();
             var feedback = BuildFeedback();
             BuildFists();
             BuildDummy();
@@ -211,6 +213,13 @@ namespace Athoria.Editor
                 SetFloat(health, "maxHealth", 120f);
                 var reaction = root.AddComponent<HitReaction>();
                 SetRef(reaction, "pivot", body);
+                var deathFx = PixelFxImporter.Load("fx_morte_fumaca");
+                if (deathFx != null)
+                {
+                    deathFx.EditorSetScale(64f, 1.1f);
+                    var dfx = root.AddComponent<DeathFx>();
+                    SetRef(dfx, "effect", deathFx);
+                }
                 var reward = root.AddComponent<ExperienceReward>();
                 var rSo = new SerializedObject(reward);
                 rSo.FindProperty("experience").intValue = 15;

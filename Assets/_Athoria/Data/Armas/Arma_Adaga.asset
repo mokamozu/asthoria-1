@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Arma_Adaga
   m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
   id: e208e481ce532cd44b9256de96509f12
-  displayName: "Adaga (provis\xF3ria)"
+  displayName: Adaga
   description: "R\xE1pida e leve. Recompensa a Destreza."
   icon: {fileID: 21300000, guid: 1683329f9b732e14182672e4552a6f01, type: 3}
   itemCategory: 0
@@ -24,6 +24,9 @@ MonoBehaviour:
   weight: 1
   value: 20
   worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
   category: 2
   handling: 0
   viewModelPrefab: {fileID: 6812508206327505461, guid: f13050f7dde3a0940b4af56806fc017f, type: 3}
@@ -31,8 +34,8 @@ MonoBehaviour:
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 75, y: 0, z: 10}
   holdingArmPose:
-    position: {x: 0.25, y: -0.4, z: 0.34}
-    rotation: {x: -10, y: -14, z: 0}
+    position: {x: 0.23, y: -0.33, z: 0.32}
+    rotation: {x: -16, y: -16, z: 0}
   supportArmPose:
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 0, y: 0, z: 0}
@@ -46,3 +49,8 @@ MonoBehaviour:
   spellManaCost: 12
   spellSpeed: 18
   projectileSound: {fileID: 0}
+  projectileCount: 1
+  projectileSpread: 0
+  magazineSize: 0
+  reloadTime: 2
+  attackSet: 7

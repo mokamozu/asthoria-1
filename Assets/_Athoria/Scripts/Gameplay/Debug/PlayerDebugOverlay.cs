@@ -1,3 +1,4 @@
+using Athoria.Gameplay.AI;
 using Athoria.Gameplay.Combat;
 using Athoria.Gameplay.Interaction;
 using Athoria.Gameplay.Player;
@@ -61,6 +62,19 @@ namespace Athoria.Gameplay.Debugging
                 (interactor != null && interactor.CurrentPrompt != null ? $"<color=#ffd27a>[E] {interactor.CurrentPrompt}</color>" : "");
 
             GUI.Box(new Rect(10, 10, 640, 190), text, _style);
+
+            // Inimigos a até 30 m: estado da IA (patrulha, perseguição, ataque...).
+            var enemies = "<b>Inimigos próximos</b>\n";
+            var lines = 0;
+            foreach (var e in EnemyAI.All)
+            {
+                if (e == null || lines >= 8) continue;
+                var d = Vector3.Distance(e.transform.position, controller.transform.position);
+                if (d > 30f) continue;
+                enemies += $"{e.DisplayName}: {e.CurrentState}  {e.Health.Current:0}/{e.Health.Max:0}  {d:0.0} m{(e.IsAware ? "  <color=#ff8060>[ALERTA]</color>" : "")}\n";
+                lines++;
+            }
+            if (lines > 0) GUI.Box(new Rect(10, 206, 640, 26 + lines * 18), enemies, _style);
 
             // Mira simples no centro da tela.
             var c = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);

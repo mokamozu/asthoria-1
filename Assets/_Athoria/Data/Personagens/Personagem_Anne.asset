@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffe5364e6e1a2b147a9b70db1c642122, type: 3}
+  m_Name: Personagem_Anne
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Characters.CharacterData
+  id: 9ed50172e565a42408881ea707e3e4c2
+  displayName: Anne
+  description: "Cavaleira da Costa dos Ventos, nascida e criada entre piratas e bandidos, de jeito r\xFAstico. Usa o arp\xE3o de pesca para se mover pelos telhados e mastros, e uma escopeta calibre 12 antiga para resolver tudo de perto."
+  icon: {fileID: 21300000, guid: 997b40946beaa5a4eb769e08d05685bc, type: 3}
+  title: A Pirata dos Ventos
+  characterClass: Arpoadora
+  region: Costa dos Ventos
+  accentColor: {r: 0.92, g: 0.5, b: 0.22, a: 1}
+  portrait: {fileID: 21300000, guid: 9d5cef0034bf72f45bdb71c843950a8b, type: 3}
+  portraitSmall: {fileID: 21300000, guid: 997b40946beaa5a4eb769e08d05685bc, type: 3}
+  portraitAlternate: {fileID: 21300000, guid: 65ab3ad517b2e244288d4ceba52ec337, type: 3}
+  fullBody: {fileID: 0}
+  regionEmblem: {fileID: 21300000, guid: 9cfeae0580b28e045ad7f0784916d4d2, type: 3}
+  baseHealth: 95
+  baseStamina: 110
+  baseMana: 0
+  traits:
+  - name: Criada entre Piratas
+    description: +15% de dano com armas de fogo.
+    effect: 5
+    value: 15
+    category: 8
+  - name: Arpoadora
+    description: "+15% de dano com o arp\xE3o (lan\xE7as)."
+    effect: 5
+    value: 15
+    category: 4
+  ability: {fileID: 11400000, guid: 8125c1321421ff745bc902020835299c, type: 2}
+  mantraSlots: 0
+  startingWeapons:
+  - {fileID: 11400000, guid: 4c8e9c6a1cd043344a98ff898f8808e5, type: 2}
+  - {fileID: 11400000, guid: f57c5504af5e9994fa9920caab44fdf5, type: 2}
+  startingOffHand: {fileID: 0}
+  armsTexture: {fileID: 2800000, guid: 19854c1a528b5fa4dad1758cc4115a43, type: 3}

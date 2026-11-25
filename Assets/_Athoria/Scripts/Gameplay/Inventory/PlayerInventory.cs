@@ -69,6 +69,13 @@ namespace Athoria.Gameplay.Inventory
             return left;
         }
 
+        /// <summary>Define o ouro (carregar save), sem mensagem.</summary>
+        public void SetGold(int amount)
+        {
+            Gold = Mathf.Max(0, amount);
+            EventBus.Publish(new InventoryChanged());
+        }
+
         public void AddGold(int amount)
         {
             if (amount <= 0) return;
@@ -86,6 +93,34 @@ namespace Athoria.Gameplay.Inventory
         }
 
         /// <summary>Botão direito no item: usa consumível ou equipa (arma, escudo, armadura, anel, amuleto).</summary>
+        /// <summary>Quantas unidades deste item (ou de cópias sorteadas dele) o jogador tem.</summary>
+        public int CountOf(ItemData item)
+        {
+            if (item == null) return 0;
+            var total = 0;
+            foreach (var e in Grid.Entries)
+                if (e.Stack.Item == item || e.Stack.Item.BaseItem == item) total += e.Stack.Quantity;
+            return total;
+        }
+
+        /// <summary>Remove unidades de um item (chaves, materiais). Falha sem mexer em nada se não houver o bastante.</summary>
+        public bool TryConsume(ItemData item, int quantity = 1)
+        {
+            if (quantity <= 0) return true;
+            if (CountOf(item) < quantity) return false;
+            for (var i = Grid.Entries.Count - 1; i >= 0 && quantity > 0; i--)
+            {
+                var e = Grid.Entries[i];
+                if (e.Stack.Item != item && e.Stack.Item.BaseItem != item) continue;
+                var take = Mathf.Min(quantity, e.Stack.Quantity);
+                e.Stack.Quantity -= take;
+                quantity -= take;
+                if (e.Stack.Quantity <= 0) Grid.Remove(e);
+            }
+            Grid.NotifyChanged();
+            return true;
+        }
+
         public void UseOrEquip(GridEntry entry)
         {
             if (entry == null) return;
@@ -112,7 +147,7 @@ namespace Athoria.Gameplay.Inventory
                 return;
             }
 
-            EventBus.Publish(new GameMessage("Este item não pode ser usado"));
+            EventBus.Publish(new GameMessage(item is WeaponData ? "Cada cavaleira luta só com as próprias armas" : "Este item não pode ser usado"));
         }
 
         /// <summary>Tira um item do equipamento e guarda na grade. Falha se não houver espaço.</summary>

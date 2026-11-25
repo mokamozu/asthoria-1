@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f91d914b1de61a4196b93eae94eb719, type: 3}
+  m_Name: Loot_Esqueleto
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Loot.LootTable
+  id: f2a7261777d3f0f4a9852a97bec75c36
+  displayName: Loot do Esqueleto
+  description: Tabela de loot gerada pela Etapa 12.
+  icon: {fileID: 0}
+  rolls: {x: 1, y: 2}
+  nothingWeight: 3
+  entries:
+  - item: {fileID: 11400000, guid: 71bc23f60a68f274980940a724b0dd26, type: 2}
+    weight: 5
+    quantity: {x: 1, y: 2}
+  - item: {fileID: 11400000, guid: f8fff857436728a4b988bae8b9913468, type: 2}
+    weight: 1
+    quantity: {x: 1, y: 1}
+  - item: {fileID: 11400000, guid: 67c0eee2804f0a2429fd72095e9c7a13, type: 2}
+    weight: 1
+    quantity: {x: 1, y: 1}
+  - item: {fileID: 11400000, guid: e208e481ce532cd44b9256de96509f12, type: 2}
+    weight: 1
+    quantity: {x: 1, y: 1}
+  - item: {fileID: 11400000, guid: 5e61d8f63b68b6145adff6dae3a54d99, type: 2}
+    weight: 0.6
+    quantity: {x: 1, y: 1}
+  - item: {fileID: 11400000, guid: 7a5e58ec4f9f42d42986eea1afd47cd2, type: 2}
+    weight: 0.6
+    quantity: {x: 1, y: 1}
+  - item: {fileID: 11400000, guid: 34ceb1cc4a874064d85919060248138d, type: 2}
+    weight: 1.5
+    quantity: {x: 1, y: 1}
+  guaranteed: []
+  guaranteedPicks: 0
+  goldChance: 0.7
+  gold: {x: 3, y: 10}
+  minimumRarity: 0
+  maximumRarity: 4
+  guaranteedMinimumRarity: 0
+  rarityBonus: 0

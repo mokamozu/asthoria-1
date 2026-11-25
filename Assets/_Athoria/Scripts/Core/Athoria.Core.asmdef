@@ -1,7 +1,10 @@
 {
     "name": "Athoria.Core",
     "rootNamespace": "Athoria.Core",
-    "references": [],
+    "references": [
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

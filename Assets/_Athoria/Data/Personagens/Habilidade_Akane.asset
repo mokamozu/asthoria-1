@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ab8f882b2a66847a00804beff6912a, type: 3}
+  m_Name: Habilidade_Akane
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Characters.AbilityData
+  id: e1f56af32a6f15f4fb1f4a398b375fde
+  displayName: Lobo Espiritual
+  description: "Invoca um lobo espiritual que acompanha Akane e ataca sozinho os inimigos pr\xF3ximos. Ocupa 1 Mantra; a recarga s\xF3 come\xE7a quando ele desaparece."
+  icon: {fileID: 21300000, guid: 5a8175d8627915b4dbc9a6a694659559, type: 3}
+  effect: 5
+  cooldown: 12
+  manaCost: 10
+  staminaCost: 0
+  amount: 0
+  duration: 0
+  magnitude: 0
+  spirit: {fileID: 11400000, guid: 2e323eb6fa673524c973326863f59687, type: 2}
+  castFx: {fileID: 0}
+  castFxDistance: 0
+  hitFx: {fileID: 11400000, guid: 8a2cdf3cd7154c84f82ce797d0ee8205, type: 2}

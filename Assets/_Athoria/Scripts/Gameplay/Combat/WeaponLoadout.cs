@@ -11,12 +11,15 @@ namespace Athoria.Gameplay.Combat
         public readonly WeaponData MainHand;
         public readonly WeaponData OffHand;
         public readonly int ActiveSlot;
+        public readonly WeaponData Slot1, Slot2;
 
-        public WeaponLoadoutChanged(WeaponData mainHand, WeaponData offHand, int activeSlot)
+        public WeaponLoadoutChanged(WeaponData mainHand, WeaponData offHand, int activeSlot, WeaponData slot1, WeaponData slot2)
         {
             MainHand = mainHand;
             OffHand = offHand;
             ActiveSlot = activeSlot;
+            Slot1 = slot1;
+            Slot2 = slot2;
         }
     }
 
@@ -110,7 +113,7 @@ namespace Athoria.Gameplay.Combat
         private void Notify()
         {
             Changed?.Invoke();
-            EventBus.Publish(new WeaponLoadoutChanged(MainHand, EffectiveOffHand, _activeSlot));
+            EventBus.Publish(new WeaponLoadoutChanged(MainHand, EffectiveOffHand, _activeSlot, quickSlots[0], quickSlots[1]));
         }
     }
 }

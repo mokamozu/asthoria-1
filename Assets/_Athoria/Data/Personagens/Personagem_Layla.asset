@@ -22,6 +22,7 @@ MonoBehaviour:
   accentColor: {r: 0.95, g: 0.55, b: 0.72, a: 1}
   portrait: {fileID: 21300000, guid: 3d7e14f83dae3844fb0125af4b3e1159, type: 3}
   portraitSmall: {fileID: 21300000, guid: b8c38f25185847445a64f9ff2c98213a, type: 3}
+  portraitAlternate: {fileID: 21300000, guid: b175a9179f898eb45a955bb500c8fb02, type: 3}
   fullBody: {fileID: 21300000, guid: 854f4127f00694642a4a4b31ee35ebe3, type: 3}
   regionEmblem: {fileID: 21300000, guid: f3ba076e2eb419a41b2c2efe28f0f114, type: 3}
   baseHealth: 100
@@ -38,7 +39,9 @@ MonoBehaviour:
     effect: 0
     value: 20
     category: 0
+  ability: {fileID: 11400000, guid: 327e4716ac387614fa5455e34c9b53e4, type: 2}
+  mantraSlots: 0
   startingWeapons:
-  - {fileID: 11400000, guid: f0e643fee3370cc4da461060d194c3d9, type: 2}
-  - {fileID: 11400000, guid: e208e481ce532cd44b9256de96509f12, type: 2}
+  - {fileID: 11400000, guid: 0cbd6d76211db77468b22123ee6ae1e1, type: 2}
   startingOffHand: {fileID: 0}
+  armsTexture: {fileID: 2800000, guid: 21a881226b3ffbd49a00ee4567de5804, type: 3}

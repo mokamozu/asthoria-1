@@ -14,16 +14,19 @@ namespace Athoria.Editor
             Directory.CreateDirectory(Folder);
             var path = $"{Folder}/{name}.mat";
             var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+            // Shader de PS1 (luz por vértice, tremor, névoa); sem ele, o Lit do URP.
+            var shader = Shader.Find("Athoria/PSX Lit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
             if (mat == null)
             {
-                var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
                 mat = new Material(shader) { name = name };
                 AssetDatabase.CreateAsset(mat, path);
             }
+            else if (mat.shader != shader) mat.shader = shader;
 
             mat.SetColor("_BaseColor", color);
             mat.SetFloat("_Metallic", metallic);
             mat.SetFloat("_Smoothness", smoothness);
+            if (!emission.HasValue) mat.SetColor("_EmissionColor", Color.black);
             if (emission.HasValue)
             {
                 mat.EnableKeyword("_EMISSION");

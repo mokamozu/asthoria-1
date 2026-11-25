@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45a4e7ead67146a4ab355e34864d48a0, type: 3}
+  m_Name: Item_Botas
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.ArmorData
+  id: 9b952c87933b3f2488b12dd5bc93cf3a
+  displayName: Botas de Viajante
+  description: Leves e gastas pela estrada.
+  icon: {fileID: 21300000, guid: e05777110abbbb64e8e709f433190a79, type: 3}
+  itemCategory: 1
+  rarity: 0
+  gridWidth: 2
+  gridHeight: 2
+  maxStack: 1
+  weight: 2
+  value: 35
+  worldModel: {fileID: 2387763577615095830, guid: 683dcaaae5e4f5b4a898050b47d66d29, type: 3}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
+  slot: 4
+  armor: 3
+  modifiers:
+  - stat: 6
+    value: 6

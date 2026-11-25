@@ -18,9 +18,9 @@ namespace Athoria.Gameplay.Inventory
     public readonly struct EquipmentChanged : IGameEvent { }
 
     /// <summary>
-    /// Equipamento do jogador (estilo Dark Souls / Diablo). Armas usam os
-    /// atalhos do WeaponLoadout (principal = 1, secundária = 2, escudo = mão
-    /// secundária). Armaduras e acessórios somam bônus no PlayerStats.
+    /// Equipamento do jogador. Cada cavaleira tem armas fixas (definidas na
+    /// personagem, nos atalhos do WeaponLoadout) e as armaduras são só estéticas:
+    /// o que se equipa aqui são o amuleto e os 4 anéis, que somam bônus no PlayerStats.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class PlayerEquipment : MonoBehaviour
@@ -41,8 +41,14 @@ namespace Athoria.Gameplay.Inventory
             if (stats == null) stats = GetComponent<PlayerStats>();
         }
 
-        private void OnEnable() { if (loadout != null) loadout.Changed += Notify; }
-        private void OnDisable() { if (loadout != null) loadout.Changed -= Notify; }
+        private void OnEnable() { if (loadout != null) loadout.Changed += OnLoadoutChanged; }
+        private void OnDisable() { if (loadout != null) loadout.Changed -= OnLoadoutChanged; }
+
+        private void OnLoadoutChanged()
+        {
+            Recalculate();   // bônus da arma ativa e do escudo
+            Notify();
+        }
         private void Start() => Recalculate();
 
         public static string SlotName(EquipmentSlot slot) => slot switch
@@ -67,16 +73,14 @@ namespace Athoria.Gameplay.Inventory
             _ => _gear[(int)slot]
         };
 
+        /// <summary>Espaços que aparecem no inventário (só acessórios).</summary>
+        public static bool IsEquippableSlot(EquipmentSlot slot) => slot >= EquipmentSlot.Amulet;
+
         public bool CanEquip(ItemData item, EquipmentSlot slot)
         {
             if (item == null) return false;
             switch (slot)
             {
-                case EquipmentSlot.MainWeapon:
-                case EquipmentSlot.SecondaryWeapon:
-                    return item is WeaponData w && !w.IsShield;
-                case EquipmentSlot.Shield:
-                    return item is WeaponData s && s.IsShield;
                 case EquipmentSlot.Amulet:
                     return item is AccessoryData a && a.Kind == AccessoryKind.Amulet;
                 case EquipmentSlot.Ring1:
@@ -85,7 +89,7 @@ namespace Athoria.Gameplay.Inventory
                 case EquipmentSlot.Ring4:
                     return item is AccessoryData r && r.Kind == AccessoryKind.Ring;
                 default:
-                    return item is ArmorData armor && (int)armor.Slot == (int)slot;
+                    return false;   // armas são fixas da cavaleira; armaduras são estéticas
             }
         }
 
@@ -94,9 +98,6 @@ namespace Athoria.Gameplay.Inventory
         {
             switch (item)
             {
-                case ArmorData armor:
-                    slot = (EquipmentSlot)(int)armor.Slot;
-                    return true;
                 case AccessoryData acc when acc.Kind == AccessoryKind.Amulet:
                     slot = EquipmentSlot.Amulet;
                     return true;
@@ -104,12 +105,6 @@ namespace Athoria.Gameplay.Inventory
                     for (var s = EquipmentSlot.Ring1; s <= EquipmentSlot.Ring4; s++)
                         if (Get(s) == null) { slot = s; return true; }
                     slot = EquipmentSlot.Ring1;
-                    return true;
-                case WeaponData w when w.IsShield:
-                    slot = EquipmentSlot.Shield;
-                    return true;
-                case WeaponData:
-                    slot = loadout != null && loadout.ActiveSlot == 1 ? EquipmentSlot.SecondaryWeapon : EquipmentSlot.MainWeapon;
                     return true;
                 default:
                     slot = default;
@@ -159,14 +154,18 @@ namespace Athoria.Gameplay.Inventory
             {
                 switch (item)
                 {
-                    case ArmorData armor:
-                        into.Add(new StatModifier(StatType.Armor, armor.Armor));
-                        into.AddRange(armor.Modifiers);
-                        break;
                     case AccessoryData acc:
                         into.AddRange(acc.Modifiers);
                         break;
                 }
+                if (item is AccessoryData) into.AddRange(item.BonusModifiers);
+            }
+
+            // Bônus sorteados da arma em uso e do escudo (só valem enquanto estão nas mãos).
+            if (loadout != null)
+            {
+                if (loadout.MainHand != null) into.AddRange(loadout.MainHand.BonusModifiers);
+                if (loadout.EffectiveOffHand != null) into.AddRange(loadout.EffectiveOffHand.BonusModifiers);
             }
         }
 

@@ -14,7 +14,7 @@ namespace Athoria.Editor
         public static void Run()
         {
             if (!EditorUtility.DisplayDialog("Athoria",
-                    "Recriar todos os Prefabs, dados, ícones e as cenas Sandbox e Seleção de Personagens?\n\n" +
+                    "Recriar todos os Prefabs, dados, ícones e as cenas (Menu, Seleção, Sandbox, Terras Alagadas e Cripta)?\n\nO mundo aberto leva alguns minutos.\n\n" +
                     "Mudanças feitas à mão nesses arquivos gerados serão perdidas.",
                     "Reconstruir", "Cancelar"))
                 return;
@@ -22,6 +22,8 @@ namespace Athoria.Editor
 
             try
             {
+                EditorUtility.DisplayProgressBar("Athoria", "Render retrô...", 0.05f);
+                RetroRenderSetup.Run();
                 EditorUtility.DisplayProgressBar("Athoria", "HUD...", 0.1f);
                 HudPrefabBuilder.Build();
                 EditorUtility.DisplayProgressBar("Athoria", "Inventário...", 0.25f);
@@ -30,8 +32,16 @@ namespace Athoria.Editor
                 PlayerPrefabBuilder.Build();
                 EditorUtility.DisplayProgressBar("Athoria", "Cena de seleção...", 0.7f);
                 CharacterSelectSceneBuilder.Build();
+                MainMenuSceneBuilder.Build();
                 EditorUtility.DisplayProgressBar("Athoria", "Sandbox...", 0.85f);
                 SandboxSceneBuilder.Build(false);
+                EditorUtility.DisplayProgressBar("Athoria", "Cripta da Capela...", 0.9f);
+                CriptaBuilder.Build(false);
+                GameDatabaseBuilder.Build();
+                TerrasAlagadasBuilder.Build(false);   // mostra o próprio progresso
+                GameDatabaseBuilder.Build();          // tabelas e itens criados pela região
+                MenuArtImport.OrderBuildScenes();     // menu principal sempre primeiro
+                UnityEditor.SceneManagement.EditorSceneManager.OpenScene(MainMenuSceneBuilder.ScenePath);
                 Debug.Log("[Athoria] Reconstrução completa. Abra SelecaoPersonagem ou Sandbox e dê Play.");
             }
             finally

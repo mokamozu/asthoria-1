@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45a4e7ead67146a4ab355e34864d48a0, type: 3}
+  m_Name: Item_Couraca
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.ArmorData
+  id: 58a63ea17196386478696cc1919eae50
+  displayName: "Coura\xE7a de Couro Batido"
+  description: Protege bem o tronco, mas limita os movimentos.
+  icon: {fileID: 21300000, guid: f3c94ada00c27e84baba59c41b2878c3, type: 3}
+  itemCategory: 1
+  rarity: 0
+  gridWidth: 2
+  gridHeight: 3
+  maxStack: 1
+  weight: 8
+  value: 60
+  worldModel: {fileID: 6584316831240429409, guid: c5ea1b264e8f8a3428dff561ee2d6887, type: 3}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
+  slot: 1
+  armor: 14
+  modifiers:
+  - stat: 6
+    value: -4

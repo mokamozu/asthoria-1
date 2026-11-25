@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Arma_Escudo
   m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
   id: 67c0eee2804f0a2429fd72095e9c7a13
-  displayName: "Escudo de Madeira (provis\xF3rio)"
+  displayName: Escudo
   description: "M\xE3o secund\xE1ria. Bloqueia ataques frontais."
   icon: {fileID: 21300000, guid: e574570ddf3d46e44a52083751c24e06, type: 3}
   itemCategory: 5
@@ -24,6 +24,9 @@ MonoBehaviour:
   weight: 6
   value: 35
   worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
   category: 5
   handling: 2
   viewModelPrefab: {fileID: 2111084754611482932, guid: 61f9566ffea5a9940a7fd3f2915563bb, type: 3}
@@ -46,3 +49,8 @@ MonoBehaviour:
   spellManaCost: 12
   spellSpeed: 18
   projectileSound: {fileID: 0}
+  projectileCount: 1
+  projectileSpread: 0
+  magazineSize: 0
+  reloadTime: 2
+  attackSet: 0

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Arma_Martelo
   m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
   id: 2ebeecaa9876e9d499ebac06249c2774
-  displayName: "Martelo de Guerra (provis\xF3rio)"
+  displayName: Martelo de Guerra
   description: "Arma de duas m\xE3os, lenta e devastadora."
   icon: {fileID: 21300000, guid: aec4e7309db30c54b845594410c90edb, type: 3}
   itemCategory: 0
@@ -24,6 +24,9 @@ MonoBehaviour:
   weight: 9
   value: 60
   worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
   category: 3
   handling: 1
   viewModelPrefab: {fileID: 8607844235141424465, guid: 583f0278efe722a4cbf1008cdb671e38, type: 3}
@@ -31,11 +34,11 @@ MonoBehaviour:
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 45, y: 0, z: 30}
   holdingArmPose:
-    position: {x: 0.22, y: -0.44, z: 0.3}
-    rotation: {x: -16, y: -18, z: 0}
+    position: {x: 0.18, y: -0.31, z: 0.3}
+    rotation: {x: -24, y: -18, z: 0}
   supportArmPose:
-    position: {x: 0, y: -0.5, z: 0.38}
-    rotation: {x: -22, y: 22, z: 0}
+    position: {x: 0, y: -0.4, z: 0.36}
+    rotation: {x: -30, y: 24, z: 0}
   damage: 34
   attackSpeed: 0.75
   range: 2.3
@@ -46,3 +49,8 @@ MonoBehaviour:
   spellManaCost: 12
   spellSpeed: 18
   projectileSound: {fileID: 0}
+  projectileCount: 1
+  projectileSpread: 0
+  magazineSize: 0
+  reloadTime: 2
+  attackSet: 0

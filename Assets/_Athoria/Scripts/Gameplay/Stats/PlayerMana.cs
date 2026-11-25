@@ -52,6 +52,13 @@ namespace Athoria.Gameplay.Stats
             return true;
         }
 
+        /// <summary>Define o valor atual (carregar save).</summary>
+        public void SetCurrent(float value)
+        {
+            _current = Mathf.Clamp(value, 0f, maxMana);
+            Publish();
+        }
+
         public void Restore(float amount)
         {
             if (amount <= 0f) return;

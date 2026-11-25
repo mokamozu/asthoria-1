@@ -50,6 +50,13 @@ namespace Athoria.Editor
             W("Arpao", 1, 4, 4f, 40);
             W("Rifle", 2, 4, 7f, 120, ItemRarity.Rare);
             W("Khopesh", 2, 3, 3f, 55, ItemRarity.Uncommon);
+            // Armas próprias de cada cavaleira
+            W("Alabarda", 1, 4, 6f, 60, ItemRarity.Uncommon);
+            W("Katana", 1, 3, 3f, 60, ItemRarity.Uncommon);
+            W("Escopeta", 2, 3, 6f, 110, ItemRarity.Rare);
+            W("Montante", 1, 4, 8f, 70, ItemRarity.Uncommon);
+            W("Kanabo", 1, 3, 7f, 60, ItemRarity.Uncommon);
+            W("PresaSerpente", 1, 2, 1f, 45, ItemRarity.Uncommon);
 
             // Modelos
             var glass = EditorMaterials.GetOrCreate("Vidro", new Color(0.75f, 0.8f, 0.85f), 0.1f, 0.9f);
@@ -88,6 +95,8 @@ namespace Athoria.Editor
             result["PocaoMana"] = Consumable("PocaoMana", "Poção de Mana Menor", "Essência destilada que restaura a energia mágica.", ItemRarity.Uncommon,
                 ConsumableEffect.RestoreMana, 30f, 5, 0.3f, 35, potionBlue);
             result["Erva"] = Plain("Erva", "Erva do Pântano", "Material comum para preparos e remédios.", ItemCategory.Material, ItemRarity.Common, 1, 1, 20, 0.1f, 4, herbModel);
+            result["ChaveCripta"] = Plain("ChaveCripta", "Chave da Cripta", "Pesada, fria e marcada com um selo gasto. Abre a cripta das Terras Alagadas.",
+                ItemCategory.Quest, ItemRarity.Rare, 1, 2, 1, 0.3f, 0, keyModel);
             result["Chave"] = Plain("Chave", "Chave Enferrujada", "Uma chave antiga. Deve abrir alguma porta por aqui.", ItemCategory.Quest, ItemRarity.Uncommon, 1, 2, 1, 0.2f, 0, keyModel);
 
             // ---------------- Armaduras e acessórios (provisórios) ----------------
@@ -172,6 +181,56 @@ namespace Athoria.Editor
                 new[] { M(StatType.MoveSpeedPercent, 8f) }, RingModel("Modelo_AnelAgilidade", emeraldM));
             result["Amuleto"] = Accessory("Amuleto", "Amuleto de Bronze", "Um pingente antigo com uma pedra rubra.", AccessoryKind.Amulet, ItemRarity.Rare, 150,
                 new[] { M(StatType.MaxHealth, 15f), M(StatType.MagicDamagePercent, 10f) }, amuletModel);
+
+            // ---------------- Materiais que caem de inimigos (Etapa 12) ----------------
+            var furM = EditorMaterials.GetOrCreate("PeloCinzento", new Color(0.28f, 0.26f, 0.24f), 0f, 0.1f);
+            var boneM = EditorMaterials.GetOrCreate("Osso", new Color(0.78f, 0.74f, 0.63f), 0f, 0.25f);
+            var plagueM = EditorMaterials.GetOrCreate("BrilhoPeste", new Color(0.25f, 0.6f, 0.15f), 0f, 0.5f, new Color(0.5f, 2.2f, 0.3f));
+            var oldIronM = EditorMaterials.GetOrCreate("FerroVelho", new Color(0.35f, 0.34f, 0.33f), 0.8f, 0.35f);
+
+            var peltModel = Model("Modelo_PeleLobo", t =>
+            {
+                Part(t, PrimitiveType.Cube, Vector3.zero, new Vector3(0.34f, 0.03f, 0.26f), furM);
+                Part(t, PrimitiveType.Cube, new Vector3(0f, 0f, -0.18f), new Vector3(0.06f, 0.025f, 0.12f), furM);
+                Part(t, PrimitiveType.Cube, new Vector3(0.19f, 0f, 0.1f), new Vector3(0.06f, 0.02f, 0.08f), furM);
+                Part(t, PrimitiveType.Cube, new Vector3(-0.19f, 0f, 0.1f), new Vector3(0.06f, 0.02f, 0.08f), furM);
+            });
+            var fangModel = Model("Modelo_PresaLobo", t =>
+            {
+                Part(t, PrimitiveType.Cube, new Vector3(0f, 0.04f, 0f), new Vector3(0.025f, 0.09f, 0.025f), boneM, new Vector3(0f, 0f, 12f));
+                Part(t, PrimitiveType.Cube, new Vector3(0.012f, 0.1f, 0f), new Vector3(0.015f, 0.05f, 0.015f), boneM, new Vector3(0f, 0f, 25f));
+            });
+            var boneModel = Model("Modelo_OssoAntigo", t =>
+            {
+                Part(t, PrimitiveType.Cylinder, Vector3.zero, new Vector3(0.04f, 0.13f, 0.04f), boneM);
+                Part(t, PrimitiveType.Sphere, new Vector3(0.02f, 0.14f, 0f), Vector3.one * 0.06f, boneM);
+                Part(t, PrimitiveType.Sphere, new Vector3(-0.02f, 0.14f, 0f), Vector3.one * 0.06f, boneM);
+                Part(t, PrimitiveType.Sphere, new Vector3(0.02f, -0.14f, 0f), Vector3.one * 0.06f, boneM);
+                Part(t, PrimitiveType.Sphere, new Vector3(-0.02f, -0.14f, 0f), Vector3.one * 0.06f, boneM);
+            });
+            var arrowheadModel = Model("Modelo_PontaFlecha", t =>
+            {
+                for (var i = 0; i < 3; i++)
+                    Part(t, PrimitiveType.Cube, new Vector3((i - 1) * 0.05f, 0f, 0f), new Vector3(0.03f, 0.06f, 0.01f), oldIronM, new Vector3(0f, 0f, 45f));
+            });
+            var essenceModel = Model("Modelo_EssenciaPeste", t =>
+            {
+                Part(t, PrimitiveType.Sphere, new Vector3(0, 0.07f, 0), Vector3.one * 0.1f, plagueM);
+                Part(t, PrimitiveType.Sphere, new Vector3(0, 0.07f, 0), Vector3.one * 0.14f, glass);
+                Part(t, PrimitiveType.Cylinder, new Vector3(0, 0.16f, 0), new Vector3(0.045f, 0.02f, 0.045f), cork);
+            });
+
+            result["PeleLobo"] = Plain("PeleLobo", "Pele de Lobo", "Couro grosso e cinzento. Bom para armaduras leves.",
+                ItemCategory.Material, ItemRarity.Common, 2, 2, 5, 1f, 8, peltModel);
+            result["PresaLobo"] = Plain("PresaLobo", "Presa de Lobo", "Afiada como uma adaga. Ferreiros pagam bem.",
+                ItemCategory.Material, ItemRarity.Common, 1, 1, 10, 0.1f, 6, fangModel);
+            result["OssoAntigo"] = Plain("OssoAntigo", "Osso Antigo", "Ainda vibra com o que o mantinha em pé.",
+                ItemCategory.Material, ItemRarity.Common, 1, 2, 10, 0.3f, 3, boneModel);
+            result["PontaFlecha"] = Plain("PontaFlecha", "Pontas de Flecha", "Ferro velho, ainda afiado.",
+                ItemCategory.Material, ItemRarity.Common, 1, 1, 20, 0.05f, 2, arrowheadModel);
+            result["EssenciaPeste"] = Plain("EssenciaPeste", "Essência da Peste",
+                "Um líquido verde que pulsa devagar, como se respirasse. Vem dos corrompidos das Terras Alagadas.",
+                ItemCategory.Material, ItemRarity.Rare, 1, 1, 5, 0.2f, 60, essenceModel);
 
             AssetDatabase.SaveAssets();
             return result;

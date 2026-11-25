@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db658d66042a68489b0d36206ef37cb, type: 3}
+  m_Name: Arma_Montante
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
+  id: dff9cce78cab9ef4f8403b4d86099784
+  displayName: Montante da Peste
+  description: "Espada de duas m\xE3os, longa e pesada. Golpes largos que derrubam."
+  icon: {fileID: 21300000, guid: 41b36525f0973b9449270e59557973f2, type: 3}
+  itemCategory: 0
+  rarity: 1
+  gridWidth: 1
+  gridHeight: 4
+  maxStack: 1
+  weight: 8
+  value: 70
+  worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
+  category: 0
+  handling: 1
+  viewModelPrefab: {fileID: 7287519620408330308, guid: 7cb5cb34a10e21d4bafea8c69a0e3de6, type: 3}
+  modelPose:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 55, y: 0, z: 10}
+  holdingArmPose:
+    position: {x: 0.18, y: -0.31, z: 0.3}
+    rotation: {x: -24, y: -18, z: 0}
+  supportArmPose:
+    position: {x: 0, y: -0.4, z: 0.36}
+    rotation: {x: -30, y: 24, z: 0}
+  damage: 30
+  attackSpeed: 0.8
+  range: 2.6
+  lightAttackStamina: 20
+  heavyAttackStamina: 36
+  heavyDamageMultiplier: 1.8
+  spellProjectile: {fileID: 0}
+  spellManaCost: 12
+  spellSpeed: 18
+  projectileSound: {fileID: 0}
+  projectileCount: 1
+  projectileSpread: 0
+  magazineSize: 0
+  reloadTime: 2
+  attackSet: 8

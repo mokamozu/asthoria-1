@@ -3,7 +3,8 @@
     "rootNamespace": "Athoria.Gameplay",
     "references": [
         "Athoria.Core",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.AI.Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

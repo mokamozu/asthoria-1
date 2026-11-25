@@ -49,6 +49,7 @@ namespace Athoria.UI.Inventory
         private PlayerEquipment _equipment;
         private PlayerStats _stats;
         private PlayerExperience _experience;
+        private QuickItemSlots _quickItems;
         private EquipmentSlotView _hoverSlot;
         private readonly List<StatModifier> _mods = new();
         private PlayerInputReader _input;
@@ -71,6 +72,7 @@ namespace Athoria.UI.Inventory
                 _equipment = player.GetComponent<PlayerEquipment>();
                 _stats = player.GetComponent<PlayerStats>();
                 _experience = player.GetComponent<PlayerExperience>();
+                _quickItems = player.GetComponent<QuickItemSlots>();
                 var character = player.GetComponent<PlayerCharacter>();
                 if (character != null && character.Current != null)
                 {
@@ -298,7 +300,7 @@ namespace Athoria.UI.Inventory
                 var ew = equipped as WeaponData;
                 var dmg = w.Damage - (ew != null ? ew.Damage : 0f);
                 var spd = w.AttackSpeed - (ew != null ? ew.AttackSpeed : 0f);
-                return $"{title}\n{Delta("Dano", dmg, "0")}   {Delta("Ataques/s", spd, "0.0")}";
+                title = $"{title}\n{Delta("Dano", dmg, "0")}   {Delta("Ataques/s", spd, "0.0")}";
             }
 
             var totals = new Dictionary<StatType, float>();
@@ -314,6 +316,7 @@ namespace Athoria.UI.Inventory
                         foreach (var m in acc.Modifiers) totals[m.stat] = totals.GetValueOrDefault(m.stat) + m.value * sign;
                         break;
                 }
+                foreach (var m in data.BonusModifiers) totals[m.stat] = totals.GetValueOrDefault(m.stat) + m.value * sign;
             }
             Add(item, 1f);
             if (equipped != null) Add(equipped, -1f);
@@ -326,7 +329,7 @@ namespace Athoria.UI.Inventory
                 sb.Append('\n').Append(StatText.Line(kv.Key, kv.Value));
                 any = true;
             }
-            if (!any) sb.Append("\nSem diferença");
+            if (!any && !(item is WeaponData { IsShield: false })) sb.Append("\nSem diferença");
             return sb.ToString();
         }
 
@@ -465,14 +468,28 @@ namespace Athoria.UI.Inventory
                 _cells[i, j].Image.color = new Color(0.16f, 0.14f, 0.11f);
 
             var item = entry.Stack.Item;
-            var equippable = item is WeaponData || item is ArmorData || item is AccessoryData;
-            var hint = item is ConsumableData ? "Botão direito: usar" : equippable ? "Botão direito: equipar" : string.Empty;
+            var equippable = item is AccessoryData;   // armas são fixas da cavaleira; armaduras, só estéticas
+            var hint = item is ConsumableData ? "Botão direito: usar   •   3 / 4: pôr no atalho"
+                : equippable ? "Botão direito: equipar"
+                : item is WeaponData ? "Cada cavaleira luta só com as próprias armas"
+                : item is ArmorData ? "Armadura estética" : string.Empty;
             tooltip.Show(entry.Stack, hint, equippable ? BuildComparison(item) : null);
         }
 
         private void Update()
         {
             if (!_open || Mouse.current == null) return;
+
+            // Atribuir consumível sob o mouse aos atalhos 3 / 4.
+            if (_quickItems != null && _held == null && _hover != null && Keyboard.current != null)
+            {
+                var entry = _inventory.Grid.At(_hover.X, _hover.Y);
+                if (entry != null && entry.Stack.Item is ConsumableData consumable)
+                {
+                    if (Keyboard.current.digit3Key.wasPressedThisFrame) _quickItems.Assign(0, consumable);
+                    if (Keyboard.current.digit4Key.wasPressedThisFrame) _quickItems.Assign(1, consumable);
+                }
+            }
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, Mouse.current.position.ReadValue(), null, out var local)) return;
 
             if (_held != null)

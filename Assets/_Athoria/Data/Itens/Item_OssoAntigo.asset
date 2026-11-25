@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afbd96d410cac6842a0377ae1e9dda49, type: 3}
+  m_Name: Item_OssoAntigo
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.ItemData
+  id: 71bc23f60a68f274980940a724b0dd26
+  displayName: Osso Antigo
+  description: "Ainda vibra com o que o mantinha em p\xE9."
+  icon: {fileID: 21300000, guid: 1d1f827ffa7ef554985e5045870bc6c3, type: 3}
+  itemCategory: 9
+  rarity: 0
+  gridWidth: 1
+  gridHeight: 2
+  maxStack: 10
+  weight: 0.3
+  value: 3
+  worldModel: {fileID: 5822739398568491018, guid: 98f4708f6c04c8f41ac8e3614c44e8e5, type: 3}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []

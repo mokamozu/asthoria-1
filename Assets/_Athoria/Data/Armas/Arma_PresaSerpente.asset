@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db658d66042a68489b0d36206ef37cb, type: 3}
+  m_Name: Arma_PresaSerpente
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
+  id: c2b36b4d4d5df2f439e64954ffe4d16b
+  displayName: Presa da Serpente
+  description: "Adaga curta e silenciosa, para quem vive nas sombras sob Lac\xFAnia."
+  icon: {fileID: 21300000, guid: 5236d0b785179e7478fa7728076d6099, type: 3}
+  itemCategory: 0
+  rarity: 1
+  gridWidth: 1
+  gridHeight: 2
+  maxStack: 1
+  weight: 1
+  value: 45
+  worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
+  category: 2
+  handling: 0
+  viewModelPrefab: {fileID: 8426192855441002161, guid: 43dfb5ea72a3d55499b90353ac65c96d, type: 3}
+  modelPose:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 75, y: 0, z: 10}
+  holdingArmPose:
+    position: {x: 0.23, y: -0.33, z: 0.32}
+    rotation: {x: -16, y: -16, z: 0}
+  supportArmPose:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+  damage: 13
+  attackSpeed: 2.3
+  range: 1.6
+  lightAttackStamina: 8
+  heavyAttackStamina: 16
+  heavyDamageMultiplier: 2.4
+  spellProjectile: {fileID: 0}
+  spellManaCost: 12
+  spellSpeed: 18
+  projectileSound: {fileID: 0}
+  projectileCount: 1
+  projectileSpread: 0
+  magazineSize: 0
+  reloadTime: 2
+  attackSet: 9

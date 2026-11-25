@@ -1,4 +1,6 @@
+using System;
 using Athoria.Core.Data;
+using Athoria.Gameplay.Stats;
 using UnityEngine;
 
 namespace Athoria.Gameplay.Items
@@ -85,6 +87,50 @@ namespace Athoria.Gameplay.Items
 
         /// <summary>Linhas extras de atributos mostradas na dica (tooltip).</summary>
         public virtual string TooltipStats => string.Empty;
+
+        // ---------------- Item sorteado (loot) ----------------
+        // Um item que cai de inimigos/baús é uma CÓPIA do item base com raridade,
+        // qualidade (multiplica dano/armadura) e bônus próprios. Para o save
+        // basta guardar: Id do base + raridade + qualidade + bônus.
+
+        [SerializeField, HideInInspector] private ItemData baseItem;
+        [SerializeField, HideInInspector] private float quality = 1f;
+        [SerializeField, HideInInspector] private StatModifier[] bonusModifiers = Array.Empty<StatModifier>();
+
+        /// <summary>O asset original (ele mesmo, se não for sorteado).</summary>
+        public ItemData BaseItem => baseItem != null ? baseItem : this;
+        public bool IsRolled => baseItem != null;
+        /// <summary>Multiplicador de dano (armas) e armadura (armaduras). 1 = normal.</summary>
+        public float Quality => quality > 0f ? quality : 1f;
+        /// <summary>Bônus sorteados (afixos). Vazio em itens normais.</summary>
+        public StatModifier[] BonusModifiers => bonusModifiers ?? Array.Empty<StatModifier>();
+
+        /// <summary>Atributos + bônus sorteados, para a dica do item.</summary>
+        public string FullTooltipStats
+        {
+            get
+            {
+                var stats = TooltipStats;
+                var bonus = StatText.Lines(BonusModifiers);
+                if (bonus.Length == 0) return stats;
+                return stats.Length == 0 ? bonus : stats + "\n" + bonus;
+            }
+        }
+
+        /// <summary>Cria a cópia sorteada deste item (sempre a partir do original).</summary>
+        public ItemData CreateRolled(ItemRarity newRarity, float newQuality, StatModifier[] bonuses, string newName, float valueMultiplier)
+        {
+            var original = BaseItem;
+            var copy = Instantiate(original);
+            copy.name = original.name + " (" + newRarity + ")";
+            copy.baseItem = original;
+            copy.rarity = newRarity;
+            copy.quality = Mathf.Max(0.1f, newQuality);
+            copy.bonusModifiers = bonuses ?? Array.Empty<StatModifier>();
+            copy.value = Mathf.Max(1, Mathf.RoundToInt(original.value * valueMultiplier));
+            copy.ApplyRuntimeName(newName);
+            return copy;
+        }
 
 #if UNITY_EDITOR
         public void EditorSetItem(ItemCategory newCategory, ItemRarity newRarity, int width, int height, int stack, float newWeight, int newValue, GameObject model = null)

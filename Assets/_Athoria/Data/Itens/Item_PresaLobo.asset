@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afbd96d410cac6842a0377ae1e9dda49, type: 3}
+  m_Name: Item_PresaLobo
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.ItemData
+  id: d454eaa0b34acbe4f9abc78aead4061e
+  displayName: Presa de Lobo
+  description: Afiada como uma adaga. Ferreiros pagam bem.
+  icon: {fileID: 21300000, guid: 9947d3c954b03bf44a651393d4dedbfd, type: 3}
+  itemCategory: 9
+  rarity: 0
+  gridWidth: 1
+  gridHeight: 1
+  maxStack: 10
+  weight: 0.1
+  value: 6
+  worldModel: {fileID: 3216374548572108348, guid: 4a9f1b01d76b4894b85996838f2afb19, type: 3}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []

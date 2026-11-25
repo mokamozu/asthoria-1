@@ -71,7 +71,7 @@ namespace Athoria.Gameplay.Player
             }
 
             var delta = input.LookDelta;
-            if (input.LookIsPointer) delta *= mouseSensitivity;
+            if (input.LookIsPointer) delta *= mouseSensitivity * Athoria.Core.GameSettings.MouseSensitivity;
             else delta *= gamepadSensitivity * Time.deltaTime;
 
             transform.Rotate(0f, delta.x, 0f, Space.Self);

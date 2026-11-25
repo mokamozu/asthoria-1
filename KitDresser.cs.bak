@@ -1,0 +1,166 @@
+using System.Collections.Generic;
+using System.Linq;
+using Athoria.Gameplay.World;
+using UnityEditor;
+using UnityEngine;
+
+namespace Athoria.Editor
+{
+    /// <summary>Conjunto de peças de um kit modular usado para "vestir" a geometria de blocos.</summary>
+    internal sealed class KitStyle
+    {
+        public GameObject[] Walls = new GameObject[0];
+        public GameObject Floor;
+        public GameObject Pillar;
+        public GameObject Door;
+
+        public bool IsEmpty => Walls.Length == 0 && Floor == null && Pillar == null && Door == null;
+
+        public static KitStyle Of(GameObject floor, GameObject pillar, GameObject door, params GameObject[] walls) => new()
+        {
+            Walls = walls.Where(w => w != null).ToArray(), Floor = floor, Pillar = pillar, Door = door
+        };
+    }
+
+    /// <summary>
+    /// Troca o visual dos blocos cinza (cubos com colisor) por peças dos kits PS1,
+    /// sem mexer na colisão nem no NavMesh: o cubo continua lá, só com o Renderer
+    /// desligado. Paredes viram fileiras de módulos, pisos viram ladrilhos, colunas
+    /// viram pilares e as portas de passagem ganham uma porta de verdade.
+    /// </summary>
+    internal static class KitDresser
+    {
+        private static readonly Dictionary<GameObject, Bounds> SizeCache = new();
+
+        /// <summary>Veste todos os blocos dentro de root. skip: nomes que ficam como estão.</summary>
+        public static int Dress(Transform root, KitStyle style, int seed, System.Func<string, bool> skip = null)
+        {
+            if (root == null || style == null || style.IsEmpty) return 0;
+            var rng = new System.Random(seed);
+            var boxes = root.GetComponentsInChildren<MeshRenderer>(true)
+                .Where(r => IsBlock(r, skip))
+                .ToList();
+            var dressed = 0;
+            foreach (var r in boxes)
+            {
+                var t = r.transform;
+                var size = t.localScale;
+                var holder = new GameObject(t.name + " (kit)").transform;
+                holder.SetParent(t.parent, false);
+                holder.localPosition = t.localPosition;
+                holder.localRotation = t.localRotation;
+
+                bool ok;
+                if (r.GetComponent<Portal>() != null) ok = style.Door != null && Fit(style.Door, holder, Vector3.zero, size, false);
+                else if (size.y <= 0.35f && Mathf.Max(size.x, size.z) >= 1f) ok = Floor(style, holder, size);
+                else if (Mathf.Max(size.x, size.z) <= 1.2f && size.y >= 1.5f) ok = style.Pillar != null && Fit(style.Pillar, holder, Vector3.zero, size, false);
+                else if (Mathf.Min(size.x, size.z) <= 1f && Mathf.Max(size.x, size.z) >= 1.2f && size.y >= 1.2f) ok = Wall(style, holder, size, rng);
+                else ok = false;
+
+                if (ok)
+                {
+                    r.enabled = false;
+                    dressed++;
+                }
+                else Object.DestroyImmediate(holder.gameObject);
+            }
+            return dressed;
+        }
+
+        private static bool IsBlock(MeshRenderer r, System.Func<string, bool> skip)
+        {
+            var mf = r.GetComponent<MeshFilter>();
+            if (mf == null || mf.sharedMesh == null || mf.sharedMesh.name != "Cube") return false;
+            if (PrefabUtility.IsPartOfPrefabInstance(r.gameObject)) return false;
+            if (skip != null && skip(r.name)) return false;
+            if (r.GetComponent<Portal>() != null) return true;
+            var col = r.GetComponent<BoxCollider>();
+            if (col == null || col.isTrigger) return false;
+            // Só blocos simples (Transform, MeshFilter, MeshRenderer, BoxCollider): nada de lógica de jogo.
+            return r.GetComponents<Component>().Length <= 4;
+        }
+
+        private static bool Wall(KitStyle style, Transform holder, Vector3 size, System.Random rng)
+        {
+            if (style.Walls.Length == 0) return false;
+            var alongX = size.x >= size.z;
+            var length = alongX ? size.x : size.z;
+            var thickness = alongX ? size.z : size.x;
+            var natural = Natural(style.Walls[0]);
+            var pieceLen = Mathf.Max(natural.size.x, natural.size.z);
+            var count = Mathf.Clamp(Mathf.RoundToInt(length / Mathf.Max(0.1f, pieceLen)), 1, 30);
+            var step = length / count;
+            var any = false;
+            for (var i = 0; i < count; i++)
+            {
+                var offset = -length * 0.5f + step * (i + 0.5f);
+                var center = alongX ? new Vector3(offset, 0f, 0f) : new Vector3(0f, 0f, offset);
+                var pieceSize = alongX ? new Vector3(step, size.y, thickness) : new Vector3(thickness, size.y, step);
+                any |= Fit(style.Walls[rng.Next(style.Walls.Length)], holder, center, pieceSize, false);
+            }
+            return any;
+        }
+
+        private static bool Floor(KitStyle style, Transform holder, Vector3 size)
+        {
+            if (style.Floor == null) return false;
+            var natural = Natural(style.Floor);
+            var cx = Mathf.Clamp(Mathf.RoundToInt(size.x / Mathf.Max(0.1f, natural.size.x)), 1, 40);
+            var cz = Mathf.Clamp(Mathf.RoundToInt(size.z / Mathf.Max(0.1f, natural.size.z)), 1, 40);
+            var sx = size.x / cx;
+            var sz = size.z / cz;
+            var any = false;
+            for (var ix = 0; ix < cx; ix++)
+            for (var iz = 0; iz < cz; iz++)
+            {
+                var center = new Vector3(-size.x * 0.5f + sx * (ix + 0.5f), 0f, -size.z * 0.5f + sz * (iz + 0.5f));
+                any |= Fit(style.Floor, holder, center, new Vector3(sx, size.y, sz), true);
+            }
+            return any;
+        }
+
+        /// <summary>
+        /// Encaixa a peça numa caixa (centro e tamanho no espaço do holder).
+        /// Gira 90° quando o lado comprido da peça não bate com o da caixa.
+        /// keepHeight: mantém a altura original (pisos) e alinha o topo ao topo da caixa.
+        /// </summary>
+        public static bool Fit(GameObject prefab, Transform holder, Vector3 center, Vector3 size, bool keepHeight)
+        {
+            if (prefab == null) return false;
+            var nat = Natural(prefab).size;
+            var rotate = (size.x >= size.z && nat.z > nat.x * 1.2f) || (size.z > size.x && nat.x > nat.z * 1.2f);
+            float S(float target, float natural) => natural < 0.02f ? 1f : target / natural;
+            var scale = rotate
+                ? new Vector3(S(size.z, nat.x), keepHeight ? 1f : S(size.y, nat.y), S(size.x, nat.z))
+                : new Vector3(S(size.x, nat.x), keepHeight ? 1f : S(size.y, nat.y), S(size.z, nat.z));
+            var height = keepHeight ? nat.y : size.y;
+
+            var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, holder);
+            go.transform.localRotation = rotate ? Quaternion.Euler(0f, 90f, 0f) : Quaternion.identity;
+            go.transform.localScale = scale;
+            go.transform.localPosition = center + Vector3.up * (size.y * 0.5f - height);
+            if (!keepHeight) go.transform.localPosition = center - Vector3.up * size.y * 0.5f;
+            return true;
+        }
+
+        /// <summary>Tamanho do modelo (a raiz dos Prefabs dos kits fica na base, no centro).</summary>
+        private static Bounds Natural(GameObject prefab)
+        {
+            if (SizeCache.TryGetValue(prefab, out var b)) return b;
+            var temp = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            try
+            {
+                temp.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+                var renderers = temp.GetComponentsInChildren<Renderer>();
+                b = renderers.Length > 0 ? renderers[0].bounds : new Bounds(Vector3.zero, Vector3.one);
+                foreach (var r in renderers) b.Encapsulate(r.bounds);
+            }
+            finally
+            {
+                Object.DestroyImmediate(temp);
+            }
+            SizeCache[prefab] = b;
+            return b;
+        }
+    }
+}

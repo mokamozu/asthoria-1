@@ -24,5 +24,8 @@ MonoBehaviour:
   weight: 0.3
   value: 20
   worldModel: {fileID: 8516854631755225528, guid: 146578a06c314714cbe9b8aa34fd4826, type: 3}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
   effect: 1
   amount: 60

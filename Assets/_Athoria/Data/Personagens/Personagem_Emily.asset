@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffe5364e6e1a2b147a9b70db1c642122, type: 3}
+  m_Name: Personagem_Emily
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Characters.CharacterData
+  id: d222ab9d4511aa84f9cfb56d4417e930
+  displayName: Emily Thornwood
+  description: "Irm\xE3 mais nova de Layla, nunca manifestou o Ip\xEA Rosa. Age como uma sombra sob a cidade de Lac\xFAnia \u2014 uma Cavaleira pouco vista \u2014 e domina uma serpente que dorme abaixo do grande Ip\xEA Rosa."
+  icon: {fileID: 21300000, guid: 17c5b75c6a7f88f43aed9daa97ec56e0, type: 3}
+  title: "A Sombra de Lac\xFAnia"
+  characterClass: Sombra
+  region: "Lac\xFAnia"
+  accentColor: {r: 0.78, g: 0.4, b: 0.3, a: 1}
+  portrait: {fileID: 21300000, guid: 6a4210d863b9c36409c163867ef05e43, type: 3}
+  portraitSmall: {fileID: 21300000, guid: 17c5b75c6a7f88f43aed9daa97ec56e0, type: 3}
+  portraitAlternate: {fileID: 21300000, guid: 1696b49a4f3eaf047aa3c02ec52b0065, type: 3}
+  fullBody: {fileID: 0}
+  regionEmblem: {fileID: 21300000, guid: f3ba076e2eb419a41b2c2efe28f0f114, type: 3}
+  baseHealth: 90
+  baseStamina: 110
+  baseMana: 50
+  traits:
+  - name: "Sombra de Lac\xFAnia"
+    description: Esquivas custam 35% menos vigor.
+    effect: 6
+    value: 35
+    category: 0
+  - name: Presas
+    description: +20% de dano com adagas.
+    effect: 5
+    value: 20
+    category: 2
+  ability: {fileID: 11400000, guid: 1536f284379ab084da7a69f70cf9cb60, type: 2}
+  mantraSlots: 0
+  startingWeapons:
+  - {fileID: 11400000, guid: c2b36b4d4d5df2f439e64954ffe4d16b, type: 2}
+  startingOffHand: {fileID: 0}
+  armsTexture: {fileID: 2800000, guid: 6d3c66c1ae3a8be46a64a8e865e93c8b, type: 3}

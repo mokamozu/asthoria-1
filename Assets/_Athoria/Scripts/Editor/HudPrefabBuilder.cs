@@ -1,5 +1,6 @@
 using System.IO;
 using Athoria.UI.HUD;
+using Athoria.UI.Menus;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -77,6 +78,7 @@ namespace Athoria.Editor
                     new Color(0.16f, 0.32f, 0.72f), new Color(0.7f, 0.8f, 1f), 12);
 
                 BuildExperience(root.transform, font);
+                BuildTargetBar(root.transform, font);
                 BuildBanner(root, font);
 
                 // Mensagens curtas (centro inferior)
@@ -84,8 +86,10 @@ namespace Athoria.Editor
                 var tr = toast.rectTransform;
                 tr.anchorMin = tr.anchorMax = new Vector2(0.5f, 0f);
                 tr.pivot = new Vector2(0.5f, 0f);
-                tr.anchoredPosition = new Vector2(0, 140);
+                tr.anchoredPosition = new Vector2(0, 175);
                 tr.sizeDelta = new Vector2(900, 120);
+                BuildHotbar(root.transform, font);
+
                 // Mira: ponto central discreto
                 var dot = Img(root.transform, "Mira", new Color(0.95f, 0.9f, 0.8f, 0.75f));
                 var dr = dot.rectTransform;
@@ -121,6 +125,22 @@ namespace Athoria.Editor
                 so.FindProperty("resourcesGroup").objectReferenceValue = group;
                 so.ApplyModifiedPropertiesWithoutUndo();
 
+                // Menu de pausa (Esc): mesmo estilo de vidro do menu principal.
+                MenuArtImport.Prepare();
+                var pause = root.AddComponent<PauseMenuScreen>();
+                var pso = new SerializedObject(pause);
+                pso.FindProperty("uiTiles").objectReferenceValue = MenuArtImport.Tiles;
+                pso.FindProperty("glassPane").objectReferenceValue = MenuArtImport.MenuTexture("vidro_botao");
+                pso.FindProperty("glassSheen").objectReferenceValue = MenuArtImport.MenuTexture("vidro_reflexo");
+                var hover = pso.FindProperty("glassHoverSounds");
+                hover.arraySize = 3;
+                for (var i = 0; i < 3; i++) hover.GetArrayElementAtIndex(i).objectReferenceValue = MenuArtImport.Sound($"vidro_passar_{i + 1}");
+                pso.FindProperty("confirmSound").objectReferenceValue = MenuArtImport.Sound("vidro_confirmar");
+                pso.FindProperty("backSound").objectReferenceValue = MenuArtImport.Sound("vidro_voltar");
+                pso.FindProperty("changeSound").objectReferenceValue = MenuArtImport.Sound("vidro_mudar");
+                pso.FindProperty("mainMenuScene").stringValue = MainMenuSceneBuilder.SceneName;
+                pso.ApplyModifiedPropertiesWithoutUndo();
+
                 Directory.CreateDirectory(Path.GetDirectoryName(PrefabPath));
                 return PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
             }
@@ -128,6 +148,129 @@ namespace Athoria.Editor
             {
                 Object.DestroyImmediate(root);
             }
+        }
+
+        /// <summary>Topo central: nome e vida do inimigo atingido.</summary>
+        private static void BuildTargetBar(Transform root, Font font)
+        {
+            var panel = Child(root, "Alvo");
+            panel.anchorMin = panel.anchorMax = new Vector2(0.5f, 1f);
+            panel.pivot = new Vector2(0.5f, 1f);
+            panel.anchoredPosition = new Vector2(0, -40);
+            panel.sizeDelta = new Vector2(620, 58);
+            var group = panel.gameObject.AddComponent<CanvasGroup>();
+            group.interactable = false;
+            group.blocksRaycasts = false;
+            group.alpha = 0f;
+
+            var title = Txt(panel, font, "Nome do Alvo", "", 20, TextAnchor.LowerCenter, new Color(0.95f, 0.88f, 0.72f));
+            var tr = title.rectTransform;
+            tr.anchorMin = new Vector2(0f, 1f);
+            tr.anchorMax = Vector2.one;
+            tr.pivot = new Vector2(0.5f, 1f);
+            tr.anchoredPosition = Vector2.zero;
+            tr.sizeDelta = new Vector2(0, 28);
+            var shadow = title.gameObject.AddComponent<Outline>();
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.85f);
+            shadow.effectDistance = new Vector2(1, -1);
+
+            var bar = Bar(panel, font, "Vida do Alvo", new Vector2(0, 4), new Vector2(620, 20),
+                new Color(0.55f, 0.07f, 0.05f), new Color(0.95f, 0.82f, 0.55f), 12);
+            // O nome fica em cima; dentro da barra só os números.
+            var inner = bar.transform.Find("Nome");
+            if (inner != null) Object.DestroyImmediate(inner.gameObject);
+
+            var display = panel.gameObject.AddComponent<TargetHealthDisplay>();
+            var so = new SerializedObject(display);
+            so.FindProperty("bar").objectReferenceValue = bar;
+            so.FindProperty("nameText").objectReferenceValue = title;
+            so.FindProperty("group").objectReferenceValue = group;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Centro inferior: [1][2] armas  [Q] habilidade  [3][4] consumíveis.</summary>
+        private static void BuildHotbar(Transform root, Font font)
+        {
+            var bar = Child(root, "Atalhos");
+            bar.anchorMin = bar.anchorMax = new Vector2(0.5f, 0f);
+            bar.pivot = new Vector2(0.5f, 0f);
+            bar.anchoredPosition = new Vector2(0, 22);
+            bar.sizeDelta = new Vector2(430, 100);
+
+            var w1 = HotSlot(bar, font, "Arma 1", "1", -170f, 64f, 84f, false);
+            var w2 = HotSlot(bar, font, "Arma 2", "2", -95f, 64f, 84f, false);
+            var ab = HotSlot(bar, font, "Habilidade", "Q", 0f, 84f, 84f, true);
+            var i3 = HotSlot(bar, font, "Item 3", "3", 95f, 64f, 64f, false);
+            var i4 = HotSlot(bar, font, "Item 4", "4", 170f, 64f, 64f, false);
+
+            var weaponName = Txt(bar, font, "Nome da Arma", "", 15, TextAnchor.LowerCenter, new Color(0.9f, 0.84f, 0.7f));
+            var wr = weaponName.rectTransform;
+            wr.anchorMin = wr.anchorMax = new Vector2(0.5f, 1f);
+            wr.pivot = new Vector2(0.5f, 0f);
+            wr.anchoredPosition = new Vector2(-132f, 4f);
+            wr.sizeDelta = new Vector2(220, 22);
+            var abilityName = Txt(bar, font, "Nome da Habilidade", "", 13, TextAnchor.LowerCenter, new Color(0.75f, 0.68f, 0.9f));
+            var ar = abilityName.rectTransform;
+            ar.anchorMin = ar.anchorMax = new Vector2(0.5f, 1f);
+            ar.pivot = new Vector2(0.5f, 0f);
+            ar.anchoredPosition = new Vector2(0f, 4f);
+            ar.sizeDelta = new Vector2(200, 20);
+
+            var view = bar.gameObject.AddComponent<HotbarView>();
+            var so = new SerializedObject(view);
+            so.FindProperty("weapon1").objectReferenceValue = w1;
+            so.FindProperty("weapon2").objectReferenceValue = w2;
+            so.FindProperty("ability").objectReferenceValue = ab;
+            so.FindProperty("item3").objectReferenceValue = i3;
+            so.FindProperty("item4").objectReferenceValue = i4;
+            so.FindProperty("weaponName").objectReferenceValue = weaponName;
+            so.FindProperty("abilityName").objectReferenceValue = abilityName;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static HotbarSlotView HotSlot(RectTransform parent, Font font, string name, string key, float x, float w, float h, bool withCooldown)
+        {
+            var frame = Img(parent, name, new Color(0.4f, 0.29f, 0.15f));
+            var r = frame.rectTransform;
+            r.anchorMin = r.anchorMax = new Vector2(0.5f, 0f);
+            r.pivot = new Vector2(0.5f, 0f);
+            r.anchoredPosition = new Vector2(x, 0f);
+            r.sizeDelta = new Vector2(w, h);
+            var bg = Img(r, "Fundo", new Color(0.05f, 0.045f, 0.045f, 0.92f));
+            Stretch(bg.rectTransform, 2);
+            var icon = Img(r, "Icone", Color.white);
+            icon.preserveAspect = true;
+            Stretch(icon.rectTransform, 6);
+
+            Image fill = null;
+            Text cdText = null;
+            if (withCooldown)
+            {
+                fill = Img(r, "Recarga", new Color(0f, 0f, 0f, 0.7f));
+                Stretch(fill.rectTransform, 2);
+                fill.type = Image.Type.Filled;
+                fill.fillMethod = Image.FillMethod.Radial360;
+                fill.fillOrigin = (int)Image.Origin360.Top;
+                fill.fillClockwise = false;
+                fill.fillAmount = 0f;
+                cdText = Txt(r, font, "Segundos", "", 22, TextAnchor.MiddleCenter, Color.white);
+                Stretch(cdText.rectTransform, 0);
+            }
+
+            var keyText = Txt(r, font, "Tecla", key, 13, TextAnchor.UpperLeft, new Color(0.95f, 0.85f, 0.6f));
+            Stretch(keyText.rectTransform, 4);
+            var count = Txt(r, font, "Quantidade", "", 14, TextAnchor.LowerRight, Color.white);
+            Stretch(count.rectTransform, 4);
+
+            var view = frame.gameObject.AddComponent<HotbarSlotView>();
+            var so = new SerializedObject(view);
+            so.FindProperty("frame").objectReferenceValue = frame;
+            so.FindProperty("icon").objectReferenceValue = icon;
+            so.FindProperty("count").objectReferenceValue = count;
+            so.FindProperty("cooldownFill").objectReferenceValue = fill;
+            so.FindProperty("cooldownText").objectReferenceValue = cdText;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return view;
         }
 
         private const string Sfx = "Assets/_Athoria/Audio/SFX/Provisorios/";

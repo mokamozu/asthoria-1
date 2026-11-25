@@ -108,6 +108,9 @@ namespace Athoria.Editor
                 leftArm.localPosition = new Vector3(-0.3f, -0.78f, 0.15f);
                 leftArm.localRotation = Quaternion.Euler(10f, 0f, 0f);
 
+                var armsSkin = root.AddComponent<ArmsSkin>();
+                armsSkin.EditorSetRenderers(motionRoot.GetComponentsInChildren<SkinnedMeshRenderer>(true));
+
                 var character = root.AddComponent<PlayerCharacter>();
                 var traits = root.AddComponent<PlayerTraits>();
                 var input = root.AddComponent<PlayerInputReader>();
@@ -118,8 +121,12 @@ namespace Athoria.Editor
                 var look = root.AddComponent<PlayerLook>();
                 var effects = root.AddComponent<PlayerCameraEffects>();
                 var interactor = root.AddComponent<PlayerInteractor>();
+                root.AddComponent<Athoria.Gameplay.Save.SaveHotkeys>();
                 var overlay = root.AddComponent<PlayerDebugOverlay>();
                 var loadout = root.AddComponent<WeaponLoadout>();
+                root.AddComponent<FirearmAmmo>();
+                root.AddComponent<Athoria.Gameplay.Summons.MantraPool>();
+                root.AddComponent<Athoria.Gameplay.Summons.SummonController>();
                 var weaponView = root.AddComponent<PlayerWeaponView>();
                 var health = root.AddComponent<Health>();
                 var combat = root.AddComponent<PlayerCombat>();
@@ -127,6 +134,8 @@ namespace Athoria.Editor
                 var inventory = root.AddComponent<PlayerInventory>();
                 var stats = root.AddComponent<PlayerStats>();
                 var equipment = root.AddComponent<PlayerEquipment>();
+                var ability = root.AddComponent<PlayerAbility>();
+                var quickItems = root.AddComponent<QuickItemSlots>();
                 root.AddComponent<DamageNumbers>();
 
                 Set(input, "actions", controls);
@@ -194,7 +203,7 @@ namespace Athoria.Editor
 
                 var invSo = new SerializedObject(inventory);
                 var start = invSo.FindProperty("startingItems");
-                (string id, int qty)[] startItems = { ("PocaoVida", 3), ("PocaoVigor", 2), ("PocaoMana", 1), ("Erva", 4), ("Machado", 1), ("Elmo", 1), ("Botas", 1), ("AnelVitalidade", 1), ("AnelForca", 1), ("AnelMana", 1) };
+                (string id, int qty)[] startItems = { ("PocaoVida", 3), ("PocaoVigor", 2), ("PocaoMana", 1), ("Erva", 4), ("AnelVitalidade", 1), ("AnelForca", 1), ("AnelMana", 1) };
                 start.arraySize = startItems.Length;
                 for (var i = 0; i < startItems.Length; i++)
                 {
@@ -212,6 +221,15 @@ namespace Athoria.Editor
                 Set(experience, "stats", stats);
                 Set(equipment, "loadout", loadout);
                 Set(equipment, "stats", stats);
+                Set(ability, "input", input);
+                Set(quickItems, "input", input);
+                Set(quickItems, "inventory", inventory);
+                var qSo = new SerializedObject(quickItems);
+                var qSlots = qSo.FindProperty("slots");
+                qSlots.arraySize = QuickItemSlots.Count;
+                qSlots.GetArrayElementAtIndex(0).objectReferenceValue = items["PocaoVida"];
+                qSlots.GetArrayElementAtIndex(1).objectReferenceValue = items["PocaoVigor"];
+                qSo.ApplyModifiedPropertiesWithoutUndo();
                 Set(combat, "stats", stats);
 
                 if (viewModelLayer >= 0) SetLayerRecursively(motionRoot.gameObject, viewModelLayer);
@@ -234,13 +252,17 @@ namespace Athoria.Editor
 
             var arm = new GameObject(name).transform;
             arm.SetParent(parent, false);
-            ArmPart(arm, "Antebraco", new Vector3(0, 0, 0.14f), new Vector3(0.075f, 0.075f, 0.3f), cloth);
-            ArmPart(arm, "Bracadeira", new Vector3(0, 0, 0.24f), new Vector3(0.088f, 0.088f, 0.12f), bronze);
-            ArmPart(arm, "Mao", new Vector3(0, 0, 0.35f), new Vector3(0.085f, 0.1f, 0.1f), leather);
-
             socket = new GameObject("Soquete Mao").transform;
             socket.SetParent(arm, false);
             socket.localPosition = new Vector3(0, 0, 0.35f);
+
+            // Mãos PS1 (pacote FPS PSX Hands); sem o modelo, braço provisório de blocos.
+            var right = name.Contains("Direito");
+            if (PsxAssets.BuildArmModel(arm, right, socket.localPosition) != null) return arm;
+
+            ArmPart(arm, "Antebraco", new Vector3(0, 0, 0.14f), new Vector3(0.075f, 0.075f, 0.3f), cloth);
+            ArmPart(arm, "Bracadeira", new Vector3(0, 0, 0.24f), new Vector3(0.088f, 0.088f, 0.12f), bronze);
+            ArmPart(arm, "Mao", new Vector3(0, 0, 0.35f), new Vector3(0.085f, 0.1f, 0.1f), leather);
             return arm;
         }
 

@@ -19,6 +19,15 @@ namespace Athoria.Core
 
         public bool IsPaused { get; private set; }
 
+        /// <summary>
+        /// Chamado quando o jogador aperta Pausa/Esc. Se devolver true, a tecla foi
+        /// usada por um menu (ex.: voltar de um submenu da pausa) e o jogo não despausa.
+        /// </summary>
+        public static System.Func<bool> BackRequested;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => BackRequested = null;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)

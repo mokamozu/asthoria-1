@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffe5364e6e1a2b147a9b70db1c642122, type: 3}
+  m_Name: Personagem_Yuna
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Characters.CharacterData
+  id: 22d5443b2dd76244394a6013d5aafd06
+  displayName: Yuna Kazehara
+  description: "\xDAltima sobrevivente sangu\xEDnea dos Kazehara. Depois do massacre de sua fam\xEDlia, tornou-se uma Carrasca de m\xE3os de ferro; foi Akane quem recuperou parte de sua humanidade. Mestra e m\xE3e adotiva de Akane."
+  icon: {fileID: 21300000, guid: 402ce64f6e273bb44b84aaa40369ff49, type: 3}
+  title: "A Carrasca de M\xE3os de Ferro"
+  characterClass: Carrasca
+  region: Kaminari no Kumi
+  accentColor: {r: 0.4, g: 0.72, b: 0.62, a: 1}
+  portrait: {fileID: 21300000, guid: 30414493c3f298b43b237b4849c86b1a, type: 3}
+  portraitSmall: {fileID: 21300000, guid: 402ce64f6e273bb44b84aaa40369ff49, type: 3}
+  portraitAlternate: {fileID: 21300000, guid: 3aa50eb3deedcff4da4c8cbdf9ac9786, type: 3}
+  fullBody: {fileID: 21300000, guid: a94010fb1867651479838fa41c97e807, type: 3}
+  regionEmblem: {fileID: 21300000, guid: e8ba437cac2b98a43a3ee403d20e947c, type: 3}
+  baseHealth: 115
+  baseStamina: 100
+  baseMana: 30
+  traits:
+  - name: "M\xE3os de Ferro"
+    description: +20% de dano com clavas e martelos.
+    effect: 5
+    value: 20
+    category: 3
+  - name: "\xDAltima Kazehara"
+    description: "+25 de vida m\xE1xima."
+    effect: 0
+    value: 25
+    category: 0
+  ability: {fileID: 11400000, guid: aece8de1f07da7f4d8cc73853a3cfa67, type: 2}
+  mantraSlots: 0
+  startingWeapons:
+  - {fileID: 11400000, guid: a7a414867565f8d48990b4171ce5dc82, type: 2}
+  startingOffHand: {fileID: 0}
+  armsTexture: {fileID: 2800000, guid: 3696296ae042f53429b9ec0299bd1c14, type: 3}

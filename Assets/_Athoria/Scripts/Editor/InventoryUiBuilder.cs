@@ -65,7 +65,7 @@ namespace Athoria.Editor
                 var inner = Img(pr, "Interior", Back, false);
                 Stretch(inner.rectTransform, 3);
 
-                var title = Txt(pr, font, "Titulo", "INVENTÁRIO  •  EQUIPAMENTO", 28, TextAnchor.MiddleCenter, Gold);
+                var title = Txt(pr, font, "Titulo", "INVENTÁRIO  •  ANÉIS E AMULETO", 28, TextAnchor.MiddleCenter, Gold);
                 TopBand(title.rectTransform, 14, 40);
                 var line = Img(pr, "Filete", Bronze, false);
                 line.rectTransform.anchorMin = new Vector2(0.2f, 1f);
@@ -82,21 +82,14 @@ namespace Athoria.Editor
                 art.preserveAspect = true;
                 At(art.rectTransform, 310f, 365f, 230f, 400f);
 
+                // Só acessórios: as armas são fixas de cada cavaleira e as armaduras, estéticas.
                 var slots = new System.Collections.Generic.List<EquipmentSlotView>
                 {
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Head, "Cabeça", 110f, 175f, 84f, 84f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Chest, "Peitoral", 110f, 295f, 84f, 120f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Legs, "Pernas", 110f, 425f, 84f, 110f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Feet, "Pés", 110f, 540f, 84f, 84f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Amulet, "Amuleto", 510f, 165f, 64f, 64f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Hands, "Mãos", 510f, 265f, 84f, 84f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Ring1, "Anel", 475f, 365f, 60f, 60f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Ring2, "Anel", 545f, 365f, 60f, 60f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Ring3, "Anel", 475f, 435f, 60f, 60f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Ring4, "Anel", 545f, 435f, 60f, 60f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.MainWeapon, "Arma principal (1)", 215f, 640f, 84f, 130f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.SecondaryWeapon, "Arma secundária (2)", 315f, 640f, 84f, 130f),
-                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Shield, "Escudo", 415f, 640f, 84f, 110f),
+                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Amulet, "Amuleto", 310f, 618f, 80f, 80f),
+                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Ring1, "Anel", 110f, 280f, 74f, 74f),
+                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Ring2, "Anel", 110f, 420f, 74f, 74f),
+                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Ring3, "Anel", 510f, 280f, 74f, 74f),
+                    Slot(pr, font, Gameplay.Inventory.EquipmentSlot.Ring4, "Anel", 510f, 420f, 74f, 74f),
                 };
 
                 // --- Grade ---

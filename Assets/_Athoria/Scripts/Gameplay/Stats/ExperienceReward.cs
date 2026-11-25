@@ -13,6 +13,7 @@ namespace Athoria.Gameplay.Stats
         private Health _health;
 
         public int Experience => experience;
+        public string DisplayName => string.IsNullOrEmpty(displayName) ? name : displayName;
 
         private void Awake() => _health = GetComponent<Health>();
         private void OnEnable() => _health.Died += OnDied;
@@ -22,6 +23,9 @@ namespace Athoria.Gameplay.Stats
         {
             if (info.Source == null) return;
             var receiver = info.Source.GetComponentInParent<PlayerExperience>();
+            // Abatido por um espírito invocado: o XP vai para a invocadora.
+            if (receiver == null && info.Source.GetComponentInParent<Summons.SpiritCompanion>() is { Owner: not null } spirit)
+                receiver = spirit.Owner.GetComponent<PlayerExperience>();
             if (receiver != null)
                 receiver.AddExperience(experience, XpSource.Enemy, string.IsNullOrEmpty(displayName) ? name : displayName);
         }

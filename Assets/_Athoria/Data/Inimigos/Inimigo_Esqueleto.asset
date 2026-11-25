@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c34b504f86725849a4431bfbf31eb50, type: 3}
+  m_Name: Inimigo_Esqueleto
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.AI.EnemyData
+  id: 1b858f8cc93b05e4f958bd1e086e6b03
+  displayName: Esqueleto Guerreiro
+  description: "Ossos presos por algo que n\xE3o deveria existir. Ergue o escudo quando v\xEA o golpe chegando e responde na hora."
+  icon: {fileID: 0}
+  maxHealth: 70
+  physicalReduction: 0
+  poise: 2
+  staggerDuration: 0.7
+  canBlock: 1
+  blockChance: 0.45
+  blockAngle: 70
+  blockDuration: 1.3
+  blockAbsorb: 1
+  guardHits: 3
+  riposteChance: 0.5
+  walkSpeed: 1.4
+  runSpeed: 3.6
+  turnSpeed: 300
+  agentRadius: 0.4
+  agentHeight: 1.8
+  sightRange: 15
+  sightAngle: 120
+  senseRadius: 2
+  hearingRange: 8
+  memoryTime: 4
+  alertRadius: 10
+  leashRange: 26
+  patrolRadius: 3
+  patrolWait: {x: 3, y: 6}
+  attackInterval: {x: 1, y: 2}
+  circlesTarget: 0
+  preferredDistance: 0
+  retreatHealthFraction: 0
+  retreatDuration: 3
+  returnRegenPerSecond: 15
+  sneakAttackMultiplier: 2
+  attacks:
+  - name: Corte
+    pose: 0
+    minRange: 0
+    maxRange: 2.1
+    damage: 12
+    damageType: 0
+    windup: 0.55
+    activeTime: 0.15
+    recovery: 0.6
+    arc: 100
+    stagger: 1
+    heavy: 0
+    lunge: 0.3
+    projectile: {fileID: 0}
+    projectileSpeed: 22
+    cooldown: 0
+    weight: 1
+    chainChance: 0.35
+    chainTo: 1
+    sound: {fileID: 0}
+  - name: Golpe Descendente
+    pose: 1
+    minRange: 0
+    maxRange: 2.2
+    damage: 18
+    damageType: 0
+    windup: 0.8
+    activeTime: 0.15
+    recovery: 0.8
+    arc: 60
+    stagger: 2
+    heavy: 1
+    lunge: 0.5
+    projectile: {fileID: 0}
+    projectileSpeed: 22
+    cooldown: 0
+    weight: 0.6
+    chainChance: 0
+    chainTo: -1
+    sound: {fileID: 0}
+  experience: 30
+  loot: {fileID: 11400000, guid: f2a7261777d3f0f4a9852a97bec75c36, type: 2}
+  alertSound: {fileID: 8300000, guid: 06d41aa61fe2b15408e01f22359edcb9, type: 3}
+  attackSounds: []
+  hurtSound: {fileID: 8300000, guid: 06d41aa61fe2b15408e01f22359edcb9, type: 3}
+  deathSound: {fileID: 8300000, guid: 635873d78a330384ca8d6947cc4921e7, type: 3}

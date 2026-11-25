@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3147d58225c501b469bb5d9af49630fb, type: 3}
+  m_Name: Espirito_LoboEspiritual
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Summons.SpiritData
+  id: 2e323eb6fa673524c973326863f59687
+  displayName: Lobo Espiritual
+  description: "Esp\xEDrito lupino materializado por Akane. Acompanha a invocadora e ataca sozinho os inimigos pr\xF3ximos. Ocupa 1 Mantra enquanto existe."
+  icon: {fileID: 0}
+  prefab: {fileID: 8842792790031646707, guid: 538471bd8ca53294799c79fce8ede965, type: 3}
+  mantraCost: 1
+  manifestFx: {fileID: 0}
+  vanishFx: {fileID: 0}
+  maxHealth: 45
+  damage: 8
+  damageType: 0
+  attackInterval: 1
+  attackRange: 1.8
+  attackWindup: 0.35
+  stagger: 1
+  walkSpeed: 2
+  runSpeed: 6.5
+  turnSpeed: 540
+  detectionRange: 12
+  leashRange: 18
+  followDistance: 2.5
+  teleportDistance: 25
+  summonDuration: 1.6
+  hurtDuration: 0.45
+  deathDuration: 1.6

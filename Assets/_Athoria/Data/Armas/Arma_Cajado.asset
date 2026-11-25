@@ -24,6 +24,9 @@ MonoBehaviour:
   weight: 3
   value: 70
   worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
   category: 6
   handling: 1
   viewModelPrefab: {fileID: 3400060887785927576, guid: f6968ddbfd60b434681b960be4a8ff80, type: 3}
@@ -31,11 +34,11 @@ MonoBehaviour:
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 25, y: 0, z: 12}
   holdingArmPose:
-    position: {x: 0.22, y: -0.44, z: 0.3}
-    rotation: {x: -16, y: -18, z: 0}
+    position: {x: 0.18, y: -0.31, z: 0.3}
+    rotation: {x: -24, y: -18, z: 0}
   supportArmPose:
-    position: {x: 0, y: -0.5, z: 0.38}
-    rotation: {x: -22, y: 22, z: 0}
+    position: {x: 0, y: -0.4, z: 0.36}
+    rotation: {x: -30, y: 24, z: 0}
   damage: 14
   attackSpeed: 1
   range: 2.4
@@ -46,3 +49,8 @@ MonoBehaviour:
   spellManaCost: 12
   spellSpeed: 18
   projectileSound: {fileID: 0}
+  projectileCount: 1
+  projectileSpread: 0
+  magazineSize: 0
+  reloadTime: 2
+  attackSet: 0

@@ -197,5 +197,12 @@ namespace Athoria.Gameplay.Inventory
         }
 
         public void NotifyChanged() => Changed?.Invoke();
+
+        /// <summary>Esvazia a grade (carregar save).</summary>
+        public void Clear()
+        {
+            _entries.Clear();
+            Changed?.Invoke();
+        }
     }
 }

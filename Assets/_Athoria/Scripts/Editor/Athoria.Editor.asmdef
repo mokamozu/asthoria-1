@@ -8,7 +8,8 @@
         "Unity.RenderPipelines.Universal.Runtime",
         "Unity.RenderPipelines.Core.Runtime",
         "Athoria.UI",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "Unity.AI.Navigation"
     ],
     "includePlatforms": [
         "Editor"

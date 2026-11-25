@@ -48,6 +48,16 @@ namespace Athoria.UI.HUD
             if (label != null) label.text = showNumbers ? $"{Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}" : string.Empty;
         }
 
+        /// <summary>Muda de valor sem animar a trilha (ex.: trocar de alvo).</summary>
+        public void SnapTo(float current, float max)
+        {
+            _value = 1f;
+            _trailValue = 0f;
+            Set(current, max);
+            _trailValue = _value;
+            ApplyTrail();
+        }
+
         public void SetAlert(bool alert)
         {
             _alert = alert;

@@ -169,3 +169,11 @@ Packages/packages-lock.json linguist-generated
 
 # Exceptions for .asset files such as lightning pre-baking
 LightingData.asset     binary
+
+# === Claude Code Game Studios ===
+# Scripts e hooks do estúdio precisam de fim de linha LF (o Git Bash do Windows quebra com CRLF).
+*.sh text eol=lf
+*.awk text eol=lf
+.worktreeinclude text eol=lf
+*.tsv text eol=lf
+.claude/**/*.md text eol=lf

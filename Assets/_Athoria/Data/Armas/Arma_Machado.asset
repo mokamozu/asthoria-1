@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Arma_Machado
   m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
   id: 5e61d8f63b68b6145adff6dae3a54d99
-  displayName: "Machado de Batalha (provis\xF3rio)"
+  displayName: Machado de Batalha
   description: "Golpes pesados que rompem defesas. Uma m\xE3o."
   icon: {fileID: 21300000, guid: 1335d0204c6f37a4da518f51344b5acc, type: 3}
   itemCategory: 0
@@ -24,6 +24,9 @@ MonoBehaviour:
   weight: 5
   value: 45
   worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
   category: 1
   handling: 0
   viewModelPrefab: {fileID: 7720712825064885286, guid: 665ad0e18c37b7742baddd215cd2d15c, type: 3}
@@ -31,8 +34,8 @@ MonoBehaviour:
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 45, y: 0, z: 14}
   holdingArmPose:
-    position: {x: 0.26, y: -0.42, z: 0.32}
-    rotation: {x: -14, y: -12, z: 0}
+    position: {x: 0.24, y: -0.34, z: 0.3}
+    rotation: {x: -20, y: -14, z: 0}
   supportArmPose:
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 0, y: 0, z: 0}
@@ -46,3 +49,8 @@ MonoBehaviour:
   spellManaCost: 12
   spellSpeed: 18
   projectileSound: {fileID: 0}
+  projectileCount: 1
+  projectileSpread: 0
+  magazineSize: 0
+  reloadTime: 2
+  attackSet: 0

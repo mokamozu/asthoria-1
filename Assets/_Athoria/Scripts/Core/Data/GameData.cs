@@ -22,6 +22,9 @@ namespace Athoria.Core.Data
         public string Description => description;
         public Sprite Icon => icon;
 
+        /// <summary>Nome de uma cópia gerada em jogo (ex.: item sorteado "Espada do Urso").</summary>
+        public void ApplyRuntimeName(string newDisplayName) => displayName = newDisplayName;
+
 #if UNITY_EDITOR
         /// <summary>Usado por ferramentas de editor que geram dados automaticamente.</summary>
         public void EditorSetInfo(string newDisplayName, string newDescription, Sprite newIcon = null)
@@ -29,6 +32,17 @@ namespace Athoria.Core.Data
             displayName = newDisplayName;
             description = newDescription;
             if (newIcon != null) icon = newIcon;
+            UnityEditor.EditorUtility.SetDirty(this);
+        }
+
+        /// <summary>Garante o Id = GUID do asset (o banco de dados do save chama isto).</summary>
+        public void EditorEnsureId()
+        {
+            var path = UnityEditor.AssetDatabase.GetAssetPath(this);
+            if (string.IsNullOrEmpty(path)) return;
+            var guid = UnityEditor.AssetDatabase.AssetPathToGUID(path);
+            if (id == guid) return;
+            id = guid;
             UnityEditor.EditorUtility.SetDirty(this);
         }
 

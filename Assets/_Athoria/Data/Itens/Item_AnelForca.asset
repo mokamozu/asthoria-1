@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6987df129bf9ed24281ecf67b0c4ddca, type: 3}
+  m_Name: Item_AnelForca
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.AccessoryData
+  id: 91f6038c26059ec4eb532cc1a1b75dd5
+  displayName: "Anel de For\xE7a"
+  description: "Aumenta o dano f\xEDsico."
+  icon: {fileID: 21300000, guid: 54fda165e2f1f7744883ff919c404cad, type: 3}
+  itemCategory: 7
+  rarity: 1
+  gridWidth: 1
+  gridHeight: 1
+  maxStack: 1
+  weight: 0.1
+  value: 80
+  worldModel: {fileID: 8918029775264315402, guid: 9069f24f52335894f971778b158aa571, type: 3}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
+  kind: 1
+  modifiers:
+  - stat: 4
+    value: 10

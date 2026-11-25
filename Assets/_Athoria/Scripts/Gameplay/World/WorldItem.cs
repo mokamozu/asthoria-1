@@ -26,8 +26,58 @@ namespace Athoria.Gameplay.World
         public string InteractionPrompt =>
             gold > 0 ? $"Pegar {gold} de ouro"
             : item == null ? "Pegar"
-            : quantity > 1 ? $"Pegar {item.DisplayName} (x{quantity})"
-            : $"Pegar {item.DisplayName}";
+            : quantity > 1 ? $"Pegar {ColoredName} (x{quantity})"
+            : $"Pegar {ColoredName}";
+
+        /// <summary>Nome na cor da raridade (o aviso de interação aceita rich text).</summary>
+        private string ColoredName =>
+            $"<color=#{ColorUtility.ToHtmlStringRGB(ItemText.RarityColor(item.Rarity))}>{item.DisplayName}</color>";
+
+        // Salto ao cair de um inimigo/baú
+        private Vector3 _velocity;
+        private bool _airborne;
+        private float _airTime;
+        private static Material s_beamMaterial;
+
+        /// <summary>Lança o item no ar; ele cai e para no chão.</summary>
+        public void Pop(Vector3 velocity)
+        {
+            _velocity = velocity;
+            _airborne = true;
+            _airTime = 0f;
+        }
+
+        private void Update()
+        {
+            if (!_airborne) return;
+            var dt = Time.deltaTime;
+            if (dt <= 0f) return;
+            _airTime += dt;
+            _velocity.y -= 12f * dt;
+            var step = _velocity * dt;
+            var pos = transform.position;
+
+            if (Physics.Raycast(pos + Vector3.up * 0.05f, step.normalized, out var hit, step.magnitude + 0.05f, ~0, QueryTriggerInteraction.Ignore)
+                && !hit.collider.transform.IsChildOf(transform)
+                && hit.collider.GetComponentInParent<Player.PlayerController>() == null)
+            {
+                if (hit.normal.y > 0.5f)
+                {
+                    transform.position = hit.point;
+                    _airborne = false;
+                    return;
+                }
+                // Bateu numa parede: perde força e escorrega para baixo.
+                _velocity = Vector3.Reflect(_velocity, hit.normal) * 0.3f;
+                return;
+            }
+
+            transform.position = pos + step;
+            if (_airTime < 3f) return;
+            _airborne = false;
+            if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out var ground, 20f, ~0, QueryTriggerInteraction.Ignore))
+                transform.position = ground.point;
+        }
 
         public bool CanInteract(GameObject interactor) => item != null || gold > 0;
 
@@ -123,10 +173,40 @@ namespace Athoria.Gameplay.World
                 var light = lightGo.AddComponent<Light>();
                 light.type = LightType.Point;
                 light.color = color;
-                light.range = 1.6f;
-                light.intensity = 1.2f;
+                light.range = rarity >= ItemRarity.Epic ? 2.4f : 1.6f;
+                light.intensity = rarity >= ItemRarity.Epic ? 1.8f : 1.2f;
                 light.shadows = LightShadows.None;
             }
+
+            // Feixe de luz para Raro ou melhor: dá para ver de longe que caiu algo bom.
+            if (gold <= 0 && rarity >= ItemRarity.Rare) AddBeam(color, rarity);
+        }
+
+        private void AddBeam(Color color, ItemRarity rarity)
+        {
+            if (s_beamMaterial == null)
+            {
+                var shader = Shader.Find("Sprites/Default");
+                if (shader == null) return;
+                s_beamMaterial = new Material(shader) { name = "FeixeDeLoot" };
+            }
+            var beamGo = new GameObject("Feixe");
+            beamGo.transform.SetParent(transform, false);
+            var line = beamGo.AddComponent<LineRenderer>();
+            line.sharedMaterial = s_beamMaterial;
+            line.useWorldSpace = false;
+            line.positionCount = 2;
+            var height = rarity switch { ItemRarity.Legendary => 4f, ItemRarity.Epic => 3f, _ => 2.2f };
+            line.SetPosition(0, Vector3.zero);
+            line.SetPosition(1, Vector3.up * height);
+            line.widthCurve = new AnimationCurve(new Keyframe(0f, 0.09f), new Keyframe(1f, 0.01f));
+            var gradient = new Gradient();
+            gradient.SetKeys(
+                new[] { new GradientColorKey(Color.Lerp(color, Color.white, 0.4f), 0f), new GradientColorKey(color, 1f) },
+                new[] { new GradientAlphaKey(0.75f, 0f), new GradientAlphaKey(0f, 1f) });
+            line.colorGradient = gradient;
+            line.shadowCastingMode = ShadowCastingMode.Off;
+            line.receiveShadows = false;
         }
     }
 

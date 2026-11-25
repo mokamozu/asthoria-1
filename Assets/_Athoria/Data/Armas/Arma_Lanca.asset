@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Arma_Lanca
   m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
   id: f0e643fee3370cc4da461060d194c3d9
-  displayName: "Lan\xE7a (provis\xF3ria)"
+  displayName: "Lan\xE7a"
   description: "Maior alcance. Duas m\xE3os."
   icon: {fileID: 21300000, guid: d5f685d9d7acff748894e408bf0675c4, type: 3}
   itemCategory: 0
@@ -24,6 +24,9 @@ MonoBehaviour:
   weight: 5
   value: 45
   worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
   category: 4
   handling: 1
   viewModelPrefab: {fileID: 561734089064043737, guid: 442696b0e54609c439b1631b392d7364, type: 3}
@@ -31,11 +34,11 @@ MonoBehaviour:
     position: {x: 0, y: 0, z: -0.05}
     rotation: {x: 82, y: 0, z: 0}
   holdingArmPose:
-    position: {x: 0.22, y: -0.42, z: 0.26}
-    rotation: {x: -4, y: -6, z: 0}
+    position: {x: 0.2, y: -0.34, z: 0.22}
+    rotation: {x: -8, y: -8, z: 0}
   supportArmPose:
-    position: {x: 0, y: -0.46, z: 0.42}
-    rotation: {x: -6, y: 8, z: 0}
+    position: {x: 0.02, y: -0.36, z: 0.42}
+    rotation: {x: -10, y: 10, z: 0}
   damage: 20
   attackSpeed: 1
   range: 3
@@ -46,3 +49,8 @@ MonoBehaviour:
   spellManaCost: 12
   spellSpeed: 18
   projectileSound: {fileID: 0}
+  projectileCount: 1
+  projectileSpread: 0
+  magazineSize: 0
+  reloadTime: 2
+  attackSet: 0

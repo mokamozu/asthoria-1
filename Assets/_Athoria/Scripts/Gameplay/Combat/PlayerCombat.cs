@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Athoria.Core;
+using Athoria.Core.Events;
 using Athoria.Gameplay.Items;
 using Athoria.Gameplay.Player;
 using Athoria.Gameplay.Stats;
@@ -86,8 +87,12 @@ namespace Athoria.Gameplay.Combat
         private bool _bounced;
         private float _holdTime;
         private float _lastAttackEnd = float.NegativeInfinity;
-        private AttackMotion.Keyframes _keys;
-        private AttackStyle _style;
+        private AttackMotion.Swing _swing;
+        private int _comboStep;
+        private WeaponData _lastComboWeapon;
+        private bool _ranged;                       // disparo/feitiço: anima o golpe, mas sem varredura corpo a corpo
+        private Vector3 _fromPos, _fromRot;         // pose em que o golpe começou (combo emenda sem salto)
+        private Vector3 _lastPos, _lastRot;         // última pose aplicada
         private float _sweepProgress;
         private readonly HashSet<IDamageable> _hitThisSwing = new();
         private readonly RaycastHit[] _hits = new RaycastHit[16];
@@ -180,7 +185,7 @@ namespace Athoria.Gameplay.Combat
         private void TickIdle()
         {
             if (TryDodge()) return;
-            if (!input.BlockHeld || IsGuardBroken) TryStartAttack(Time.time - _lastAttackEnd < 0.6f && !_mirrored);
+            if (!input.BlockHeld || IsGuardBroken) TryStartAttack(Time.time - _lastAttackEnd < 0.6f);
         }
 
         private void TickWindUp()
@@ -198,8 +203,7 @@ namespace Athoria.Gameplay.Combat
                 if (stamina.TrySpend(extra))
                 {
                     _heavy = true;
-                    _style = AttackMotion.StyleFor(_weapon.Category, true);
-                    _keys = AttackMotion.Get(_style, false);
+                    _swing = AttackMotion.Get(_weapon, true, 0);
                     Enter(State.HeavyWindUp, 0.4f * AttackDuration(false));
                     return;
                 }
@@ -227,7 +231,7 @@ namespace Athoria.Gameplay.Combat
         {
             if (TryDodge()) return;
             var progress = _stateTime / _stateDuration;
-            if (!_heavy && progress >= comboWindowStart && TryStartAttack(!_mirrored)) return;
+            if (!_heavy && progress >= comboWindowStart && TryStartAttack(true)) return;
             if (_stateTime >= _stateDuration)
             {
                 _lastAttackEnd = Time.time;
@@ -243,13 +247,23 @@ namespace Athoria.Gameplay.Combat
             return heavy ? d * heavyDurationMultiplier : d;
         }
 
-        private bool TryStartAttack(bool mirrored)
+        private FirearmAmmo _ammo;
+        private FirearmAmmo Ammo => _ammo != null ? _ammo : (_ammo = GetComponent<FirearmAmmo>());
+
+        /// <param name="chain">Emenda no golpe anterior: avança no combo (1 → 2 → 3 → 1…).</param>
+        private bool TryStartAttack(bool chain)
         {
             if (Time.time - input.LastAttackPressedTime > inputBuffer) return false;
             if (!weaponView.IsReady || controller.IsDashing) return false;
 
             var weapon = CurrentWeapon;
             if (weapon == null || weapon.IsShield) return false;
+            // Arma de fogo com carregador: não atira recarregando nem sem bala (só o clique).
+            if (weapon.IsFirearm && Ammo != null)
+            {
+                if (Ammo.IsReloading) { input.ConsumeAttack(); return false; }
+                if (!Ammo.HasRounds(weapon)) { input.ConsumeAttack(); Ammo.DryFire(weapon); return false; }
+            }
             if (!stamina.TrySpend(weapon.LightAttackStamina))
             {
                 input.ConsumeAttack();
@@ -257,14 +271,19 @@ namespace Athoria.Gameplay.Combat
             }
 
             input.ConsumeAttack();
+            _comboStep = chain && weapon == _lastComboWeapon ? (_comboStep + 1) % AttackMotion.ComboLength(weapon) : 0;
+            _lastComboWeapon = weapon;
             _weapon = weapon;
             _heavy = false;
-            _mirrored = mirrored;
+            _mirrored = _comboStep % 2 == 1;
             _bounced = false;
+            _ranged = false;
             _holdTime = 0f;
-            _style = AttackMotion.StyleFor(weapon.Category, false);
-            _keys = AttackMotion.Get(_style, mirrored);
+            _swing = AttackMotion.Get(weapon, false, _comboStep);
+            _fromPos = _lastPos;
+            _fromRot = _lastRot;
             Enter(State.WindUp, AttackDuration(false) * windupFraction);
+            EventBus.Publish(new PlayerAttackStarted(gameObject, aimOrigin.position, aimOrigin.forward));
             return true;
         }
 
@@ -277,8 +296,9 @@ namespace Athoria.Gameplay.Combat
             // Arma de fogo: todo ataque dispara. Arma mágica: o pesado lança o feitiço (se houver mana).
             if (_weapon.HasSpell && (_weapon.IsFirearm || _heavy) && (_weapon.SpellManaCost <= 0f || mana != null && mana.TrySpend(_weapon.SpellManaCost)))
             {
+                if (_weapon.IsFirearm && Ammo != null) Ammo.Consume(_weapon);
                 CastSpell();
-                _bounced = true;   // sem varredura corpo a corpo
+                _ranged = true;    // sem varredura corpo a corpo, mas o coice/recuo é animado
                 return;
             }
             if (feedback != null)
@@ -289,13 +309,21 @@ namespace Athoria.Gameplay.Combat
         private void CastSpell()
         {
             var origin = aimOrigin.position + aimOrigin.forward * 0.6f - aimOrigin.up * 0.1f;
-            var go = Instantiate(_weapon.SpellProjectile, origin, aimOrigin.rotation);
-            var projectile = go.GetComponent<Projectile>();
-            if (projectile != null)
+            var count = _weapon.ProjectileCount;
+            var damage = _weapon.Damage * (_heavy ? _weapon.HeavyDamageMultiplier : 1f) * DamageMultiplier();
+            var type = _weapon.IsFirearm ? DamageType.Physical : DamageType.Arcane;
+            for (var i = 0; i < count; i++)
             {
-                var damage = _weapon.Damage * (_heavy ? _weapon.HeavyDamageMultiplier : 1f) * DamageMultiplier();
-                var type = _weapon.IsFirearm ? DamageType.Physical : DamageType.Arcane;
-                projectile.Launch(gameObject, damage, type, _heavy ? 2f : 1f, _weapon.SpellSpeed);
+                // Escopeta: cada chumbo sai num ponto aleatório do cone.
+                var rotation = aimOrigin.rotation;
+                if (count > 1 && _weapon.ProjectileSpread > 0f)
+                {
+                    var p = Random.insideUnitCircle * _weapon.ProjectileSpread;
+                    rotation *= Quaternion.Euler(p.y, p.x, 0f);
+                }
+                var go = Instantiate(_weapon.SpellProjectile, origin, rotation);
+                var projectile = go.GetComponent<Projectile>();
+                if (projectile != null) projectile.Launch(gameObject, damage, type, (_heavy ? 2f : 1f) / Mathf.Sqrt(count), _weapon.SpellSpeed);
             }
             var sound = _weapon.ProjectileSound != null ? _weapon.ProjectileSound : feedback != null ? feedback.swingHeavy : null;
             CombatFeedback.Play(sound, aimOrigin.position, 0.8f, 0.08f, false);
@@ -307,10 +335,10 @@ namespace Athoria.Gameplay.Combat
         {
             var range = _weapon.Range;
             var steps = Mathf.Max(1, Mathf.CeilToInt((to - from) * 8f));
-            for (var i = 1; i <= steps && !_bounced; i++)
+            for (var i = 1; i <= steps && !_bounced && !_ranged; i++)
             {
                 var p = Mathf.Lerp(from, to, i / (float)steps);
-                var angles = Vector2.Lerp(_keys.SweepStart, _keys.SweepEnd, p);
+                var angles = Vector2.Lerp(_swing.SweepStart, _swing.SweepEnd, p);
                 var dir = aimOrigin.rotation * Quaternion.Euler(angles.y, angles.x, 0f) * Vector3.forward;
                 CastAndHit(dir, range);
             }
@@ -495,44 +523,52 @@ namespace Athoria.Gameplay.Combat
                 case State.WindUp:
                 case State.HeavyWindUp:
                 {
-                    var e = 1f - (1f - t) * (1f - t);           // ease-out
+                    var e = 1f - (1f - t) * (1f - t);           // ease-out: prepara rápido e segura
                     if (_state == State.HeavyWindUp)
                     {
-                        // Sai da pose leve atual e vai para a preparação pesada; treme ao segurar.
-                        var light = AttackMotion.Get(AttackMotion.StyleFor(_weapon.Category, false), false);
-                        pos = Vector3.Lerp(light.WindupPos, _keys.WindupPos, e);
-                        rot = Vector3.Lerp(light.WindupRot, _keys.WindupRot, e);
+                        // Sai da pose armada do golpe leve e vai para a preparação pesada; treme ao segurar.
+                        var light = AttackMotion.Get(_weapon, false, _comboStep);
+                        _swing.SampleWindup(e, out var hp, out var hr);
+                        pos = Vector3.Lerp(light.WindupPos, hp, e);
+                        rot = Vector3.Lerp(light.WindupRot, hr, e);
                         if (t >= 1f) pos += Random.insideUnitSphere * 0.003f;
                     }
                     else
                     {
-                        pos = _keys.WindupPos * e;
-                        rot = _keys.WindupRot * e;
+                        // Emenda a partir de onde o golpe anterior parou
+                        _swing.SampleWindup(e, out pos, out rot);
+                        pos += _fromPos * (1f - e);
+                        rot += _fromRot * (1f - e);
                     }
                     break;
                 }
                 case State.Active:
                 {
                     var e = t * t * (3f - 2f * t);
-                    pos = Vector3.Lerp(_keys.WindupPos, _keys.EndPos, e);
-                    rot = Vector3.Lerp(_keys.WindupRot, _keys.EndRot, e);
+                    _swing.SampleStrike(e, out pos, out rot);
                     break;
                 }
                 case State.Recovery:
                 {
-                    var e = 1f - (1f - t) * (1f - t);
-                    // Se bateu e voltou, recua a partir do ponto do impacto.
-                    var startPos = _bounced ? Vector3.Lerp(_keys.WindupPos, _keys.EndPos, _sweepProgress) : _keys.EndPos;
-                    var startRot = _bounced ? Vector3.Lerp(_keys.WindupRot, _keys.EndRot, _sweepProgress) : _keys.EndRot;
-                    pos = Vector3.Lerp(startPos, Vector3.zero, e);
-                    rot = Vector3.Lerp(startRot, Vector3.zero, e);
+                    if (_bounced)
+                    {
+                        // Bateu e voltou: recua a partir do ponto do impacto, sem a continuação do golpe.
+                        var e = 1f - (1f - t) * (1f - t);
+                        _swing.SampleStrike(_sweepProgress, out var sp, out var sr);
+                        pos = Vector3.Lerp(sp, Vector3.zero, e);
+                        rot = Vector3.Lerp(sr, Vector3.zero, e);
+                    }
+                    else _swing.SampleRecover(t, out pos, out rot);
                     break;
                 }
                 default:
+                    _lastPos = _lastRot = Vector3.zero;
                     weaponView.ClearAction();
                     return;
             }
 
+            _lastPos = pos;
+            _lastRot = rot;
             var bothArms = _weapon != null && _weapon.IsTwoHanded;
             weaponView.SetAction(pos, rot, bothArms);
         }

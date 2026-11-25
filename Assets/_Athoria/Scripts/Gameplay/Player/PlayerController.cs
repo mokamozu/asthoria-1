@@ -71,6 +71,8 @@ namespace Athoria.Gameplay.Player
         public float BaseSpeedMultiplier { get; set; } = 1f;
         /// <summary>Peso carregado (inventário acima da capacidade deixa mais lento).</summary>
         public float EncumbranceMultiplier { get; set; } = 1f;
+        /// <summary>Terreno/ambiente (ex.: água do pântano). 1 = normal.</summary>
+        public float EnvironmentMultiplier { get; set; } = 1f;
         /// <summary>Combate pode impedir a corrida (atacando, bloqueando).</summary>
         public bool SprintAllowed { get; set; } = true;
         public bool IsDashing => Time.time < _dashUntil;
@@ -156,7 +158,7 @@ namespace Athoria.Gameplay.Player
             if (IsSprinting && IsGrounded && hasInput) stamina.Drain(sprintCostPerSecond * dt);
 
             var speed = IsCrouching ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed;
-            var target = wishDir * (speed * SpeedMultiplier * BaseSpeedMultiplier * EncumbranceMultiplier);
+            var target = wishDir * (speed * SpeedMultiplier * BaseSpeedMultiplier * EncumbranceMultiplier * EnvironmentMultiplier);
 
             float accel;
             if (!IsGrounded) accel = airAcceleration;
@@ -166,6 +168,20 @@ namespace Athoria.Gameplay.Player
         }
 
         /// <summary>Impulso horizontal por um tempo (esquiva).</summary>
+        /// <summary>
+        /// Puxão (arpão): voa até o ponto em linha reta, compensando a gravidade durante o trajeto.
+        /// </summary>
+        public void PullTo(Vector3 target, float speed)
+        {
+            var delta = target - transform.position;
+            var time = Mathf.Clamp(delta.magnitude / Mathf.Max(1f, speed), 0.12f, 1.6f);
+            var horizontal = new Vector3(delta.x, 0f, delta.z) / time;
+            _dashVelocity = horizontal;
+            _dashUntil = Time.time + time;
+            // sobe o suficiente para chegar à altura do alvo apesar da gravidade
+            _verticalVelocity = delta.y / time - 0.5f * gravity * time;
+        }
+
         public void Dash(Vector3 velocity, float duration)
         {
             velocity.y = 0f;

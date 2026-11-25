@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carabina de Tambor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+/* VOICE: menu de arma de jogo de PS1, seco e técnico, como uma tela de inventário.
+   IDEA: a tela de inspeção de arma do próprio jogo (Athoria), com a carabina da Evelyn girando no meio.
+   PICTURE: a carabina 3D em baixa resolução, texturas pixeladas e vértices tremendo, ocupando a tela.
+   COLOUR and TYPE: oliva-carvão de fundo, painéis pretos com moldura cinza clara, texto creme; VT323 pixelada.
+   LAYOUT: 3D em tela cheia; título no alto à esquerda, ficha da Evelyn à direita, menu de ações embaixo. */
+:root{color-scheme:dark;--bg:#2a2a22;--panel:#121210;--edge:#8e8c7c;--edge2:#4c4b42;--ink:#ece6d2;--dim:#a9a593;--hot:#f0a63c;--brass:#d8b45a}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:22px/1.15 "VT323",ui-monospace,monospace;overflow:hidden}
+#view{position:fixed;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;display:block;cursor:grab;touch-action:none}
+#view:active{cursor:grabbing}
+.panel{position:absolute;background:var(--panel);border:3px solid var(--edge);box-shadow:0 0 0 3px var(--edge2),6px 6px 0 3px rgba(0,0,0,.35);padding:8px 16px}
+.title{top:20px;left:20px}
+.title h1{margin:0;font-weight:400;font-size:clamp(32px,4.4vw,52px);letter-spacing:.06em;line-height:1}
+.title p{margin:6px 0 0;color:var(--dim);font-size:clamp(20px,2.2vw,28px);letter-spacing:.08em}
+.owner{top:20px;right:20px;text-align:right;max-width:300px}
+.owner b{display:block;font-weight:400;font-size:26px;letter-spacing:.04em}
+.owner span{color:var(--dim);font-size:19px}
+.menu{left:20px;bottom:20px;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:10px;align-items:stretch;width:min(640px,calc(100% - 40px));padding:10px}
+.arrow{background:var(--edge2);border:2px solid var(--edge);color:var(--ink);font:inherit;font-size:24px;cursor:pointer;min-height:44px;display:grid;place-items:center}
+.arrow:hover,.arrow:focus-visible{background:var(--edge);color:var(--panel);outline:none}
+.sel{display:flex;flex-direction:column;gap:6px}
+.bar{display:flex;gap:6px;color:var(--dim);font-size:17px}
+.acts{display:flex;flex-wrap:wrap;gap:6px}
+.act{flex:1 1 150px;white-space:nowrap;min-height:44px;background:#1d1d19;border:2px solid var(--edge2);color:var(--dim);font:inherit;font-size:22px;letter-spacing:.04em;cursor:pointer;padding:2px 8px;text-align:left;overflow:hidden}
+.act[aria-pressed=true]{border-color:var(--ink);color:var(--ink);background:#2a2a24}
+.act[aria-pressed=true]::before{content:"▶ ";color:var(--hot)}
+.act:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.act:disabled{opacity:.45;cursor:wait}
+.status{font-size:26px;letter-spacing:.05em;min-height:30px}
+.status.hot{color:var(--hot)}
+.ammo{display:flex;gap:6px;align-items:center;font-size:18px;color:var(--dim)}
+.round{width:14px;height:24px;border:2px solid var(--edge2);background:#1a1a16}
+.round.live{background:linear-gradient(#b0703c 0 34%,var(--brass) 34%);border-color:#6d5a2c}
+.round.spent{background:#5a4a2a;border-color:#3a3020}
+.round.top{outline:2px solid var(--ink);outline-offset:1px}
+.help{position:absolute;right:20px;bottom:20px;color:var(--dim);font-size:18px;text-align:right;text-shadow:2px 2px 0 #000}
+.toggle{background:none;border:2px solid var(--edge2);color:var(--dim);font:inherit;font-size:18px;cursor:pointer;min-height:36px;padding:0 10px}
+.toggle:hover,.toggle:focus-visible{color:var(--ink);border-color:var(--edge);outline:none}
+@media(max-width:700px){
+  html,body{font-size:20px}
+  .owner{display:none}
+  .help{display:none}
+  .title{top:12px;left:12px;right:12px}
+  .menu{left:12px;bottom:12px;width:calc(100% - 24px)}
+  .act{font-size:21px;flex-basis:90px}
+}
+@media(prefers-reduced-motion:reduce){.act{transition:none}}
+</style>
+</head>
+<body>
+<canvas id="view" aria-label="Carabina de tambor em 3D, arraste para girar"></canvas>
+
+<div class="panel title">
+  <h1>CARABINA DE TAMBOR</h1>
+  <p>6 TIROS / .38 CAL</p>
+</div>
+
+<div class="panel owner">
+  <b>EVELYN LANCASTER</b>
+  <span>Dama de Ferro · atiradora de elite das Terras Alagadas</span>
+</div>
+
+<div class="panel menu" role="group" aria-label="Ações da arma">
+  <button class="arrow" id="prev" aria-label="Ação anterior">◀</button>
+  <div class="sel">
+    <div class="acts">
+      <button class="act" data-a="inspect" aria-pressed="true">INSPECIONAR</button>
+      <button class="act" data-a="fire" aria-pressed="false">ATIRAR</button>
+      <button class="act" data-a="reload" aria-pressed="false">RECARREGAR</button>
+    </div>
+    <div class="status" id="status" aria-live="polite">PRONTA PARA USO</div>
+    <div class="bar">
+      <div class="ammo" id="ammo" aria-label="Câmaras do tambor"></div>
+      <button class="toggle" id="empty">ESVAZIAR</button>
+    </div>
+  </div>
+  <button class="arrow" id="next" aria-label="Próxima ação">▶</button>
+</div>
+
+<div class="help">arraste: girar · roda: zoom<br>ENTER: executar · ← →: escolher<br>I · F · R: atalhos</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+{
+const canvas = document.getElementById('view');
+const statusEl = document.getElementById('status');
+const ammoEl = document.getElementById('ammo');
+const PIX = 3;                         // cada pixel do jogo = 3 pixels da tela
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+renderer.setPixelRatio(1);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x2a2a22);
+scene.fog = new THREE.Fog(0x2a2a22, 6, 12);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.05, 50);
+camera.position.set(0.6, 0.55, 3.4);
+const controls = new THREE.OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.target.set(0, 0.05, 0); controls.minDistance = 1.4; controls.maxDistance = 6;
+
+scene.add(new THREE.HemisphereLight(0xcfd6c0, 0x2a2014, 0.6));
+const sun = new THREE.DirectionalLight(0xfff1d8, 0.75); sun.position.set(2, 3, 2.5); scene.add(sun);
+const rim = new THREE.DirectionalLight(0x8fa6b8, 0.35); rim.position.set(-3, 1, -2); scene.add(rim);
+const flashLight = new THREE.PointLight(0xff8a2a, 0, 4); scene.add(flashLight);
+
+// ---------- Texturas procedurais (canvas, baixa resolução, sem filtro) ----------
+const rnd = (a, b) => a + Math.random() * (b - a);
+function tex(w, h, paint) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'); paint(g, w, h);
+  const t = new THREE.CanvasTexture(c);
+  t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.generateMipmaps = false;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+const wood = tex(64, 32, (g, w, h) => {
+  g.fillStyle = '#4a2a17'; g.fillRect(0, 0, w, h);
+  for (let y = 0; y < h; y++) {                 // veios
+    const tone = rnd(-18, 18) | 0;
+    g.fillStyle = `rgb(${74 + tone},${42 + tone / 2},${23 + tone / 3})`;
+    for (let x = 0; x < w; x += 1 + (Math.random() * 3 | 0)) if (Math.random() < 0.55) g.fillRect(x, y, rnd(2, 9), 1);
+  }
+  g.fillStyle = 'rgba(20,10,4,.75)';
+  for (let i = 0; i < 9; i++) { const y = rnd(0, h) | 0; g.fillRect(rnd(0, w) | 0, y, rnd(8, 26) | 0, 1); }  // riscos
+  g.fillStyle = 'rgba(160,110,70,.35)';
+  for (let i = 0; i < 6; i++) g.fillRect(rnd(0, w) | 0, rnd(0, h) | 0, rnd(3, 10) | 0, 1);
+});
+function metalTex(base, rust) {
+  return tex(32, 32, (g, w, h) => {
+    g.fillStyle = base; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 260; i++) {
+      const v = rnd(-26, 26) | 0; g.fillStyle = `rgba(${128 + v},${132 + v},${136 + v},.18)`;
+      g.fillRect(rnd(0, w) | 0, rnd(0, h) | 0, 1, 1);
+    }
+    for (let i = 0; i < rust; i++) {          // ferrugem em manchas
+      const x = rnd(0, w), y = rnd(0, h), r = rnd(1, 4);
+      for (let j = 0; j < r * 6; j++) {
+        g.fillStyle = Math.random() < 0.5 ? 'rgba(122,58,26,.7)' : 'rgba(84,40,20,.65)';
+        g.fillRect((x + rnd(-r, r)) | 0, (y + rnd(-r, r)) | 0, 1, 1);
+      }
+    }
+    g.fillStyle = 'rgba(15,15,18,.5)';
+    for (let i = 0; i < 14; i++) g.fillRect(rnd(0, w) | 0, rnd(0, h) | 0, 1, 1);
+  });
+}
+const steel = metalTex('#4c5055', 10), darkSteel = metalTex('#33363a', 6);
+const brassT = tex(8, 16, (g) => { g.fillStyle = '#c99a3e'; g.fillRect(0, 0, 8, 16); g.fillStyle = '#e8c76c'; g.fillRect(0, 2, 8, 2); g.fillStyle = '#8c6526'; g.fillRect(0, 12, 8, 2); });
+const puffTex = tex(16, 16, (g) => {
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+    const d = Math.hypot(x - 7.5, y - 7.5) / 8 + rnd(-0.15, 0.15);
+    if (d < 1) { const a = (1 - d) * 0.9; g.fillStyle = `rgba(190,186,170,${a})`; g.fillRect(x, y, 1, 1); }
+  }
+});
+const flashTex = tex(16, 16, (g) => {
+  const pts = [[8, 0], [10, 6], [16, 8], [10, 10], [8, 16], [6, 10], [0, 8], [6, 6]];
+  g.fillStyle = '#ff8c1a'; g.beginPath(); pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.fill();
+  g.fillStyle = '#ffe38a'; g.fillRect(6, 6, 4, 4);
+});
+
+// ---------- Materiais: sombreamento flat + vértices presos numa grade (tremor do PS1) ----------
+const snapRes = { value: new THREE.Vector2(160, 120) };
+function psx(map, color = 0xffffff, repeat) {
+  const m = new THREE.MeshPhongMaterial({ map, color, flatShading: true, shininess: 6, specular: 0x222222 });
+  if (repeat) { m.map = map.clone(); m.map.needsUpdate = true; m.map.repeat.set(repeat[0], repeat[1]); }
+  m.onBeforeCompile = (s) => {
+    s.uniforms.uSnap = snapRes;
+    s.vertexShader = 'uniform vec2 uSnap;\n' + s.vertexShader.replace('#include <project_vertex>',
+      '#include <project_vertex>\n  gl_Position.xy = floor(gl_Position.xy / gl_Position.w * uSnap + 0.5) / uSnap * gl_Position.w;');
+  };
+  return m;
+}
+const M = {
+  wood: psx(wood), woodFore: psx(wood, 0xffffff, [2, 1]), steel: psx(steel), dark: psx(darkSteel),
+  brass: psx(brassT), lead: psx(darkSteel, 0x9a8f86), hole: new THREE.MeshBasicMaterial({ color: 0x050505 }),
+  spent: psx(brassT, 0x8a6a40), sight: psx(steel, 0xd9b04a),
+};
+
+// ---------- Modelo (cano ao longo de +X) ----------
+const gun = new THREE.Group(); scene.add(gun);
+const body = new THREE.Group(); gun.add(body);           // recebe o recuo
+const box = (w, h, d, mat, x, y, z, parent = body) => {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); parent.add(m); return m;
+};
+function taper(geo, sx0, sx1) {                          // afina a caixa ao longo de X
+  const p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) { const k = p.getX(i) > 0 ? sx1 : sx0; p.setY(i, p.getY(i) * k); }
+  geo.computeVertexNormals(); return geo;
+}
+const CY = 0.0, BY = CY + 0.11;                           // eixo do tambor e do cano
+
+// coronha com queda, punho e chapa de metal
+const stock = new THREE.Group(); stock.position.set(-0.42, -0.04, 0); stock.rotation.z = 0.16; body.add(stock);
+const butt = new THREE.Mesh(taper(new THREE.BoxGeometry(0.72, 0.26, 0.1), 1.35, 0.62), M.wood);
+butt.position.set(-0.36, -0.02, 0); stock.add(butt);
+box(0.04, 0.36, 0.11, M.steel, -0.73, -0.02, 0, stock);
+// armação
+box(0.24, 0.17, 0.09, M.steel, -0.31, CY - 0.01, 0);       // ferrolho / culatra
+box(0.38, 0.045, 0.085, M.steel, -0.03, CY + 0.2, 0);      // tira superior
+box(0.4, 0.05, 0.085, M.dark, -0.03, CY - 0.2, 0);         // ponte inferior
+box(0.07, 0.42, 0.09, M.steel, 0.17, CY + 0.01, 0);        // apoio frontal do cano
+box(0.05, 0.04, 0.02, M.sight, -0.2, CY + 0.235, 0);       // alça de mira
+// cano e guarda-mão
+const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.04, 1.02, 8), M.steel);
+barrel.rotation.z = -Math.PI / 2; barrel.position.set(0.7, BY, 0); body.add(barrel);
+const muzzle = new THREE.Mesh(new THREE.CircleGeometry(0.022, 8), M.hole);
+muzzle.rotation.y = Math.PI / 2; muzzle.position.set(1.212, BY, 0); body.add(muzzle);
+box(0.03, 0.05, 0.016, M.sight, 1.16, BY + 0.055, 0);      // massa de mira
+const fore = new THREE.Mesh(taper(new THREE.BoxGeometry(0.56, 0.085, 0.085), 1, 0.85), M.woodFore);
+fore.position.set(0.5, BY - 0.075, 0); body.add(fore);
+box(0.03, 0.12, 0.1, M.dark, 0.72, BY - 0.04, 0);          // braçadeira
+// gatilho, alavanca (anel) e cão
+box(0.015, 0.07, 0.02, M.dark, -0.24, CY - 0.15, 0);
+const lever = new THREE.Group(); lever.position.set(-0.1, CY - 0.22, 0); body.add(lever);
+const ring = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.014, 4, 10), M.dark);
+ring.position.set(-0.2, -0.06, 0); ring.scale.set(1.25, 0.8, 1); lever.add(ring);
+box(0.2, 0.02, 0.024, M.dark, -0.08, -0.005, 0, lever);
+const hammer = new THREE.Group(); hammer.position.set(-0.26, CY + 0.07, 0); body.add(hammer);
+box(0.035, 0.1, 0.03, M.dark, 0, 0.05, 0, hammer);
+box(0.06, 0.025, 0.03, M.dark, -0.035, 0.1, 0, hammer);
+
+// tambor: braço (crane) que gira para o lado, e o tambor que gira no próprio eixo
+const crane = new THREE.Group(); crane.position.set(-0.03, CY - 0.17, 0); body.add(crane);
+const cyl = new THREE.Group(); cyl.position.set(0, 0.17, 0); crane.add(cyl);
+const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.165, 0.165, 0.3, 12), M.steel);
+drum.rotation.z = Math.PI / 2; cyl.add(drum);
+const R = 0.11, chambers = [];
+for (let k = 0; k < 6; k++) {
+  const a = k * Math.PI / 3, y = Math.cos(a) * R, z = Math.sin(a) * R;
+  for (const sx of [1, -1]) {                               // bocas das câmaras na frente e atrás
+    const h = new THREE.Mesh(new THREE.CircleGeometry(0.03, 8), M.hole);
+    h.rotation.y = sx * Math.PI / 2; h.position.set(sx * 0.151, y, z); cyl.add(h);
+  }
+  const fl = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.03, 0.02), M.dark);   // caneluras
+  const fa = a + Math.PI / 6; fl.position.set(0, Math.cos(fa) * 0.16, Math.sin(fa) * 0.16); fl.rotation.x = -fa; cyl.add(fl);
+  chambers.push({ y, z, round: null, state: 'empty' });
+}
+box(0.03, 0.06, 0.06, M.dark, 0.165, 0, 0, cyl);           // eixo/vareta do ejetor
+
+// munição .38: estojo de latão + projétil de chumbo
+function makeRound(state) {
+  const g = new THREE.Group();
+  const cs = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.22, 6), state === 'spent' ? M.spent : M.brass);
+  cs.rotation.z = Math.PI / 2; g.add(cs);
+  const rimM = new THREE.Mesh(new THREE.CylinderGeometry(0.031, 0.031, 0.012, 6), state === 'spent' ? M.spent : M.brass);
+  rimM.rotation.z = Math.PI / 2; rimM.position.x = -0.115; g.add(rimM);
+  if (state === 'live') {
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.024, 0.05, 6), M.lead);
+    tip.rotation.z = -Math.PI / 2; tip.position.x = 0.12; g.add(tip);
+  }
+  return g;
+}
+function setChamber(k, state) {
+  const c = chambers[k];
+  if (c.round) { c.round.parent && c.round.parent.remove(c.round); c.round = null; }
+  c.state = state;
+  if (state !== 'empty') { c.round = makeRound(state); c.round.position.set(0.0, c.y, c.z); cyl.add(c.round); }
+}
+for (let k = 0; k < 6; k++) setChamber(k, 'live');
+gun.position.y = -0.02;
+
+// ---------- Fumaça, clarão e estojos caindo ----------
+const flash = new THREE.Sprite(new THREE.SpriteMaterial({ map: flashTex, transparent: true, depthWrite: false }));
+flash.visible = false; body.add(flash); flash.position.set(1.32, BY, 0); flash.scale.set(0.35, 0.35, 1);
+const puffs = [], falling = [];
+function smoke() {
+  const base = new THREE.Vector3(1.25, BY, 0); body.localToWorld(base);
+  for (let i = 0; i < 6; i++) {
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffTex, transparent: true, depthWrite: false, opacity: 0.85 }));
+    s.position.copy(base); s.scale.setScalar(0.12); scene.add(s);
+    puffs.push({ s, v: new THREE.Vector3(rnd(0.1, 0.5), rnd(0.15, 0.45), rnd(-0.15, 0.15)), life: 0, max: rnd(1, 1.6) });
+  }
+}
+
+// ---------- Sons (gerados, sem arquivos) ----------
+let ac;
+function sound(kind) {
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const t = ac.currentTime, dur = { bang: 0.5, click: 0.05, clink: 0.12, snap: 0.08 }[kind];
+    const buf = ac.createBuffer(1, Math.ceil(ac.sampleRate * dur), ac.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) {
+      const k = i / d.length, n = Math.random() * 2 - 1;
+      d[i] = kind === 'bang' ? n * Math.pow(1 - k, 3) : kind === 'clink' ? Math.sin(i * (2 * Math.PI * 2400 / ac.sampleRate)) * Math.pow(1 - k, 4) * 0.6
+           : n * Math.pow(1 - k, 6) * 0.7;
+    }
+    const src = ac.createBufferSource(); src.buffer = buf;
+    const f = ac.createBiquadFilter(); f.type = kind === 'bang' ? 'lowpass' : 'highpass'; f.frequency.value = kind === 'bang' ? 1400 : 1800;
+    const g = ac.createGain(); g.gain.value = kind === 'bang' ? 0.9 : 0.5;
+    src.connect(f).connect(g).connect(ac.destination); src.start(t);
+  } catch (e) { /* sem áudio */ }
+}
+
+// ---------- Animação: tweens simples com promessas ----------
+const tasks = new Set();
+const ease = { inOut: k => k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2, out: k => 1 - Math.pow(1 - k, 3), back: k => 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2) };
+function tween(sec, fn, e = ease.inOut) {
+  return new Promise(res => { const t0 = performance.now(); tasks.add(now => { const k = Math.min(1, (now - t0) / (sec * 1000)); fn(e(k)); if (k >= 1) { res(); return true; } }); });
+}
+const wait = s => tween(s, () => {});
+const lerp = (a, b, k) => a + (b - a) * k;
+
+let ci = 0, turns = 0, busy = false, open = 0;
+const OPEN = 1.32;
+function setCyl(a) { cyl.rotation.x = a; }
+async function swing(to, sec, e) { const from = crane.rotation.x; await tween(sec, k => { crane.rotation.x = lerp(from, to, k); open = crane.rotation.x; }, e); }
+async function advance() { const from = -turns * Math.PI / 3; turns++; ci = turns % 6; await tween(0.16, k => setCyl(lerp(from, -turns * Math.PI / 3, k)), ease.out); }
+
+async function inspect() {
+  say('INSPEÇÃO');
+  const r0 = gun.rotation.y;
+  const spin = tween(4.2, k => { gun.rotation.y = r0 + k * Math.PI * 2; gun.rotation.x = Math.sin(k * Math.PI * 2) * 0.25; gun.rotation.z = Math.sin(k * Math.PI) * 0.15; }, ease.inOut);
+  await wait(0.9);
+  sound('click'); await swing(OPEN, 0.45, ease.back);
+  say(loaded() ? `${loaded()} DE 6 CÂMARAS CARREGADAS` : 'CÂMARAS VAZIAS');
+  const a0 = cyl.rotation.x;
+  await tween(1.4, k => setCyl(a0 - k * Math.PI * 4), ease.out);   // gira o tambor no dedo
+  setCyl(-turns * Math.PI / 3);
+  await wait(0.25);
+  await swing(0, 0.12, ease.out); sound('snap');
+  await spin; gun.rotation.set(0, 0, 0);
+  say('PRONTA PARA USO');
+}
+
+async function fire() {
+  if (open > 0.01) { await swing(0, 0.12, ease.out); sound('snap'); }
+  await tween(0.14, k => hammer.rotation.z = k * 0.65, ease.out); sound('click');   // puxa o cão
+  await wait(0.08);
+  hammer.rotation.z = -0.05;
+  const c = chambers[ci];
+  if (c.state !== 'live') {
+    sound('click'); say('CLIQUE — CÂMARA VAZIA', true);
+    await wait(0.12); hammer.rotation.z = 0; await advance(); return;
+  }
+  sound('bang'); say('BANG!', true);
+  setChamber(ci, 'spent');
+  flash.visible = true; flash.material.rotation = Math.random() * 6;
+  const mp = new THREE.Vector3(1.3, BY, 0); body.localToWorld(mp); flashLight.position.copy(mp); flashLight.intensity = 3;
+  smoke();
+  await tween(0.09, k => { body.position.x = -0.09 * (1 - k * 0.2); body.rotation.z = 0.16 * (1 - k * 0.3); flash.scale.setScalar(0.35 + k * 0.25); }, ease.out);
+  flash.visible = false; flashLight.intensity = 0;
+  await tween(0.32, k => { body.position.x = lerp(-0.072, 0, k); body.rotation.z = lerp(0.112, 0, k); }, ease.inOut);
+  hammer.rotation.z = 0;
+  await advance();
+  say(loaded() ? `${loaded()} TIROS RESTANTES` : 'SEM MUNIÇÃO — RECARREGUE', !loaded());
+}
+
+async function reload() {
+  say('RECARREGANDO');
+  await swing(OPEN, 0.35, ease.back); sound('click');
+  await wait(0.15);
+  // ejeta: todos os estojos saem para trás e caem
+  const out = chambers.filter(c => c.round);
+  if (out.length) {
+    await tween(0.18, k => out.forEach(c => c.round.position.x = lerp(0, -0.24, k)), ease.out);
+    for (const c of out) {
+      const r = c.round; scene.attach(r);
+      falling.push({ r, v: new THREE.Vector3(rnd(-0.6, -0.2), rnd(0.2, 0.8), rnd(0.2, 0.7)), w: new THREE.Vector3(rnd(-9, 9), rnd(-9, 9), rnd(-9, 9)) });
+      c.round = null; c.state = 'empty';
+    }
+    sound('clink'); updateAmmo();
+    await wait(0.35);
+  }
+  // seis balas novas, uma a uma (começando pela câmara que fica em cima)
+  for (let i = 0; i < 6; i++) {
+    const k = (ci + i) % 6;
+    setChamber(k, 'live'); const r = chambers[k].round; r.position.x = -0.45;
+    await tween(0.2, e => r.position.x = lerp(-0.45, 0, e), ease.out);
+    sound('clink'); updateAmmo();
+    await wait(0.06);
+  }
+  await wait(0.2);
+  // fecha com um movimento seco
+  await tween(0.08, k => { crane.rotation.x = lerp(OPEN, -0.06, k); }, ease.inOut);
+  sound('snap');
+  await tween(0.08, k => { crane.rotation.x = lerp(-0.06, 0, k); body.position.y = Math.sin(k * Math.PI) * -0.015; });
+  open = 0; body.position.y = 0;
+  say('6 TIROS / .38 CAL — CARREGADA');
+}
+
+// ---------- Interface ----------
+const actions = { inspect, fire, reload };
+const buttons = [...document.querySelectorAll('.act')];
+let selected = 0;
+const loaded = () => chambers.filter(c => c.state === 'live').length;
+function say(t, hot) { statusEl.textContent = t; statusEl.classList.toggle('hot', !!hot); }
+function updateAmmo() {
+  ammoEl.innerHTML = chambers.map((c, k) => `<span class="round ${c.state}${k === ci ? ' top' : ''}"></span>`).join('') + `<span>&nbsp;${loaded()}/6</span>`;
+}
+function select(i) {
+  selected = (i + buttons.length) % buttons.length;
+  buttons.forEach((b, k) => b.setAttribute('aria-pressed', k === selected));
+}
+async function run(name) {
+  if (busy) return;
+  busy = true; buttons.forEach(b => b.disabled = true); emptyBtn.disabled = true;
+  try { await actions[name](); } finally { busy = false; buttons.forEach(b => b.disabled = false); emptyBtn.disabled = false; updateAmmo(); }
+}
+buttons.forEach((b, i) => b.addEventListener('click', () => { select(i); run(b.dataset.a); }));
+document.getElementById('prev').addEventListener('click', () => select(selected - 1));
+document.getElementById('next').addEventListener('click', () => select(selected + 1));
+const emptyBtn = document.getElementById('empty');
+emptyBtn.addEventListener('click', () => { if (busy) return; for (let k = 0; k < 6; k++) setChamber(k, 'empty'); updateAmmo(); say('TAMBOR VAZIO'); });
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') select(selected - 1);
+  else if (e.key === 'ArrowRight') select(selected + 1);
+  else if (e.key === 'Enter') run(buttons[selected].dataset.a);
+  else if (e.key === 'i' || e.key === 'I') { select(0); run('inspect'); }
+  else if (e.key === 'f' || e.key === 'F') { select(1); run('fire'); }
+  else if (e.key === 'r' || e.key === 'R') { select(2); run('reload'); }
+});
+updateAmmo();
+
+// ---------- Laço: resolução baixa, partículas, render ----------
+function resize() {
+  const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
+  const rw = Math.max(160, Math.floor(w / PIX)), rh = Math.max(120, Math.floor(h / PIX));
+  renderer.setSize(rw, rh, false);
+  snapRes.value.set(rw / 2, rh / 2);
+  camera.aspect = w / h;
+  camera.position.setLength(w < 700 ? 4.3 : 3.5);
+  camera.updateProjectionMatrix();
+}
+const ro = new ResizeObserver(resize); ro.observe(canvas); resize();
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  for (const t of [...tasks]) if (t(now)) tasks.delete(t);
+  for (let i = puffs.length - 1; i >= 0; i--) {
+    const p = puffs[i]; p.life += dt; const k = p.life / p.max;
+    p.s.position.addScaledVector(p.v, dt); p.v.multiplyScalar(0.97);
+    p.s.scale.setScalar(0.12 + k * 0.5); p.s.material.opacity = 0.85 * (1 - k);
+    if (k >= 1) { scene.remove(p.s); p.s.material.dispose(); puffs.splice(i, 1); }
+  }
+  for (let i = falling.length - 1; i >= 0; i--) {
+    const f = falling[i]; f.v.y -= 3.2 * dt;
+    f.r.position.addScaledVector(f.v, dt);
+    f.r.rotation.x += f.w.x * dt; f.r.rotation.y += f.w.y * dt; f.r.rotation.z += f.w.z * dt;
+    if (f.r.position.y < -2) { scene.remove(f.r); falling.splice(i, 1); }
+  }
+  if (!busy) gun.rotation.y = Math.sin(now / 2400) * 0.08;   // respiração da vitrine
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>

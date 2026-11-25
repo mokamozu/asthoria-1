@@ -1,0 +1,117 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c34b504f86725849a4431bfbf31eb50, type: 3}
+  m_Name: Inimigo_CavaleiroCorrompido
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.AI.EnemyData
+  id: ec8062451de06ac4bba4f452d9c1a9b2
+  displayName: Cavaleiro Corrompido
+  description: "Um cavaleiro tomado pela peste das Terras Alagadas. A armadura apodrece por dentro; o juramento, n\xE3o. Guarda seu posto at\xE9 o fim."
+  icon: {fileID: 0}
+  maxHealth: 320
+  physicalReduction: 0.3
+  poise: 5
+  staggerDuration: 0.9
+  canBlock: 1
+  blockChance: 0.35
+  blockAngle: 65
+  blockDuration: 1
+  blockAbsorb: 1
+  guardHits: 4
+  riposteChance: 0.7
+  walkSpeed: 1.3
+  runSpeed: 3.2
+  turnSpeed: 200
+  agentRadius: 0.55
+  agentHeight: 2.1
+  sightRange: 16
+  sightAngle: 110
+  senseRadius: 2.5
+  hearingRange: 8
+  memoryTime: 6
+  alertRadius: 0
+  leashRange: 22
+  patrolRadius: 0
+  patrolWait: {x: 2, y: 5}
+  attackInterval: {x: 1.2, y: 2.4}
+  circlesTarget: 0
+  preferredDistance: 0
+  retreatHealthFraction: 0
+  retreatDuration: 3
+  returnRegenPerSecond: 40
+  sneakAttackMultiplier: 1.5
+  attacks:
+  - name: Golpe Montante
+    pose: 1
+    minRange: 0
+    maxRange: 2.8
+    damage: 30
+    damageType: 0
+    windup: 1
+    activeTime: 0.2
+    recovery: 1
+    arc: 60
+    stagger: 2
+    heavy: 1
+    lunge: 0.8
+    projectile: {fileID: 0}
+    projectileSpeed: 22
+    cooldown: 0
+    weight: 1
+    chainChance: 0
+    chainTo: -1
+    sound: {fileID: 0}
+  - name: Varrida
+    pose: 0
+    minRange: 0
+    maxRange: 2.8
+    damage: 20
+    damageType: 0
+    windup: 0.7
+    activeTime: 0.2
+    recovery: 0.7
+    arc: 150
+    stagger: 1.5
+    heavy: 0
+    lunge: 0.4
+    projectile: {fileID: 0}
+    projectileSpeed: 22
+    cooldown: 0
+    weight: 1
+    chainChance: 0.5
+    chainTo: 0
+    sound: {fileID: 0}
+  - name: Estocada
+    pose: 2
+    minRange: 2.5
+    maxRange: 5
+    damage: 22
+    damageType: 0
+    windup: 0.8
+    activeTime: 0.3
+    recovery: 0.9
+    arc: 40
+    stagger: 2
+    heavy: 1
+    lunge: 3
+    projectile: {fileID: 0}
+    projectileSpeed: 22
+    cooldown: 5
+    weight: 0.8
+    chainChance: 0
+    chainTo: -1
+    sound: {fileID: 0}
+  experience: 120
+  loot: {fileID: 11400000, guid: 9fd7ca4dce5a51c41a443a938e55ab7a, type: 2}
+  alertSound: {fileID: 8300000, guid: 823819922baeb084db39182be254961d, type: 3}
+  attackSounds: []
+  hurtSound: {fileID: 8300000, guid: 959bcde4491ed264abfe804249fae39f, type: 3}
+  deathSound: {fileID: 8300000, guid: 960a12553357b5b43a0e886ae77b768f, type: 3}

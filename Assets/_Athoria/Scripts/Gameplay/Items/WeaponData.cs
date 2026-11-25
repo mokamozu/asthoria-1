@@ -41,12 +41,17 @@ namespace Athoria.Gameplay.Items
 
         [Header("Visual em primeira pessoa")]
         [SerializeField] private GameObject viewModelPrefab;
-        [SerializeField, Tooltip("Posição/rotação do modelo dentro da mão.")]
+        [SerializeField, Tooltip("Posição/rotação do modelo dentro da mão. Pode mudar com o jogo rodando: a arma se atualiza na hora.")]
         private ViewPose modelPose;
-        [SerializeField, Tooltip("Pose do braço que segura a arma (direito; esquerdo para escudos).")]
+        [SerializeField, Tooltip("Pose do braço que segura a arma (direito; esquerdo para escudos). Posição = cotovelo, em metros, a partir da câmera (X direita, Y cima, Z frente).")]
         private ViewPose holdingArmPose;
         [SerializeField, Tooltip("Pose do braço esquerdo em armas de duas mãos.")]
         private ViewPose supportArmPose;
+
+        // Poses que a geração automática escreveu. Se as de cima forem diferentes,
+        // foram ajustadas à mão e a geração (Reconstruir tudo / Gerar armas) não as sobrescreve.
+        [SerializeField, HideInInspector] private ViewPose generatedModelPose, generatedHoldingPose, generatedSupportPose;
+        [SerializeField, HideInInspector] private bool hasGeneratedPoses;
 
         [Header("Combate (usado na Etapa 4)")]
         [SerializeField, Min(0f)] private float damage = 10f;
@@ -62,14 +67,25 @@ namespace Athoria.Gameplay.Items
         [SerializeField, Min(0f)] private float spellManaCost = 12f;
         [SerializeField, Min(1f)] private float spellSpeed = 18f;
         [SerializeField] private AudioClip projectileSound;
+        [SerializeField, Min(1), Tooltip("Projéteis por disparo (escopeta: vários chumbos).")] private int projectileCount = 1;
+        [SerializeField, UnityEngine.Range(0f, 30f), Tooltip("Abertura do cone dos projéteis, em graus.")] private float projectileSpread;
+
+        [Header("Carregador (armas de fogo)")]
+        [SerializeField, Min(0), Tooltip("Tiros antes de recarregar (R). 0 = sem limite.")] private int magazineSize;
+        [SerializeField, Min(0.2f), Tooltip("Tempo da recarga completa, em segundos.")] private float reloadTime = 2f;
+
+        [Header("Animação dos ataques")]
+        [SerializeField, Tooltip("Conjunto de golpes (combo de 3 leves + pesado) em primeira pessoa.")]
+        private Combat.AttackSet attackSet;
 
         public WeaponCategory Category => category;
+        public Combat.AttackSet AttackSet => attackSet;
         public WeaponHandling Handling => handling;
         public GameObject ViewModelPrefab => viewModelPrefab;
         public ViewPose ModelPose => modelPose;
         public ViewPose HoldingArmPose => holdingArmPose;
         public ViewPose SupportArmPose => supportArmPose;
-        public float Damage => damage;
+        public float Damage => damage * Quality;
         public float AttackSpeed => attackSpeed;
         public float Range => range;
         public float LightAttackStamina => lightAttackStamina;
@@ -80,6 +96,10 @@ namespace Athoria.Gameplay.Items
         public float SpellSpeed => spellSpeed;
         public bool HasSpell => spellProjectile != null;
         public AudioClip ProjectileSound => projectileSound;
+        public int ProjectileCount => Mathf.Max(1, projectileCount);
+        public int MagazineSize => magazineSize;
+        public float ReloadTime => reloadTime;
+        public float ProjectileSpread => projectileSpread;
         public bool IsFirearm => category == WeaponCategory.Firearm;
 
         public bool IsShield => handling == WeaponHandling.OffHand;
@@ -98,7 +118,7 @@ namespace Athoria.Gameplay.Items
                     _ => "Uma mão"
                 };
                 if (IsShield) return $"{hands}\nBloqueio total de ataques frontais";
-                var line = $"Dano {damage:0}   •   {attackSpeed:0.0} ataques/s";
+                var line = $"Dano {Damage:0}   •   {attackSpeed:0.0} ataques/s";
                 if (!IsFirearm) line += $"   •   Alcance {range:0.0} m";
                 var extra = HasSpell && !IsFirearm ? $"\nAtaque pesado: projétil arcano ({spellManaCost:0} de mana)" : string.Empty;
                 return $"{hands}\n{line}{extra}";
@@ -107,6 +127,44 @@ namespace Athoria.Gameplay.Items
         public bool IsTwoHanded => handling == WeaponHandling.TwoHanded;
 
 #if UNITY_EDITOR
+        /// <summary>As poses foram mudadas à mão no Inspector (a geração automática as preserva).</summary>
+        public bool PosesEditedByHand => hasGeneratedPoses &&
+            (!SamePose(modelPose, generatedModelPose) || !SamePose(holdingArmPose, generatedHoldingPose) || !SamePose(supportArmPose, generatedSupportPose));
+
+        private static bool SamePose(ViewPose a, ViewPose b) =>
+            (a.position - b.position).sqrMagnitude < 1e-8f && (a.rotation - b.rotation).sqrMagnitude < 1e-6f;
+
+        [ContextMenu("Voltar às poses padrão (geradas)")]
+        private void RestoreGeneratedPoses()
+        {
+            if (!hasGeneratedPoses) return;
+            UnityEditor.Undo.RecordObject(this, "Voltar às poses padrão");
+            modelPose = generatedModelPose;
+            holdingArmPose = generatedHoldingPose;
+            supportArmPose = generatedSupportPose;
+            UnityEditor.EditorUtility.SetDirty(this);
+        }
+
+        public void EditorSetAttackSet(Combat.AttackSet set)
+        {
+            attackSet = set;
+            UnityEditor.EditorUtility.SetDirty(this);
+        }
+
+        public void EditorSetMagazine(int size, float reload)
+        {
+            magazineSize = Mathf.Max(0, size);
+            reloadTime = Mathf.Max(0.2f, reload);
+            UnityEditor.EditorUtility.SetDirty(this);
+        }
+
+        public void EditorSetSpread(int count, float spread)
+        {
+            projectileCount = Mathf.Max(1, count);
+            projectileSpread = spread;
+            UnityEditor.EditorUtility.SetDirty(this);
+        }
+
         public void EditorSetSpell(GameObject projectile, float manaCost, float speed, AudioClip sound = null)
         {
             projectileSound = sound;
@@ -123,9 +181,16 @@ namespace Athoria.Gameplay.Items
             category = newCategory;
             handling = newHandling;
             viewModelPrefab = prefab;
-            modelPose = model;
-            holdingArmPose = holdingArm;
-            supportArmPose = supportArm;
+            if (!PosesEditedByHand)
+            {
+                modelPose = model;
+                holdingArmPose = holdingArm;
+                supportArmPose = supportArm;
+            }
+            generatedModelPose = model;
+            generatedHoldingPose = holdingArm;
+            generatedSupportPose = supportArm;
+            hasGeneratedPoses = true;
             damage = newDamage;
             attackSpeed = newAttackSpeed;
             range = newRange;

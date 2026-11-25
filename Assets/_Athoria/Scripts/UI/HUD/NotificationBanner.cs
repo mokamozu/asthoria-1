@@ -53,13 +53,18 @@ namespace Athoria.UI.HUD
             EventBus.Subscribe<LevelUp>(OnLevelUp);
             EventBus.Subscribe<LocationDiscovered>(OnDiscovered);
             EventBus.Subscribe<ExperienceGained>(OnXp);
+            EventBus.Subscribe<Athoria.Gameplay.World.AreaEntered>(OnArea);
         }
+
+        private void OnArea(Athoria.Gameplay.World.AreaEntered e) =>
+            Enqueue(e.Name.ToUpperInvariant(), e.Subtitle ?? string.Empty, null, Pale);
 
         private void OnDisable()
         {
             EventBus.Unsubscribe<LevelUp>(OnLevelUp);
             EventBus.Unsubscribe<LocationDiscovered>(OnDiscovered);
             EventBus.Unsubscribe<ExperienceGained>(OnXp);
+            EventBus.Unsubscribe<Athoria.Gameplay.World.AreaEntered>(OnArea);
         }
 
         private void OnLevelUp(LevelUp e) => Enqueue($"NÍVEL {e.NewLevel}", "Vida, vigor e mana aumentaram", levelUpClip, Gold);

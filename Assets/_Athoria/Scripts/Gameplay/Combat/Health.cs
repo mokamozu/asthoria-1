@@ -82,6 +82,13 @@ namespace Athoria.Gameplay.Combat
             NotifyChanged();
         }
 
+        /// <summary>Define a vida atual (carregar save). Não mata nem dispara eventos de dano.</summary>
+        public void SetCurrent(float value)
+        {
+            _current = Mathf.Clamp(value, 1f, maxHealth);
+            NotifyChanged();
+        }
+
         public void Revive(float fraction = 1f)
         {
             _current = Mathf.Clamp(maxHealth * fraction, 1f, maxHealth);

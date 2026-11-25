@@ -30,6 +30,14 @@ namespace Athoria.Gameplay.Characters
             Apply(Current);
         }
 
+        /// <summary>Troca a personagem em jogo (ferramentas de teste do editor).</summary>
+        public void ApplyCharacter(CharacterData c)
+        {
+            if (c == null) return;
+            Current = c;
+            Apply(c);
+        }
+
         private void Apply(CharacterData c)
         {
             var traits = GetComponent<PlayerTraits>();
@@ -51,6 +59,11 @@ namespace Athoria.Gameplay.Characters
                     loadout.SetQuickSlot(i, c.StartingWeapons != null && i < c.StartingWeapons.Length ? c.StartingWeapons[i] : null);
                 loadout.SetOffHand(c.StartingOffHand);
             }
+
+            if (TryGetComponent<Summons.MantraPool>(out var mantras)) mantras.SetBase(c.MantraSlots);
+
+            var arms = GetComponentInChildren<ArmsSkin>(true);
+            if (arms != null) arms.Apply(c.ArmsTexture);
         }
     }
 }

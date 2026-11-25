@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Arma_Arpao
   m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.WeaponData
   id: 4c8e9c6a1cd043344a98ff898f8808e5
-  displayName: "Arp\xE3o de Ca\xE7a (provis\xF3rio)"
-  description: "Arp\xE3o de pesca e ca\xE7a da Costa dos Ventos. Estocadas de longo alcance com uma m\xE3o."
+  displayName: "Arp\xE3o de Pesca"
+  description: "O arp\xE3o de pesca de Anne. Estocadas de longo alcance com uma m\xE3o."
   icon: {fileID: 21300000, guid: 5acbefeb4aaadb04fafd1dafe85dbd21, type: 3}
   itemCategory: 0
   rarity: 0
@@ -24,6 +24,9 @@ MonoBehaviour:
   weight: 4
   value: 40
   worldModel: {fileID: 0}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []
   category: 4
   handling: 0
   viewModelPrefab: {fileID: 6332820042535206452, guid: 5b5dae3291be71a4eb9c964264d71d8f, type: 3}
@@ -31,8 +34,8 @@ MonoBehaviour:
     position: {x: 0, y: 0, z: -0.15}
     rotation: {x: 82, y: 0, z: 0}
   holdingArmPose:
-    position: {x: 0.22, y: -0.4, z: 0.26}
-    rotation: {x: -4, y: -6, z: 0}
+    position: {x: 0.2, y: -0.32, z: 0.24}
+    rotation: {x: -8, y: -8, z: 0}
   supportArmPose:
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 0, y: 0, z: 0}
@@ -46,3 +49,8 @@ MonoBehaviour:
   spellManaCost: 12
   spellSpeed: 18
   projectileSound: {fileID: 0}
+  projectileCount: 1
+  projectileSpread: 0
+  magazineSize: 0
+  reloadTime: 2
+  attackSet: 4
