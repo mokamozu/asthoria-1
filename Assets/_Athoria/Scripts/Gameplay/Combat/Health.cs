@@ -24,6 +24,8 @@ namespace Athoria.Gameplay.Combat
         public float Normalized => _current / maxHealth;
         public bool IsAlive => _current > 0f;
         public bool IsPlayer => isPlayer;
+        /// <summary>Ignora todo dano sem reagir (ex.: chefe adormecido, disfarçado de pedra).</summary>
+        public bool Invulnerable { get; set; }
 
         public event Action<DamageInfo, DamageResult> Damaged;
         public event Action<DamageInfo> Died;
@@ -47,7 +49,7 @@ namespace Athoria.Gameplay.Combat
 
         public DamageResult ApplyDamage(DamageInfo info)
         {
-            if (!IsAlive || info.Amount <= 0f || Time.time < _invulnerableUntil) return DamageResult.Ignored;
+            if (!IsAlive || Invulnerable || info.Amount <= 0f || Time.time < _invulnerableUntil) return DamageResult.Ignored;
 
             foreach (var modifier in _modifiers)
             {

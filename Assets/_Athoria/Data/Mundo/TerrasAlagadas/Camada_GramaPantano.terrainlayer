@@ -7,8 +7,8 @@ TerrainLayer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Camada_GramaPantano
-  m_DiffuseTexture: {fileID: 2800000, guid: 049d47ac8df973a4dacb70ca60266ddf, type: 3}
-  m_NormalMapTexture: {fileID: 0}
+  m_DiffuseTexture: {fileID: 2800000, guid: a1bb7c16ad11ef94babb85fa0ae4e079, type: 3}
+  m_NormalMapTexture: {fileID: 2800000, guid: 2f7d4e96e15580945b6ee8cf30b1c832, type: 3}
   m_MaskMapTexture: {fileID: 0}
   m_TileSize: {x: 3.5, y: 3.5}
   m_TileOffset: {x: 0, y: 0}

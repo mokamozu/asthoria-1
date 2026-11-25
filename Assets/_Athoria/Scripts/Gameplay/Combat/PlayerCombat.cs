@@ -42,24 +42,17 @@ namespace Athoria.Gameplay.Combat
         [SerializeField, Tooltip("Tempo máximo segurando o pesado antes de soltar sozinho.")]
         private float heavyMaxHold = 1.5f;
         [SerializeField] private float inputBuffer = 0.2f;
-        [SerializeField, Range(0f, 1f), Tooltip("A partir de que fração da recuperação o combo é aceito.")]
-        private float comboWindowStart = 0.3f;
         [SerializeField] private float hitRadius = 0.18f;
         [SerializeField] private LayerMask hitMask = ~0;
         [SerializeField] private float attackMoveMultiplier = 0.6f;
 
-        [Header("Fases (fração do tempo do golpe)")]
-        [SerializeField] private float windupFraction = 0.3f;
-        [SerializeField] private float activeFraction = 0.18f;
-        [SerializeField] private float recoveryFraction = 0.52f;
-        [SerializeField] private float heavyDurationMultiplier = 1.5f;
+        [Header("Tempos (antecipação, execução, acompanhamento, recuperação, impacto, rastro)")]
+        [SerializeField, Tooltip("Tabela por categoria; cada arma pode sobrescrever a sua.")] private WeaponTimingTable timingTable;
+        [SerializeField, Min(0.5f), Tooltip("Multiplica a duração de todos os golpes (1 = ataques por segundo da arma; maior = mais lento e pesado).")]
+        private float attackTempo = 1.4f;
 
         [Header("Impacto")]
-        [SerializeField] private float hitStopLight = 0.045f;
-        [SerializeField] private float hitStopHeavy = 0.09f;
         [SerializeField] private float hitStopTimeScale = 0.05f;
-        [SerializeField] private float shakeLight = 0.25f;
-        [SerializeField] private float shakeHeavy = 0.45f;
 
         [Header("Bloqueio")]
         [SerializeField, Tooltip("Meio-ângulo frontal protegido.")] private float blockAngle = 75f;
@@ -70,6 +63,8 @@ namespace Athoria.Gameplay.Combat
         [SerializeField] private float guardBreakDuration = 1.2f;
         [SerializeField] private float blockMoveMultiplier = 0.5f;
         [SerializeField] private float blockRaiseSpeed = 9f;
+        [SerializeField, Tooltip("Aparar: levantar a guarda até este tempo (s) antes do golpe anula o dano e faz o inimigo cambalear.")]
+        private float parryWindow = 0.18f;
 
         [Header("Esquiva")]
         [SerializeField] private float dodgeStamina = 20f;
@@ -88,7 +83,11 @@ namespace Athoria.Gameplay.Combat
         private float _holdTime;
         private float _lastAttackEnd = float.NegativeInfinity;
         private AttackMotion.Swing _swing;
+        private UalFirstPersonMotion _ual;                 // movimento dos golpes tirado da Universal Animation Library
+        private UalFirstPersonMotion.Clip _ualClip;
         private int _comboStep;
+        private WeaponTiming _timing;
+        private static readonly WeaponTiming FallbackTiming = new();
         private WeaponData _lastComboWeapon;
         private bool _ranged;                       // disparo/feitiço: anima o golpe, mas sem varredura corpo a corpo
         private Vector3 _fromPos, _fromRot;         // pose em que o golpe começou (combo emenda sem salto)
@@ -99,6 +98,8 @@ namespace Athoria.Gameplay.Combat
         private readonly List<RaycastHit> _sorted = new();
 
         private float _blockBlend;
+        private float _blockPressedAt = float.NegativeInfinity;
+        private bool _blockWasHeld;
         private float _guardBrokenUntil;
         private float _invulnerableUntil;
         private float _nextDodgeTime;
@@ -161,6 +162,8 @@ namespace Athoria.Gameplay.Combat
 
             var dt = Time.deltaTime;
             _stateTime += dt;
+            if (input.BlockHeld && !_blockWasHeld) _blockPressedAt = Time.time;   // início da guarda (aparar)
+            _blockWasHeld = input.BlockHeld;
 
             // Trocou de arma no meio do golpe: cancela.
             if (_state != State.Idle && _state != State.Dodging && _weapon != CurrentWeapon) GoIdle();
@@ -186,6 +189,13 @@ namespace Athoria.Gameplay.Combat
         {
             if (TryDodge()) return;
             if (!input.BlockHeld || IsGuardBroken) TryStartAttack(Time.time - _lastAttackEnd < 0.6f);
+            // Atacar corta ações calmas (inspecionar, pegar, beber); o efeito delas ainda acontece.
+            var actions = weaponView.Actions;
+            if (actions == null) return;
+            if (_state != State.Idle && actions.IsPlayingNonCombat) actions.Stop();
+            else if (_state == State.Idle && !actions.IsPlaying && !input.BlockHeld
+                     && UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.vKey.wasPressedThisFrame)
+                weaponView.PlayAction(ViewModelActionId.Inspect);   // V: olhar a arma
         }
 
         private void TickWindUp()
@@ -204,7 +214,8 @@ namespace Athoria.Gameplay.Combat
                 {
                     _heavy = true;
                     _swing = AttackMotion.Get(_weapon, true, 0);
-                    Enter(State.HeavyWindUp, 0.4f * AttackDuration(false));
+                    _ualClip = UalFirstPersonMotion.ClipFor(_weapon, true, 0);
+                    Enter(State.HeavyWindUp, _timing.heavyAnticipation * LightDuration);
                     return;
                 }
             }
@@ -222,16 +233,26 @@ namespace Athoria.Gameplay.Combat
         private void TickActive()
         {
             var previous = _sweepProgress;
-            _sweepProgress = Mathf.Clamp01(_stateTime / _stateDuration);
+            _sweepProgress = _timing.StrikeProgress(_stateTime / _stateDuration);   // acelera até ~60–70% do arco
             Sweep(previous, _sweepProgress);
-            if (_bounced || _stateTime >= _stateDuration) Enter(State.Recovery, AttackDuration(_heavy) * recoveryFraction);
+            if (_bounced || _stateTime >= _stateDuration)
+            {
+                // Ricochete corta o acompanhamento: volta direto.
+                var share = _bounced ? _timing.recovery : _timing.followThrough + _timing.recovery;
+                Enter(State.Recovery, Phase(share, _heavy));
+            }
+            UpdateTrail();
         }
 
         private void TickRecovery()
         {
-            if (TryDodge()) return;
             var progress = _stateTime / _stateDuration;
-            if (!_heavy && progress >= comboWindowStart && TryStartAttack(true)) return;
+            var follow = FollowShare;
+            UpdateTrail();
+            if (progress < follow) return;                  // acompanhamento: compromisso com o golpe
+            if (TryDodge()) return;
+            var combo = follow + (1f - follow) * _timing.comboWindow;
+            if (!_heavy && progress >= combo && TryStartAttack(true)) return;
             if (_stateTime >= _stateDuration)
             {
                 _lastAttackEnd = Time.time;
@@ -241,11 +262,23 @@ namespace Athoria.Gameplay.Combat
 
         // ---------------- Ataque ----------------
 
-        private float AttackDuration(bool heavy)
+        private WeaponTiming TimingFor(WeaponData weapon)
         {
-            var d = 1f / Mathf.Max(0.1f, _weapon.AttackSpeed);
-            return heavy ? d * heavyDurationMultiplier : d;
+            if (weapon == null) return FallbackTiming;
+            return weapon.TimingOverride ?? (timingTable != null ? timingTable.Get(weapon.Category) : null) ?? FallbackTiming;
         }
+
+        /// <summary>Tempo de uma fase: a proporção dela dentro de um golpe leve (1 / ataques por segundo).</summary>
+        private float Phase(float share, bool heavy)
+        {
+            var d = LightDuration * share / Mathf.Max(0.01f, _timing.LightTotal);
+            return heavy ? d * _timing.heavyDurationMultiplier : d;
+        }
+
+        private float LightDuration => attackTempo / Mathf.Max(0.1f, _weapon.AttackSpeed);
+
+        /// <summary>Fração inicial da recuperação que é acompanhamento (sem esquiva nem combo).</summary>
+        private float FollowShare => _bounced ? 0f : _timing.followThrough / Mathf.Max(0.01f, _timing.followThrough + _timing.recovery);
 
         private FirearmAmmo _ammo;
         private FirearmAmmo Ammo => _ammo != null ? _ammo : (_ammo = GetComponent<FirearmAmmo>());
@@ -274,15 +307,17 @@ namespace Athoria.Gameplay.Combat
             _comboStep = chain && weapon == _lastComboWeapon ? (_comboStep + 1) % AttackMotion.ComboLength(weapon) : 0;
             _lastComboWeapon = weapon;
             _weapon = weapon;
+            _timing = TimingFor(weapon);
             _heavy = false;
             _mirrored = _comboStep % 2 == 1;
             _bounced = false;
             _ranged = false;
             _holdTime = 0f;
             _swing = AttackMotion.Get(weapon, false, _comboStep);
+            _ualClip = UalFirstPersonMotion.ClipFor(weapon, false, _comboStep);
             _fromPos = _lastPos;
             _fromRot = _lastRot;
-            Enter(State.WindUp, AttackDuration(false) * windupFraction);
+            Enter(State.WindUp, Phase(_timing.anticipation, false));
             EventBus.Publish(new PlayerAttackStarted(gameObject, aimOrigin.position, aimOrigin.forward));
             return true;
         }
@@ -291,7 +326,7 @@ namespace Athoria.Gameplay.Combat
         {
             _sweepProgress = 0f;
             _hitThisSwing.Clear();
-            Enter(State.Active, AttackDuration(_heavy) * activeFraction);
+            Enter(State.Active, Phase(_timing.strike, _heavy));
 
             // Arma de fogo: todo ataque dispara. Arma mágica: o pesado lança o feitiço (se houver mana).
             if (_weapon.HasSpell && (_weapon.IsFirearm || _heavy) && (_weapon.SpellManaCost <= 0f || mana != null && mana.TrySpend(_weapon.SpellManaCost)))
@@ -408,8 +443,8 @@ namespace Athoria.Gameplay.Combat
 
             if (feedback != null) feedback.PlayImpact(SurfaceMaterial.Of(col), point, normal);
             var killed = result == DamageResult.Killed;
-            StartHitStop((_heavy ? hitStopHeavy : hitStopLight) + (killed ? 0.03f : 0f));
-            if (cameraEffects != null) cameraEffects.AddShake(_heavy ? shakeHeavy : shakeLight);
+            StartHitStop((_heavy ? _timing.hitStopHeavy : _timing.hitStopLight) + (killed ? _timing.hitStopKill : 0f));
+            if (cameraEffects != null) cameraEffects.AddShake(_heavy ? _timing.shakeHeavy : _timing.shakeLight);
         }
 
         private void HitWorld(Collider col, Vector3 point, Vector3 normal)
@@ -444,6 +479,7 @@ namespace Athoria.Gameplay.Combat
             var dir = transform.right * move.x + transform.forward * move.y;
             if (dir.sqrMagnitude < 0.01f) dir = -transform.forward;     // sem direção: recua
             controller.Dash(dir.normalized * dodgeSpeed, dodgeDuration);
+            weaponView.PlayAction(move.x < -0.3f ? ViewModelActionId.DodgeLeft : move.x > 0.3f ? ViewModelActionId.DodgeRight : ViewModelActionId.DodgeBack, true);
             _invulnerableUntil = Time.time + dodgeInvulnerability;
             _nextDodgeTime = Time.time + dodgeDuration + dodgeCooldown;
             if (feedback != null) CombatFeedback.Play(feedback.dodge, transform.position, 0.6f, 0.1f, false);
@@ -455,13 +491,32 @@ namespace Athoria.Gameplay.Combat
         public bool ModifyIncomingDamage(ref DamageInfo info)
         {
             if (IsInvulnerable) return false;   // esquiva
-            if (!IsBlocking) return true;
 
             var incoming = -info.Direction;
             incoming.y = 0f;
             var facing = aimOrigin.forward;
             facing.y = 0f;
-            if (incoming.sqrMagnitude < 0.001f || Vector3.Angle(incoming, facing) > blockAngle) return true;
+            var inFront = incoming.sqrMagnitude >= 0.001f && Vector3.Angle(incoming, facing) <= blockAngle;
+
+            // Aparar: guarda levantada no último instante, de frente e sem a guarda quebrada.
+            if (inFront && input.BlockHeld && !IsGuardBroken && _state == State.Idle && Time.time - _blockPressedAt <= parryWindow)
+            {
+                info.WasBlocked = true;
+                if (feedback != null)
+                {
+                    CombatFeedback.Play(feedback.block, info.Point, 1.1f, 0.05f);
+                    CombatFeedback.SpawnParticles(feedback.blockParticles, info.Point, -info.Direction);
+                }
+                weaponView.PlayAction(ViewModelActionId.Parry, true);
+                if (cameraEffects != null) cameraEffects.AddShake(0.15f);
+                var enemy = info.Source != null ? info.Source.GetComponentInParent<Athoria.Gameplay.AI.EnemyAI>() : null;
+                // Só golpes corpo a corpo fazem o inimigo cambalear (flecha aparada só é desviada).
+                if (enemy != null && (enemy.transform.position - transform.position).sqrMagnitude < 16f) enemy.Parried();
+                EventBus.Publish(new GameMessage("Aparou!"));
+                return false;
+            }
+
+            if (!IsBlocking || !inFront) return true;
 
             var hasShield = weaponView.HasShield;
             var absorb = hasShield ? shieldAbsorb : weaponAbsorb;
@@ -496,6 +551,7 @@ namespace Athoria.Gameplay.Combat
         {
             if (result != DamageResult.Damaged && result != DamageResult.Killed) return;
             if (feedback != null) CombatFeedback.Play(feedback.playerHurt, transform.position, 0.9f, 0.1f, false);
+            if (result == DamageResult.Damaged) weaponView.PlayAction(ViewModelActionId.HitReaction, true);
             if (cameraEffects != null) cameraEffects.AddShake(0.5f);
             // Golpes pesados interrompem a preparação do ataque.
             if (info.StaggerPower >= 2f && (_state == State.WindUp || _state == State.HeavyWindUp)) GoIdle();
@@ -523,7 +579,9 @@ namespace Athoria.Gameplay.Combat
                 case State.WindUp:
                 case State.HeavyWindUp:
                 {
-                    var e = 1f - (1f - t) * (1f - t);           // ease-out: prepara rápido e segura
+                    // ease-out até o alto e uma pausa curta lá em cima (o golpe é lido antes de vir)
+                    var tw = _state == State.WindUp ? Mathf.Clamp01(t / Mathf.Max(0.05f, 1f - _timing.anticipationHold)) : t;
+                    var e = 1f - (1f - tw) * (1f - tw);
                     if (_state == State.HeavyWindUp)
                     {
                         // Sai da pose armada do golpe leve e vai para a preparação pesada; treme ao segurar.
@@ -544,7 +602,7 @@ namespace Athoria.Gameplay.Combat
                 }
                 case State.Active:
                 {
-                    var e = t * t * (3f - 2f * t);
+                    var e = _timing.StrikeProgress(t);
                     _swing.SampleStrike(e, out pos, out rot);
                     break;
                 }
@@ -567,10 +625,57 @@ namespace Athoria.Gameplay.Combat
                     return;
             }
 
+            if (_ual == null) _ual = GetComponent<UalFirstPersonMotion>();
+            if (_ual != null && _ual.Has(_ualClip.Name)) UalMotion(t, ref pos, ref rot);
+
             _lastPos = pos;
             _lastRot = rot;
             var bothArms = _weapon != null && _weapon.IsTwoHanded;
             weaponView.SetAction(pos, rot, bothArms);
+        }
+
+        /// <summary>
+        /// Troca o movimento procedural pelo da animação da biblioteca, no mesmo tempo:
+        /// preparação até o impacto, varredura logo depois dele e a volta até a guarda.
+        /// </summary>
+        private void UalMotion(float t, ref Vector3 pos, ref Vector3 rot)
+        {
+            var clip = _ualClip;
+            var strikeEnd = Mathf.Min(0.97f, clip.Impact + 0.22f);
+            Vector3 p, r;
+            switch (_state)
+            {
+                case State.WindUp:
+                case State.HeavyWindUp:
+                {
+                    var tw = _state == State.WindUp ? Mathf.Clamp01(t / Mathf.Max(0.05f, 1f - _timing.anticipationHold)) : t;
+                    var e = 1f - (1f - tw) * (1f - tw);
+                    if (!_ual.Sample(clip.Name, e * clip.Impact, clip.Name, out p, out r)) return;
+                    if (_state == State.WindUp) { p += _fromPos * (1f - e); r += _fromRot * (1f - e); }
+                    break;
+                }
+                case State.Active:
+                {
+                    var e = _timing.StrikeProgress(t);
+                    if (!_ual.Sample(clip.Name, Mathf.Lerp(clip.Impact, strikeEnd, e), clip.Name, out p, out r)) return;
+                    break;
+                }
+                case State.Recovery:
+                {
+                    if (_bounced) return;                                   // ricochete: mantém o recuo procedural
+                    var ok = _ual.Has(clip.Recover)
+                        ? _ual.Sample(clip.Recover, t, clip.Name, out p, out r)
+                        : _ual.Sample(clip.Name, Mathf.Lerp(strikeEnd, 1f, t), clip.Name, out p, out r);
+                    if (!ok) return;
+                    var back = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.55f, 1f, t));   // termina exatamente na guarda
+                    p = Vector3.Lerp(p, Vector3.zero, back);
+                    r = Vector3.Lerp(r, Vector3.zero, back);
+                    break;
+                }
+                default: return;
+            }
+            pos = p;
+            rot = r;
         }
 
         private float DamageMultiplier()
@@ -594,8 +699,20 @@ namespace Athoria.Gameplay.Combat
             _stateDuration = Mathf.Max(0.01f, duration);
         }
 
+        /// <summary>Rastro ligado na execução e no começo do acompanhamento (golpes corpo a corpo).</summary>
+        private void UpdateTrail()
+        {
+            var on = _timing != null && _timing.trail && !_ranged && _weapon != null && !_weapon.IsFirearm
+                     && (_state == State.Active || _state == State.Recovery && !_bounced && _stateTime / _stateDuration < FollowShare * 0.6f);
+            var color = _timing != null ? _timing.trailColor : Color.white;
+            if (_heavy) color.a = Mathf.Min(1f, color.a * 1.5f);
+            weaponView.SetTrail(on, color, _timing != null ? _timing.trailLifetime * (_heavy ? 1.4f : 1f) : 0.1f,
+                _timing != null ? _timing.trailStart : 0.35f);
+        }
+
         private void GoIdle()
         {
+            weaponView.SetTrail(false, Color.white, 0.1f);
             _state = State.Idle;
             _stateTime = 0f;
             _stateDuration = 0f;

@@ -1,0 +1,455 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: AcoesBracos_Padrao
+  m_EditorClassIdentifier: Athoria.Gameplay:Athoria.Gameplay.Combat:ViewModelActionSet
+  actions:
+  - id: 3
+    duration: 0.42
+    eventTime: 0.15
+    interruptsCombat: 1
+    priority: 3
+    keys:
+    - time: 0
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.14
+      rightPosition: {x: -0.03, y: 0.06, z: 0.05}
+      rightEuler: {x: -15, y: -10, z: 20}
+      leftPosition: {x: -0.03, y: 0.06, z: 0.05}
+      leftEuler: {x: -15, y: -10, z: 20}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.34
+      rightPosition: {x: 0.02, y: 0.02, z: -0.05}
+      rightEuler: {x: 8, y: 5, z: -6}
+      leftPosition: {x: 0.02, y: 0.02, z: -0.05}
+      leftEuler: {x: 8, y: 5, z: -6}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 1
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+  - id: 4
+    duration: 0.36
+    eventTime: 0
+    interruptsCombat: 1
+    priority: 2
+    keys:
+    - time: 0
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.25
+      rightPosition: {x: 0.06, y: -0.03, z: -0.02}
+      rightEuler: {x: 0, y: 4, z: -10}
+      leftPosition: {x: 0.06, y: -0.03, z: -0.02}
+      leftEuler: {x: 0, y: 4, z: -10}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 1
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+  - id: 5
+    duration: 0.36
+    eventTime: 0
+    interruptsCombat: 1
+    priority: 2
+    keys:
+    - time: 0
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.25
+      rightPosition: {x: -0.06, y: -0.03, z: -0.02}
+      rightEuler: {x: 0, y: -4, z: 10}
+      leftPosition: {x: -0.06, y: -0.03, z: -0.02}
+      leftEuler: {x: 0, y: -4, z: 10}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 1
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+  - id: 6
+    duration: 0.36
+    eventTime: 0
+    interruptsCombat: 1
+    priority: 2
+    keys:
+    - time: 0
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.25
+      rightPosition: {x: 0, y: 0.03, z: -0.06}
+      rightEuler: {x: -8, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0.03, z: -0.06}
+      leftEuler: {x: -8, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 1
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+  - id: 7
+    duration: 0.34
+    eventTime: 0
+    interruptsCombat: 1
+    priority: 2
+    keys:
+    - time: 0
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.12
+      rightPosition: {x: 0.01, y: -0.05, z: -0.06}
+      rightEuler: {x: 12, y: 4, z: -6}
+      leftPosition: {x: 0.01, y: -0.05, z: -0.06}
+      leftEuler: {x: 12, y: 4, z: -6}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.4
+      rightPosition: {x: 0, y: -0.02, z: -0.02}
+      rightEuler: {x: 4, y: 1, z: -2}
+      leftPosition: {x: 0, y: -0.02, z: -0.02}
+      leftEuler: {x: 4, y: 1, z: -2}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 1
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+  - id: 2
+    duration: 2.2
+    eventTime: 0.5
+    interruptsCombat: 0
+    priority: 0
+    keys:
+    - time: 0
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.15
+      rightPosition: {x: -0.06, y: 0.04, z: 0.02}
+      rightEuler: {x: 0, y: -35, z: 25}
+      leftPosition: {x: -0.03, y: -0.08, z: -0.02}
+      leftEuler: {x: 6, y: 0, z: 0}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.45
+      rightPosition: {x: -0.07, y: 0.05, z: 0.03}
+      rightEuler: {x: -5, y: -40, z: 30}
+      leftPosition: {x: -0.03, y: -0.09, z: -0.02}
+      leftEuler: {x: 6, y: 0, z: 0}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.6
+      rightPosition: {x: -0.04, y: 0.03, z: 0}
+      rightEuler: {x: 10, y: 25, z: -40}
+      leftPosition: {x: -0.03, y: -0.08, z: -0.02}
+      leftEuler: {x: 6, y: 0, z: 0}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.85
+      rightPosition: {x: -0.04, y: 0.035, z: 0.01}
+      rightEuler: {x: 8, y: 28, z: -42}
+      leftPosition: {x: -0.03, y: -0.08, z: -0.02}
+      leftEuler: {x: 6, y: 0, z: 0}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 1
+    - time: 1
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+  - id: 8
+    duration: 0.5
+    eventTime: 0.45
+    interruptsCombat: 0
+    priority: 1
+    keys:
+    - time: 0
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 0.55
+    - time: 0.45
+      rightPosition: {x: 0.03, y: -0.06, z: -0.02}
+      rightEuler: {x: 8, y: 0, z: 0}
+      leftPosition: {x: 0.12, y: 0.08, z: 0.22}
+      leftEuler: {x: -30, y: 0, z: -20}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 0.15
+    - time: 1
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 0.55
+  - id: 9
+    duration: 0.6
+    eventTime: 0.5
+    interruptsCombat: 0
+    priority: 1
+    keys:
+    - time: 0
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 0.55
+    - time: 0.38
+      rightPosition: {x: 0.03, y: -0.05, z: -0.02}
+      rightEuler: {x: 6, y: 0, z: 0}
+      leftPosition: {x: 0.1, y: -0.2, z: 0.25}
+      leftEuler: {x: 35, y: 0, z: -15}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 0.1
+    - time: 0.55
+      rightPosition: {x: 0.03, y: -0.05, z: -0.02}
+      rightEuler: {x: 6, y: 0, z: 0}
+      leftPosition: {x: 0.1, y: -0.21, z: 0.25}
+      leftEuler: {x: 38, y: 0, z: -15}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 1
+    - time: 1
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 0.55
+  - id: 10
+    duration: 0.8
+    eventTime: 0.5
+    interruptsCombat: 0
+    priority: 1
+    keys:
+    - time: 0
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 0.55
+    - time: 0.35
+      rightPosition: {x: -0.06, y: -0.22, z: 0.1}
+      rightEuler: {x: 30, y: 0, z: 10}
+      leftPosition: {x: 0.12, y: -0.18, z: 0.22}
+      leftEuler: {x: 30, y: 0, z: -15}
+      supportGrip: 0
+      rightFingers: 0.6
+      leftFingers: 0.3
+    - time: 0.6
+      rightPosition: {x: -0.06, y: -0.12, z: 0.14}
+      rightEuler: {x: 5, y: 0, z: 10}
+      leftPosition: {x: 0.12, y: -0.08, z: 0.26}
+      leftEuler: {x: 5, y: 0, z: -15}
+      supportGrip: 0
+      rightFingers: 0.6
+      leftFingers: 0.4
+    - time: 1
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 0.55
+  - id: 11
+    duration: 1
+    eventTime: 0.6
+    interruptsCombat: 0
+    priority: 1
+    keys:
+    - time: 0
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 0.55
+    - time: 0.3
+      rightPosition: {x: 0.05, y: -0.12, z: -0.04}
+      rightEuler: {x: 15, y: 0, z: -10}
+      leftPosition: {x: 0.15, y: 0.12, z: 0.05}
+      leftEuler: {x: -50, y: 0, z: -40}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.55
+      rightPosition: {x: 0.05, y: -0.12, z: -0.04}
+      rightEuler: {x: 15, y: 0, z: -10}
+      leftPosition: {x: 0.18, y: 0.2, z: 0}
+      leftEuler: {x: -75, y: 0, z: -50}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.72
+      rightPosition: {x: 0.05, y: -0.12, z: -0.04}
+      rightEuler: {x: 15, y: 0, z: -10}
+      leftPosition: {x: 0.18, y: 0.2, z: 0}
+      leftEuler: {x: -78, y: 0, z: -52}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 1
+    - time: 1
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 0.55
+  - id: 0
+    duration: 0.55
+    eventTime: 0.5
+    interruptsCombat: 1
+    priority: 1
+    keys:
+    - time: 0
+      rightPosition: {x: 0.05, y: -0.35, z: -0.1}
+      rightEuler: {x: 40, y: 0, z: -30}
+      leftPosition: {x: 0, y: -0.25, z: -0.05}
+      leftEuler: {x: 20, y: 0, z: 10}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 0.6
+    - time: 0.45
+      rightPosition: {x: 0.02, y: -0.04, z: 0.03}
+      rightEuler: {x: -12, y: 0, z: 6}
+      leftPosition: {x: 0, y: -0.06, z: 0}
+      leftEuler: {x: 4, y: 0, z: 2}
+      supportGrip: 0.3
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.7
+      rightPosition: {x: 0, y: 0.01, z: 0}
+      rightEuler: {x: 3, y: 0, z: -1}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 0.9
+      rightFingers: 1
+      leftFingers: 1
+    - time: 1
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+  - id: 1
+    duration: 0.45
+    eventTime: 0.8
+    interruptsCombat: 1
+    priority: 1
+    keys:
+    - time: 0
+      rightPosition: {x: 0, y: 0, z: 0}
+      rightEuler: {x: 0, y: 0, z: 0}
+      leftPosition: {x: 0, y: 0, z: 0}
+      leftEuler: {x: 0, y: 0, z: 0}
+      supportGrip: 1
+      rightFingers: 1
+      leftFingers: 1
+    - time: 0.4
+      rightPosition: {x: 0.04, y: -0.12, z: -0.02}
+      rightEuler: {x: 25, y: 0, z: -20}
+      leftPosition: {x: 0, y: -0.08, z: 0}
+      leftEuler: {x: 6, y: 0, z: 4}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 1
+    - time: 1
+      rightPosition: {x: 0.08, y: -0.35, z: -0.1}
+      rightEuler: {x: 45, y: 0, z: -35}
+      leftPosition: {x: 0, y: -0.2, z: 0}
+      leftEuler: {x: 15, y: 0, z: 8}
+      supportGrip: 0
+      rightFingers: 1
+      leftFingers: 1

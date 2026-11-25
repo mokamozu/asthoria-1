@@ -95,6 +95,17 @@ namespace Athoria.Editor
             result["PocaoMana"] = Consumable("PocaoMana", "Poção de Mana Menor", "Essência destilada que restaura a energia mágica.", ItemRarity.Uncommon,
                 ConsumableEffect.RestoreMana, 30f, 5, 0.3f, 35, potionBlue);
             result["Erva"] = Plain("Erva", "Erva do Pântano", "Material comum para preparos e remédios.", ItemCategory.Material, ItemRarity.Common, 1, 1, 20, 0.1f, 4, herbModel);
+            // Musgo: 40 jogados perto da pedra antiga despertam o Ancião do Brejo
+            var mossMat = EditorMaterials.GetOrCreate("Musgo", new Color(0.36f, 0.48f, 0.16f), 0f, 0.05f);
+            var mossDark = EditorMaterials.GetOrCreate("MusgoEscuro", new Color(0.22f, 0.3f, 0.1f), 0f, 0.05f);
+            var mossModel = Model("Modelo_Musgo", t =>
+            {
+                Part(t, PrimitiveType.Sphere, new Vector3(0, 0.04f, 0), new Vector3(0.18f, 0.08f, 0.15f), mossMat);
+                Part(t, PrimitiveType.Sphere, new Vector3(0.05f, 0.07f, 0.02f), new Vector3(0.09f, 0.06f, 0.08f), mossDark);
+                Part(t, PrimitiveType.Sphere, new Vector3(-0.05f, 0.06f, -0.03f), new Vector3(0.08f, 0.05f, 0.07f), mossMat);
+            });
+            result["Musgo"] = Plain("Musgo", "Musgo", "Musgo úmido e antigo. Dizem que certas pedras da floresta despertam quando sentem o cheiro de muito musgo junto.",
+                ItemCategory.Material, ItemRarity.Common, 1, 1, 40, 0.05f, 1, mossModel);
             result["ChaveCripta"] = Plain("ChaveCripta", "Chave da Cripta", "Pesada, fria e marcada com um selo gasto. Abre a cripta das Terras Alagadas.",
                 ItemCategory.Quest, ItemRarity.Rare, 1, 2, 1, 0.3f, 0, keyModel);
             result["Chave"] = Plain("Chave", "Chave Enferrujada", "Uma chave antiga. Deve abrir alguma porta por aqui.", ItemCategory.Quest, ItemRarity.Uncommon, 1, 2, 1, 0.2f, 0, keyModel);

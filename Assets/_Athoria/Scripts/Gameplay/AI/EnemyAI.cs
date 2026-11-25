@@ -26,7 +26,7 @@ namespace Athoria.Gameplay.AI
         private enum AttackPhase { Windup, Active, Recovery }
 
         [SerializeField] private EnemyData data;
-        [SerializeField] private EnemyAnimator animator;
+        [SerializeField] private EnemyAnimatorBase animator;
         [SerializeField, Tooltip("Ponto dos olhos (visão). Vazio = 85% da altura.")] private Transform eyes;
         [SerializeField, Tooltip("Saída dos projéteis. Vazio = olhos.")] private Transform muzzle;
         [SerializeField] private CombatFeedback feedback;
@@ -108,7 +108,7 @@ namespace Athoria.Gameplay.AI
         {
             _health = GetComponent<Health>();
             _agent = GetComponent<NavMeshAgent>();
-            if (animator == null) animator = GetComponentInChildren<EnemyAnimator>();
+            if (animator == null) animator = GetComponentInChildren<EnemyAnimatorBase>();
             _colliders = GetComponentsInChildren<Collider>();
             _renderers = GetComponentsInChildren<Renderer>();
             _post = transform.position;
@@ -600,6 +600,13 @@ namespace Athoria.Gameplay.AI
             if (_stateTime >= _stateDuration) Enter(_hasTarget ? State.Chase : State.Return);
         }
 
+        /// <summary>A jogadora aparou o golpe no tempo certo: o ataque é cancelado e o inimigo cambaleia.</summary>
+        public void Parried()
+        {
+            if (_state == State.Dead) return;
+            EnterStagger(data.staggerDuration * 1.5f);
+        }
+
         private void EnterStagger(float duration)
         {
             StopAgent();
@@ -724,7 +731,7 @@ namespace Athoria.Gameplay.AI
             _attackHit = false;
             StopAgent();
             Enter(State.Attack);
-            if (animator != null) animator.SetPose(EnemyAnimator.Pose.Windup, _attack.pose);
+            if (animator != null) animator.SetPose(EnemyAnimator.Pose.Windup, _attack.pose, _attack.windup);
         }
 
         private void TickAttack(float dt)
@@ -745,7 +752,7 @@ namespace Athoria.Gameplay.AI
                     if (_phaseTime < _attack.windup) return;
                     _phase = AttackPhase.Active;
                     _phaseTime = 0f;
-                    if (animator != null) animator.SetPose(EnemyAnimator.Pose.Strike, _attack.pose);
+                    if (animator != null) animator.SetPose(EnemyAnimator.Pose.Strike, _attack.pose, _attack.activeTime);
                     PlayAttackSound();
                     if (_attack.projectile != null)
                     {
@@ -761,7 +768,7 @@ namespace Athoria.Gameplay.AI
                     if (_phaseTime < _attack.activeTime) return;
                     _phase = AttackPhase.Recovery;
                     _phaseTime = 0f;
-                    if (animator != null) animator.SetPose(EnemyAnimator.Pose.Recover, _attack.pose);
+                    if (animator != null) animator.SetPose(EnemyAnimator.Pose.Recover, _attack.pose, _attack.recovery);
                     break;
 
                 case AttackPhase.Recovery:

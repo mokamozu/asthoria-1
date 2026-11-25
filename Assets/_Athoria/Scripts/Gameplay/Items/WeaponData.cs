@@ -50,6 +50,19 @@ namespace Athoria.Gameplay.Items
 
         // Poses que a geração automática escreveu. Se as de cima forem diferentes,
         // foram ajustadas à mão e a geração (Reconstruir tudo / Gerar armas) não as sobrescreve.
+        [Header("Pegada (mão de apoio)")]
+        [SerializeField, Tooltip("Distância (m) da mão de apoio ao longo do cabo, a partir da mão principal (+ à frente, - atrás). " +
+                                 "Use -99 para o padrão da categoria (lança 0,42 · arma de fogo 0,30 · cajado 0,36 · martelo -0,20 · espadas -0,12).")]
+        private float supportGripDistance = -99f;
+        [SerializeField, UnityEngine.Range(-1f, 1f), Tooltip("Quanto o pulso de apoio acompanha a inclinação do cabo (0-1). -1 = padrão da categoria.")]
+        private float supportWristFollow = -1f;
+
+        [SerializeField, Tooltip("Ações dos braços desta arma (sacar, guardar, inspecionar…). Vazio = conjunto padrão.")]
+        private Athoria.Gameplay.Combat.ViewModelActionSet viewModelActions;
+
+        [SerializeField, Tooltip("Usa os tempos abaixo em vez dos da tabela da categoria.")] private bool overrideTiming;
+        [SerializeField] private Athoria.Gameplay.Combat.WeaponTiming timing = new();
+
         [SerializeField, HideInInspector] private ViewPose generatedModelPose, generatedHoldingPose, generatedSupportPose;
         [SerializeField, HideInInspector] private bool hasGeneratedPoses;
 
@@ -83,6 +96,13 @@ namespace Athoria.Gameplay.Items
         public WeaponHandling Handling => handling;
         public GameObject ViewModelPrefab => viewModelPrefab;
         public ViewPose ModelPose => modelPose;
+        public Athoria.Gameplay.Combat.ViewModelActionSet ViewModelActions => viewModelActions;
+        /// <summary>Tempos próprios desta arma, ou nulo para usar a tabela da categoria.</summary>
+        public Athoria.Gameplay.Combat.WeaponTiming TimingOverride => overrideTiming ? timing : null;
+        /// <summary>Distância da mão de apoio no cabo (null = padrão da categoria).</summary>
+        public float? SupportGripDistance => supportGripDistance > -50f ? supportGripDistance : null;
+        /// <summary>Quanto o pulso de apoio segue o cabo (null = padrão da categoria).</summary>
+        public float? SupportWristFollowOverride => supportWristFollow >= 0f ? supportWristFollow : null;
         public ViewPose HoldingArmPose => holdingArmPose;
         public ViewPose SupportArmPose => supportArmPose;
         public float Damage => damage * Quality;

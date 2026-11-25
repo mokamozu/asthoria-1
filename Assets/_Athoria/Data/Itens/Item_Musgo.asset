@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afbd96d410cac6842a0377ae1e9dda49, type: 3}
+  m_Name: Item_Musgo
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Items.ItemData
+  id: 58b2e6a116a02ea4f8f08540a198f117
+  displayName: Musgo
+  description: "Musgo \xFAmido e antigo. Dizem que certas pedras da floresta despertam quando sentem o cheiro de muito musgo junto."
+  icon: {fileID: 21300000, guid: 8a78d2d80c75293498fafddcab62d866, type: 3}
+  itemCategory: 9
+  rarity: 0
+  gridWidth: 1
+  gridHeight: 1
+  maxStack: 40
+  weight: 0.05
+  value: 1
+  worldModel: {fileID: 7144165962532926197, guid: 72622ea5bede45e47869ece8fd583ada, type: 3}
+  baseItem: {fileID: 0}
+  quality: 1
+  bonusModifiers: []

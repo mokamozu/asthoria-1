@@ -24,6 +24,8 @@ namespace Athoria.Editor
         public const string Skeleton = "Esqueleto";
         public const string Archer = "EsqueletoArqueiro";
         public const string Knight = "CavaleiroCorrompido";
+        public const string MossAncient = "AnciaoDoBrejo";
+        public const string MossSpirit = "EspiritoMusgo";
         public const string ChestCommon = "BauComum";
         public const string ChestLocked = "BauTrancado";
 
@@ -95,6 +97,31 @@ namespace Athoria.Editor
                 t.nothingWeight = 1f;
                 t.entries = gear;
                 t.gold = new Vector2Int(40, 90);
+            });
+
+            // Espírito do Musgo: sempre solta musgo (40 despertam o Ancião do Brejo). Quantidade provisória.
+            tables[MossSpirit] = Table(MossSpirit, "Loot do Espírito do Musgo", t =>
+            {
+                t.guaranteed = List(E("Musgo", 1f, 4, 7));
+                t.rolls = new Vector2Int(1, 1);
+                t.nothingWeight = 4f;
+                t.entries = List(E("PocaoVida", 1f));
+                t.goldChance = 0f;
+            });
+
+            // Chefe do brejo: dois equipamentos Raros ou melhores garantidos, poções e bastante ouro.
+            // (Recompensas provisórias até haver itens próprios do Ancião.)
+            tables[MossAncient] = Table(MossAncient, "Loot do Ancião do Brejo", t =>
+            {
+                t.guaranteed = List(E("PocaoVida", 1f, 3, 3), E("PocaoVigor", 1f, 2, 2));
+                t.guaranteedPicks = 2;
+                t.guaranteedMinimumRarity = ItemRarity.Rare;
+                t.minimumRarity = ItemRarity.Uncommon;
+                t.rarityBonus = 0.8f;
+                t.rolls = new Vector2Int(1, 2);
+                t.nothingWeight = 0.5f;
+                t.entries = gear;
+                t.gold = new Vector2Int(150, 300);
             });
 
             tables[ChestCommon] = Table(ChestCommon, "Baú Comum", t =>

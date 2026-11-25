@@ -34,8 +34,8 @@ namespace Athoria.Gameplay.Combat
         [Header("Poses sem arma")]
         [SerializeField] private ViewPose unarmedRight = new(new Vector3(0.24f, -0.4f, 0.36f), new Vector3(-8f, -10f, 0f));
         [SerializeField] private ViewPose unarmedLeft = new(new Vector3(-0.24f, -0.4f, 0.36f), new Vector3(-8f, 10f, 0f));
-        [SerializeField, Tooltip("Braço esquerdo abaixado, fora da tela.")]
-        private ViewPose leftRest = new(new Vector3(-0.3f, -0.78f, 0.15f), new Vector3(10f, 0f, 0f));
+        [SerializeField, Tooltip("Braço esquerdo em repouso com arma de uma mão: baixo, no canto esquerdo, punho meio fechado (guarda natural).")]
+        private ViewPose leftRest = new(new Vector3(-0.27f, -0.5f, 0.26f), new Vector3(-6f, 14f, -18f));
         [SerializeField] private float armPoseSmoothing = 14f;
 
         [Header("Defesa")]
@@ -50,11 +50,18 @@ namespace Athoria.Gameplay.Combat
         [SerializeField, Tooltip("Desloca braços e armas juntos na tela (sobe as mãos acima da barra de atalhos).")]
         private Vector3 viewOffset = new(0f, 0.07f, -0.02f);
 
+        [Header("Estilo Daggerfall")]
+        [SerializeField, Tooltip("Desligado: só a arma aparece (sem braços nem mãos), como em Daggerfall.")]
+        private bool showArms = true;
+        [SerializeField, Tooltip("Sem braços: desce e afasta a arma para o canto da tela, com o punho escondido embaixo.")]
+        private Vector3 weaponOnlyOffset = new(0.05f, -0.13f, 0.02f);
+
         [Header("Recuo (impacto em parede/bloqueio)")]
         [SerializeField] private float recoilStiffness = 260f;
         [SerializeField] private float recoilDamping = 18f;
 
         [Header("Trocar arma")]
+        [SerializeField, Tooltip("Material do rastro da lâmina (aditivo, usa a cor dos vértices).")] private Material trailMaterial;
         [SerializeField] private float lowerTime = 0.16f;
         [SerializeField] private float raiseTime = 0.24f;
         [SerializeField] private Vector3 loweredOffset = new(0f, -0.38f, -0.05f);
@@ -81,6 +88,26 @@ namespace Athoria.Gameplay.Combat
         [SerializeField] private float landingKickPerSpeed = 0.006f;
         [SerializeField] private float landingRecoverTime = 0.2f;
 
+        private FirstPersonMovementAnimation _movement;
+        private ViewModelAnimator _actions;
+        private WeaponTrail _trail;
+
+        /// <summary>Liga/desliga o rastro da arma principal (a cor já vem com o alfa).</summary>
+        public void SetTrail(bool on, Color color, float lifetime, float start = 0.35f)
+        {
+            if (_trail != null) _trail.SetEmitting(on && _mainModel != null, color, lifetime, start);
+        }
+        private FirstPersonArmsIK _armsIK;
+
+        /// <summary>Ações dos braços (sacar, inspecionar, pegar, beber…). Pode ser nulo.</summary>
+        public ViewModelAnimator Actions => _actions;
+
+        /// <summary>Toca uma ação dos braços; onEvent roda no momento do efeito (ou na hora, se não houver animação).</summary>
+        public bool PlayAction(ViewModelActionId id, bool inCombat = false, System.Action onEvent = null)
+        {
+            if (_actions == null) { onEvent?.Invoke(); return false; }
+            return _actions.Play(id, inCombat, onEvent);
+        }
         private EquipState _state = EquipState.Raising;
         private float _lowerBlend = 1f;           // 0 = arma em posição, 1 = abaixada
         private WeaponData _shownMain, _shownOff;
@@ -142,11 +169,31 @@ namespace Athoria.Gameplay.Combat
             }
 
             _leftGrip = leftArm.GetComponent<HandGrip>();
+            _actions = GetComponent<ViewModelAnimator>();
+            _armsIK = motionRoot.GetComponentInChildren<FirstPersonArmsIK>(true);
+            var trailGo = new GameObject("Rastro da arma", typeof(MeshFilter), typeof(MeshRenderer));
+            trailGo.transform.SetParent(motionRoot, false);
+            _trail = trailGo.AddComponent<WeaponTrail>();
+            _trail.SetMaterial(trailMaterial);
+            if (!showArms) HideArms();
             _viewModelLayer = LayerMask.NameToLayer(ViewModelLayerName);
             if (_viewModelLayer < 0)
                 Debug.LogWarning($"[Athoria] Layer '{ViewModelLayerName}' não existe; a arma pode atravessar paredes.", this);
             else
                 SetLayerRecursively(motionRoot.gameObject, _viewModelLayer);
+        }
+
+        /// <summary>
+        /// Esconde braços e mãos (os antigos e os WRAD). Os braços continuam existindo,
+        /// invisíveis, porque é neles que a arma fica presa e que os golpes se movem.
+        /// As armas são criadas depois, nos soquetes, então continuam visíveis.
+        /// </summary>
+        private void HideArms()
+        {
+            foreach (var arm in new[] { rightArm, leftArm })
+                foreach (var r in arm.GetComponentsInChildren<Renderer>(true)) r.enabled = false;
+            var wrad = motionRoot.GetComponentInChildren<FirstPersonArmsIK>(true);
+            if (wrad != null) wrad.gameObject.SetActive(false);
         }
 
         private void OnEnable()
@@ -168,6 +215,8 @@ namespace Athoria.Gameplay.Combat
             SnapArms();
             _state = EquipState.Raising;
             _lowerBlend = 1f;
+            if (_actions != null) _actions.UseSet(_shownMain != null ? _shownMain.ViewModelActions : null);
+            if (_shownMain != null || _shownOff != null) PlayAction(ViewModelActionId.Draw, true);
         }
 
         private void OnLoadoutChanged()
@@ -178,6 +227,7 @@ namespace Athoria.Gameplay.Combat
                 return;
             }
             _state = EquipState.Lowering;
+            if (_shownMain != null || _shownOff != null) PlayAction(ViewModelActionId.Sheathe, true);
         }
 
         private ViewPose _shownMainPose, _shownOffPose;
@@ -200,6 +250,7 @@ namespace Athoria.Gameplay.Combat
 #endif
 
             UpdateEquip(dt);
+            if (_actions != null) _actions.Tick(dt);
             UpdateArmPoses(dt);
             UpdateMotion(dt);
             SnapSupportHand();
@@ -214,10 +265,14 @@ namespace Athoria.Gameplay.Combat
         {
             if (_mainModel == null || _shownMain == null || !_shownMain.IsTwoHanded || _leftGrip == null || !_leftGrip.IsValid) return;
             var weapon = _mainModel.transform;
-            var target = weapon.position + weapon.up * SupportDistance(_shownMain.Category);
+            // Peso da mão de apoio no cabo: as ações (sacar, beber, pegar) soltam a mão de propósito.
+            var weight = _actions != null ? _actions.Pose.supportGrip : 1f;
+            if (weight <= 0.001f) return;
+            var target = weapon.position + weapon.up * (_shownMain.SupportGripDistance ?? SupportDistance(_shownMain.Category));
             // Armas de fogo e de haste: o cano/haste cruza a palma, o pulso dobra só um pouco (pose natural).
-            _leftGrip.Align(Quaternion.Inverse(leftArm.rotation) * weapon.rotation, SupportWristFollow(_shownMain.Category));
-            leftArm.position += target - _leftGrip.Point.position;
+            _leftGrip.Align(Quaternion.Inverse(leftArm.rotation) * weapon.rotation,
+                (_shownMain.SupportWristFollowOverride ?? SupportWristFollow(_shownMain.Category)) * weight);
+            leftArm.position += (target - _leftGrip.Point.position) * weight;
         }
 
         private static float SupportWristFollow(WeaponCategory category) => category switch
@@ -242,20 +297,26 @@ namespace Athoria.Gameplay.Combat
             switch (_state)
             {
                 case EquipState.Lowering:
-                    _lowerBlend = Mathf.MoveTowards(_lowerBlend, 1f, dt / lowerTime);
+                    _lowerBlend = Mathf.MoveTowards(_lowerBlend, 1f, dt / LowerTime);
                     if (_lowerBlend >= 1f)
                     {
                         SwapModels(loadout.MainHand, loadout.EffectiveOffHand);
                         SnapArms();
                         _state = EquipState.Raising;
+                        if (_actions != null) _actions.UseSet(_shownMain != null ? _shownMain.ViewModelActions : null);
+                        if (_shownMain != null || _shownOff != null) PlayAction(ViewModelActionId.Draw, true);
                     }
                     break;
                 case EquipState.Raising:
-                    _lowerBlend = Mathf.MoveTowards(_lowerBlend, 0f, dt / raiseTime);
+                    _lowerBlend = Mathf.MoveTowards(_lowerBlend, 0f, dt / RaiseTime);
                     if (_lowerBlend <= 0f) _state = EquipState.Ready;
                     break;
             }
         }
+
+        // Trocar arma dura o mesmo que as animações de guardar/sacar (se forem mais longas).
+        private float LowerTime => Mathf.Max(lowerTime, _actions != null ? _actions.DurationOf(ViewModelActionId.Sheathe) * 0.8f : 0f);
+        private float RaiseTime => Mathf.Max(raiseTime, _actions != null ? _actions.DurationOf(ViewModelActionId.Draw) * 0.7f : 0f);
 
         private void GetArmTargets(out Vector3 rPos, out Quaternion rRot, out Vector3 lPos, out Quaternion lRot)
         {
@@ -303,10 +364,19 @@ namespace Athoria.Gameplay.Combat
             _recoil += _recoilVel * dt;
 
             var actionRot = Quaternion.Euler(_actionEuler);
-            rightArm.localPosition = _rPos + _actionPos + _recoil;
-            rightArm.localRotation = actionRot * _rRot;
-            leftArm.localPosition = _lPos + (_actionBothArms ? _actionPos + _recoil : Vector3.zero);
-            leftArm.localRotation = (_actionBothArms ? actionRot : Quaternion.identity) * _lRot;
+            var k = _actions != null ? _actions.Pose : ViewModelAction.Neutral(0f);
+            rightArm.localPosition = _rPos + _actionPos + _recoil + k.rightPosition;
+            rightArm.localRotation = Quaternion.Euler(k.rightEuler) * actionRot * _rRot;
+            leftArm.localPosition = _lPos + (_actionBothArms ? _actionPos + _recoil : Vector3.zero) + k.leftPosition;
+            leftArm.localRotation = Quaternion.Euler(k.leftEuler) * (_actionBothArms ? actionRot : Quaternion.identity) * _lRot;
+
+            // Dedos: mão direita fechada no cabo (aberta sem arma só se a ação pedir); esquerda meio
+            // fechada em repouso, fechada segurando escudo/cabo.
+            if (_armsIK != null)
+            {
+                var leftHolding = _shownOff != null || _shownMain != null && _shownMain.IsTwoHanded;
+                _armsIK.SetFingers(k.rightFingers, Mathf.Min(k.leftFingers, leftHolding ? 1f : 0.55f));
+            }
         }
 
         private void SnapArms()
@@ -353,12 +423,28 @@ namespace Athoria.Gameplay.Combat
 
             var lowerEase = Mathf.SmoothStep(0f, 1f, _lowerBlend);
 
-            var pos = viewOffset + _bob
-                      + Vector3.up * (breath + _landing)
+            // Camadas com molas (olhar, andar/correr, pulo, aterrissagem, respiração) quando o
+            // FirstPersonMovementAnimation existe; senão, o balanço antigo.
+            Vector3 layerPos;
+            Quaternion layerRot;
+            if (_movement == null) _movement = GetComponent<FirstPersonMovementAnimation>();
+            if (_movement != null && _movement.enabled)
+            {
+                _movement.Tick(dt);
+                layerPos = _movement.Offset;
+                layerRot = _movement.Rotation;
+            }
+            else
+            {
+                layerPos = _bob + Vector3.up * (breath + _landing);
+                layerRot = Quaternion.Euler(_sway.y, -_sway.x, _sway.x * 0.5f);
+            }
+
+            var pos = viewOffset + (showArms ? Vector3.zero : weaponOnlyOffset) + layerPos
                       + sprintOffset.position * sprintEase
                       + loweredOffset * lowerEase;
 
-            var rot = Quaternion.Euler(_sway.y, -_sway.x, _sway.x * 0.5f)
+            var rot = layerRot
                       * Quaternion.Slerp(Quaternion.identity, sprintOffset.Rotation, sprintEase)
                       * Quaternion.Euler(loweredPitch * lowerEase, 0f, 0f);
 
@@ -376,8 +462,43 @@ namespace Athoria.Gameplay.Combat
             _offModel = Spawn(off, leftSocket);
             _shownMain = main;
             _shownOff = off;
+            if (_trail != null)
+            {
+                if (_mainModel != null && BladeAxis(_mainModel.transform, out var tip)) _trail.SetWeapon(_mainModel.transform, tip * 0.35f, tip);
+                else _trail.SetWeapon(null, Vector3.zero, Vector3.zero);
+            }
             _shownMainPose = main != null ? main.ModelPose : default;
             _shownOffPose = off != null ? off.ModelPose : default;
+        }
+
+        /// <summary>
+        /// Acha a lâmina no espaço do modelo: o eixo "para cima" da arma (o mesmo usado para a mão
+        /// de apoio), do lado em que ela é mais comprida. Devolve a ponta.
+        /// </summary>
+        private static bool BladeAxis(Transform model, out Vector3 tip)
+        {
+            tip = Vector3.zero;
+            float min = 0f, max = 0f;
+            var any = false;
+            foreach (var r in model.GetComponentsInChildren<MeshFilter>())
+            {
+                if (r.sharedMesh == null) continue;
+                var bounds = r.sharedMesh.bounds;
+                for (var i = 0; i < 8; i++)
+                {
+                    var corner = bounds.center + Vector3.Scale(bounds.extents, new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1));
+                    var y = model.InverseTransformPoint(r.transform.TransformPoint(corner)).y;
+                    min = Mathf.Min(min, y);
+                    max = Mathf.Max(max, y);
+                    any = true;
+                }
+            }
+            if (!any) return false;
+            var length = Mathf.Max(max, -min);
+            if (length < 0.1f) return false;                       // punhos, objetos pequenos
+            var dir = max >= -min ? Vector3.up : Vector3.down;
+            tip = dir * length;
+            return true;
         }
 
         private GameObject Spawn(WeaponData data, Transform socket)

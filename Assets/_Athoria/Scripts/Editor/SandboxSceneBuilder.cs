@@ -144,6 +144,21 @@ namespace Athoria.Editor
             BuildEnemies(root, feedback, stone, blood, lootTables);
             BuildChests(root);
 
+            // Chefe: Ancião do Brejo adormecido (parece uma pedra) — sudoeste, olhando para o início.
+            BossContentFactory.GenerateAll(items, lootTables);
+            var bossArea = new GameObject("Chefe - Ancião do Brejo").transform;
+            bossArea.SetParent(root);
+            BossContentFactory.Place(bossArea, new Vector3(-28f, 0f, -30f), 45f);
+
+            // Espíritos do Musgo escondidos como moitas (fogem; ao morrer soltam musgo)
+            MossSpiritContentFactory.Build(lootTables);
+            var spirits = new GameObject("Espiritos do Musgo").transform;
+            spirits.SetParent(root);
+            MossSpiritContentFactory.Place(spirits, new Vector3(-18f, 0f, -14f), 30f);
+            MossSpiritContentFactory.Place(spirits, new Vector3(-12f, 0f, -24f), 160f);
+            MossSpiritContentFactory.Place(spirits, new Vector3(-38f, 0f, -16f), 250f);
+            MossSpiritContentFactory.Place(spirits, new Vector3(-22f, 0f, -40f), 90f);
+
             // Locais descobríveis (XP de exploração)
             var places = new GameObject("Locais").transform;
             places.SetParent(root);
@@ -180,6 +195,8 @@ namespace Athoria.Editor
             PlaceItem(loot, items["AnelResistencia"], 1, new Vector3(3f, 0f, -6.5f));
             PlaceItem(loot, items["AnelAgilidade"], 1, new Vector3(-1f, 0f, -8f));
             PlaceItem(loot, items["Amuleto"], 1, new Vector3(1f, 0f, -8f));
+            // 40 musgos para testar o despertar do chefe (largue-os perto da pedra no sudoeste)
+            if (items.TryGetValue("Musgo", out var musgo)) PlaceItem(loot, musgo, 40, new Vector3(-3f, 0f, -9f));
             // Itens são pequenos e somem quando pegos: não entram no NavMesh.
             loot.gameObject.AddComponent<NavMeshModifier>().ignoreFromBuild = true;
 

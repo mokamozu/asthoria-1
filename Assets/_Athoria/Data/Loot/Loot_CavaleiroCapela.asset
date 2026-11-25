@@ -13,38 +13,23 @@ MonoBehaviour:
   m_Name: Loot_CavaleiroCapela
   m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Loot.LootTable
   id: 0d8a6f385aca43c46b663e4e2dedf5f4
-  displayName: Loot do Cavaleiro da Capela
+  displayName: Loot do Cavaleiro da Capital
   description: Tabela de loot gerada pela Etapa 12.
   icon: {fileID: 0}
   rolls: {x: 1, y: 1}
   nothingWeight: 1
   entries:
-  - item: {fileID: 11400000, guid: 58a63ea17196386478696cc1919eae50, type: 2}
-    weight: 1
-    quantity: {x: 1, y: 1}
-  - item: {fileID: 11400000, guid: 7a5e58ec4f9f42d42986eea1afd47cd2, type: 2}
-    weight: 1
-    quantity: {x: 1, y: 1}
-  - item: {fileID: 11400000, guid: c6e1be0db9dc411488befb56982facb4, type: 2}
-    weight: 1
-    quantity: {x: 1, y: 1}
-  - item: {fileID: 11400000, guid: 616b9a3a01f353a42a913afc2819908b, type: 2}
-    weight: 1
-    quantity: {x: 1, y: 1}
-  - item: {fileID: 11400000, guid: 2ebeecaa9876e9d499ebac06249c2774, type: 2}
-    weight: 1
-    quantity: {x: 1, y: 1}
-  - item: {fileID: 11400000, guid: f8fff857436728a4b988bae8b9913468, type: 2}
-    weight: 1
-    quantity: {x: 1, y: 1}
-  - item: {fileID: 11400000, guid: 67c0eee2804f0a2429fd72095e9c7a13, type: 2}
-    weight: 0.8
-    quantity: {x: 1, y: 1}
   - item: {fileID: 11400000, guid: 8a55dd486e415e04d97ebf5beb1fd41c, type: 2}
-    weight: 0.6
+    weight: 1
     quantity: {x: 1, y: 1}
   - item: {fileID: 11400000, guid: 91f6038c26059ec4eb532cc1a1b75dd5, type: 2}
-    weight: 0.6
+    weight: 1
+    quantity: {x: 1, y: 1}
+  - item: {fileID: 11400000, guid: d3a2eb5193717b54ba781e078552c6f0, type: 2}
+    weight: 1
+    quantity: {x: 1, y: 1}
+  - item: {fileID: 11400000, guid: eaa6d6da903a22a43bae21c49ae796e0, type: 2}
+    weight: 0.8
     quantity: {x: 1, y: 1}
   guaranteed:
   - item: {fileID: 11400000, guid: 4f0c433fb4efb154eb383120d25292e9, type: 2}

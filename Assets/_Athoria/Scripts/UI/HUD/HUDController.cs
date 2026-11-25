@@ -36,11 +36,20 @@ namespace Athoria.UI.HUD
             EventBus.Subscribe<StaminaChanged>(OnStamina);
             EventBus.Subscribe<ManaChanged>(OnMana);
             EventBus.Subscribe<DamageApplied>(OnDamage);
+            EventBus.Subscribe<Athoria.Gameplay.Bosses.CinematicStateChanged>(OnCinematic);
             _lastActivity = Time.unscaledTime;
+        }
+
+        /// <summary>Cenas de câmera (encontro com chefe): esconde a HUD inteira.</summary>
+        private void OnCinematic(Athoria.Gameplay.Bosses.CinematicStateChanged e)
+        {
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas != null) canvas.rootCanvas.enabled = !e.Playing;
         }
 
         private void OnDisable()
         {
+            EventBus.Unsubscribe<Athoria.Gameplay.Bosses.CinematicStateChanged>(OnCinematic);
             EventBus.Unsubscribe<HealthChanged>(OnHealth);
             EventBus.Unsubscribe<StaminaChanged>(OnStamina);
             EventBus.Unsubscribe<ManaChanged>(OnMana);

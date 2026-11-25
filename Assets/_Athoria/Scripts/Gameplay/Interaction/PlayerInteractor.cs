@@ -17,6 +17,8 @@ namespace Athoria.Gameplay.Interaction
         [SerializeField] private LayerMask mask = ~0;
 
         private readonly RaycastHit[] _hits = new RaycastHit[8];
+        private Athoria.Gameplay.Combat.PlayerWeaponView _view;
+        private bool _pending;
         private IInteractable _current;
         private string _lastPrompt;
 
@@ -31,6 +33,7 @@ namespace Athoria.Gameplay.Interaction
         private void Awake()
         {
             if (input == null) input = GetComponent<PlayerInputReader>();
+            _view = GetComponentInChildren<Athoria.Gameplay.Combat.PlayerWeaponView>(true);
             if (viewOrigin == null)
             {
                 Debug.LogError("[Athoria] PlayerInteractor sem viewOrigin (câmera).", this);
@@ -50,11 +53,23 @@ namespace Athoria.Gameplay.Interaction
             var prompt = _current != null && _current.CanInteract(gameObject) ? _current.InteractionPrompt : null;
             PublishIfChanged(prompt);
 
-            if (input.ConsumeInteract() && prompt != null)
+            if (input.ConsumeInteract() && prompt != null && !_pending)
             {
-                _current.Interact(gameObject);
-                // O texto costuma mudar após interagir (Abrir -> Fechar).
-                PublishIfChanged(_current.CanInteract(gameObject) ? _current.InteractionPrompt : null);
+                // A mão vai até o objeto e a interação acontece no meio do gesto.
+                var target = _current;
+                var id = target is Athoria.Gameplay.World.Chest ? Athoria.Gameplay.Combat.ViewModelActionId.OpenChest
+                    : target is Athoria.Gameplay.World.WorldItem ? Athoria.Gameplay.Combat.ViewModelActionId.PickUp
+                    : Athoria.Gameplay.Combat.ViewModelActionId.Interact;
+                _pending = true;
+                void Run()
+                {
+                    _pending = false;
+                    if (target == null || target is Object o && o == null || !target.CanInteract(gameObject)) return;
+                    target.Interact(gameObject);
+                    // O texto costuma mudar após interagir (Abrir -> Fechar).
+                    if (_current == target) PublishIfChanged(target.CanInteract(gameObject) ? target.InteractionPrompt : null);
+                }
+                if (_view == null || !_view.PlayAction(id, false, Run)) { if (_pending) Run(); }
             }
         }
 

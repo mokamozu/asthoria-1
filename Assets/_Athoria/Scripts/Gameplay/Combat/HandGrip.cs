@@ -18,6 +18,7 @@ namespace Athoria.Gameplay.Combat
         private bool _hasRest;
 
         public Transform Point => point;
+        public Transform HandBone => handBone;
         public bool IsValid => handBone != null && point != null;
 
         private void Awake() => CaptureRest();

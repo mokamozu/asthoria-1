@@ -39,6 +39,72 @@ MonoBehaviour:
   supportArmPose:
     position: {x: 0, y: -0.4, z: 0.36}
     rotation: {x: -30, y: 24, z: 0}
+  supportGripDistance: -99
+  supportWristFollow: -1
+  viewModelActions: {fileID: 11400000, guid: 2ad9bc0bb5229004eb3fa0ff75582f08, type: 2}
+  overrideTiming: 0
+  timing:
+    category: 0
+    anticipation: 0.28
+    anticipationHold: 0.12
+    strike: 0.16
+    followThrough: 0.14
+    recovery: 0.42
+    comboWindow: 0.35
+    strikeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.6
+        value: 0.6
+        inSlope: 1.8
+        outSlope: 1.8
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heavyDurationMultiplier: 1.5
+    heavyAnticipation: 0.4
+    hitStopLight: 0.045
+    hitStopHeavy: 0.09
+    hitStopKill: 0.03
+    shakeLight: 0.25
+    shakeHeavy: 0.45
+    trail: 1
+    trailColor: {r: 0.85, g: 0.9, b: 1, a: 0.35}
+    trailStart: 0.35
+    trailLifetime: 0.12
+  generatedModelPose:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 55, y: 0, z: 10}
+  generatedHoldingPose:
+    position: {x: 0.18, y: -0.31, z: 0.3}
+    rotation: {x: -24, y: -18, z: 0}
+  generatedSupportPose:
+    position: {x: 0, y: -0.4, z: 0.36}
+    rotation: {x: -30, y: 24, z: 0}
+  hasGeneratedPoses: 1
   damage: 30
   attackSpeed: 0.8
   range: 2.6

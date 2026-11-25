@@ -18,7 +18,7 @@ namespace Athoria.Editor
     /// modelos provisórios de primitivas — Lobo Cinzento, Esqueleto Guerreiro,
     /// Esqueleto Arqueiro e Cavaleiro Corrompido.
     /// </summary>
-    public static class EnemyContentFactory
+    public static partial class EnemyContentFactory
     {
         private const string DataFolder = "Assets/_Athoria/Data/Inimigos";
         private const string PrefabFolder = "Assets/_Athoria/Prefabs/Inimigos";
@@ -49,12 +49,16 @@ namespace Athoria.Editor
             AssetDatabase.Refresh();
 
             var arrow = BuildArrow(feedback);
+            // Humanoides com esqueleto e as animações da Universal Animation Library, quando ela está no projeto;
+            // sem ela, os modelos provisórios de primitivas com animação procedural.
+            var ual = UalLibrary.Available;
+            if (ual) PrepareHumanoids();
             var result = new Dictionary<string, GameObject>
             {
                 [Wolf] = BuildWolf(WolfData(), feedback),
-                [Skeleton] = BuildSkeleton(SkeletonData(), feedback, false),
-                [Archer] = BuildSkeleton(ArcherData(arrow), feedback, true),
-                [Knight] = BuildKnight(KnightData(), feedback)
+                [Skeleton] = ual ? BuildHumanoidSkeleton(SkeletonData(), feedback, false) : BuildSkeleton(SkeletonData(), feedback, false),
+                [Archer] = ual ? BuildHumanoidSkeleton(ArcherData(arrow), feedback, true) : BuildSkeleton(ArcherData(arrow), feedback, true),
+                [Knight] = ual ? BuildHumanoidKnight(KnightData(), feedback) : BuildKnight(KnightData(), feedback)
             };
             AssetDatabase.SaveAssets();
             return result;
@@ -232,7 +236,7 @@ namespace Athoria.Editor
         }
 
         private static GameObject Finish(GameObject root, Transform visual, EnemyData data, CombatFeedback feedback, SurfaceKind surface,
-            EnemyAnimator animator, Transform eyes, Transform muzzle, float deathFxScale, Vector3 colliderCenter, float colliderRadius,
+            EnemyAnimatorBase animator, Transform eyes, Transform muzzle, float deathFxScale, Vector3 colliderCenter, float colliderRadius,
             float colliderHeight, int colliderDirection, string id)
         {
             var agent = root.AddComponent<NavMeshAgent>();

@@ -73,6 +73,8 @@ namespace Athoria.Gameplay.Player
         public float EncumbranceMultiplier { get; set; } = 1f;
         /// <summary>Terreno/ambiente (ex.: água do pântano). 1 = normal.</summary>
         public float EnvironmentMultiplier { get; set; } = 1f;
+        /// <summary>Multiplica a altura do pulo (água funda, lama).</summary>
+        public float JumpMultiplier { get; set; } = 1f;
         /// <summary>Combate pode impedir a corrida (atacando, bloqueando).</summary>
         public bool SprintAllowed { get; set; } = true;
         public bool IsDashing => Time.time < _dashUntil;
@@ -217,7 +219,7 @@ namespace Athoria.Gameplay.Player
             input.ConsumeJump();
             if (!stamina.TrySpend(jumpCost)) return;
 
-            _verticalVelocity = Mathf.Sqrt(2f * jumpHeight * -gravity);
+            _verticalVelocity = Mathf.Sqrt(2f * jumpHeight * Mathf.Max(0.05f, JumpMultiplier) * -gravity);
             _lastGroundedTime = float.NegativeInfinity;
             IsGrounded = false;
             Jumped?.Invoke();

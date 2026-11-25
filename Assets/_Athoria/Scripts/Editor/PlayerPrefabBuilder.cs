@@ -1,3 +1,4 @@
+using System.Linq;
 using System.IO;
 using Athoria.Gameplay.Characters;
 using Athoria.Gameplay.Combat;
@@ -34,6 +35,52 @@ namespace Athoria.Editor
         {
             var existing = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
             return existing != null ? existing : Build();
+        }
+
+        private const string UalGhostController = "Assets/_Athoria/Animation/Jogador/GolpesUAL.controller";
+
+        /// <summary>
+        /// Golpes em primeira pessoa com o movimento da Universal Animation Library: um manequim
+        /// invisível toca o clipe e o UalFirstPersonMotion passa o movimento da mão para os braços da câmera.
+        /// </summary>
+        private static void AddUalMotion(GameObject root)
+        {
+            if (!UalLibrary.Available) return;
+            UalLibrary.Configure();
+            var controller = UalLibrary.BuildController(UalGhostController, new[]
+            {
+                "Sword_Idle", "Sword_Regular_A", "Sword_Regular_A_Rec", "Sword_Regular_B", "Sword_Regular_B_Rec", "Sword_Regular_C",
+                "Sword_Attack", "Sword_Dash", "Melee_Hook", "Melee_Hook_Rec", "Punch_Jab", "Punch_Cross",
+                "Pistol_Shoot", "Spell_Simple_Shoot"
+            }, "Sword_Idle");
+            var ghost = (GameObject)PrefabUtility.InstantiatePrefab(UalLibrary.Model);
+            PrefabUtility.UnpackPrefabInstance(ghost, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+            ghost.name = "Fantasma UAL (invisível)";
+            ghost.transform.SetParent(root.transform, false);
+            ghost.transform.localPosition = new Vector3(0f, -20f, 0f);          // longe da vista; só a pose importa
+            var foot = UalLibrary.Bone(ghost.transform, "foot_l");
+            var ball = UalLibrary.Bone(ghost.transform, "ball_l");
+            if (foot != null && ball != null && (ball.position - foot.position).z < 0f)
+                ghost.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+            foreach (var r in ghost.GetComponentsInChildren<Renderer>(true))
+            {
+                r.enabled = false;
+                r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+            var animator = ghost.GetComponent<Animator>();
+            if (animator == null) animator = ghost.AddComponent<Animator>();
+            animator.avatar = UalLibrary.Avatar;
+            animator.runtimeAnimatorController = controller;
+            animator.applyRootMotion = false;
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+
+            var motion = root.AddComponent<UalFirstPersonMotion>();
+            var so = new SerializedObject(motion);
+            so.FindProperty("ghost").objectReferenceValue = animator;
+            so.FindProperty("ghostRoot").objectReferenceValue = ghost.transform;
+            so.FindProperty("chest").objectReferenceValue = UalLibrary.Bone(ghost.transform, "spine_03");
+            so.FindProperty("handRight").objectReferenceValue = UalLibrary.Bone(ghost.transform, "hand_r");
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         public static GameObject Build()
@@ -108,8 +155,14 @@ namespace Athoria.Editor
                 leftArm.localPosition = new Vector3(-0.3f, -0.78f, 0.15f);
                 leftArm.localRotation = Quaternion.Euler(10f, 0f, 0f);
 
+                // Braços inteiros (WRAD ARMS) guiados por IK; os braços acima ficam como referência invisível.
+                // (Estilo Daggerfall, só a arma: desligue "Show Arms" no PlayerWeaponView.)
+                if (WradArmsBuilder.Available) WradArmsBuilder.Build(motionRoot, rightArm, leftArm, rightSocket, leftSocket);
+
                 var armsSkin = root.AddComponent<ArmsSkin>();
-                armsSkin.EditorSetRenderers(motionRoot.GetComponentsInChildren<SkinnedMeshRenderer>(true));
+                // a textura por personagem vale para os braços antigos; o WRAD fica com a textura dele (por enquanto)
+                armsSkin.EditorSetRenderers(System.Array.FindAll(motionRoot.GetComponentsInChildren<SkinnedMeshRenderer>(true),
+                    r => r.GetComponentInParent<FirstPersonArmsIK>(true) == null));
 
                 var character = root.AddComponent<PlayerCharacter>();
                 var traits = root.AddComponent<PlayerTraits>();
@@ -127,6 +180,10 @@ namespace Athoria.Editor
                 root.AddComponent<FirearmAmmo>();
                 root.AddComponent<Athoria.Gameplay.Summons.MantraPool>();
                 root.AddComponent<Athoria.Gameplay.Summons.SummonController>();
+                AddUalMotion(root);
+                root.AddComponent<FirstPersonMovementAnimation>();     // molas: olhar, andar, correr, pulo, aterrissagem
+                var viewActions = root.AddComponent<ViewModelAnimator>(); // sacar, guardar, inspecionar, aparar, pegar, beber…
+                viewActions.EditorSetDefault(ViewModelActionFactory.GetOrCreateDefault());
                 var weaponView = root.AddComponent<PlayerWeaponView>();
                 var health = root.AddComponent<Health>();
                 var combat = root.AddComponent<PlayerCombat>();
@@ -136,6 +193,11 @@ namespace Athoria.Editor
                 var equipment = root.AddComponent<PlayerEquipment>();
                 var ability = root.AddComponent<PlayerAbility>();
                 var quickItems = root.AddComponent<QuickItemSlots>();
+                // Água pela cintura e contaminação da peste (só age em regiões com SwampWater).
+                var wading = root.AddComponent<Athoria.Gameplay.World.WaterDepthAndPlagueController>();
+                wading.EditorSetSteps(new[] { 1, 2, 3 }
+                    .Select(i => AssetDatabase.LoadAssetAtPath<AudioClip>($"Assets/_Athoria/Audio/SFX/Agua/passo_agua_{i}.wav"))
+                    .Where(c => c != null).ToArray());
                 root.AddComponent<DamageNumbers>();
 
                 Set(input, "actions", controls);
@@ -165,6 +227,7 @@ namespace Athoria.Editor
                 loSo.ApplyModifiedPropertiesWithoutUndo();
 
                 Set(weaponView, "loadout", loadout);
+                Set(weaponView, "trailMaterial", WeaponTimingFactory.TrailMaterial());
                 Set(weaponView, "controller", controller);
                 Set(weaponView, "input", input);
                 Set(weaponView, "motionRoot", motionRoot);
@@ -180,6 +243,7 @@ namespace Athoria.Editor
                 hSo.ApplyModifiedPropertiesWithoutUndo();
 
                 Set(combat, "input", input);
+                Set(combat, "timingTable", WeaponTimingFactory.GetOrCreateTable());
                 Set(combat, "controller", controller);
                 Set(combat, "stamina", stamina);
                 Set(combat, "mana", mana);

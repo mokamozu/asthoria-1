@@ -8,9 +8,8 @@ namespace Athoria.Gameplay.AI
     /// escudo levanta no bloqueio, corpo inclina no atordoamento e tomba na morte.
     /// Cada junta é girada a partir da sua rotação de repouso.
     /// </summary>
-    public sealed class EnemyAnimator : MonoBehaviour
+    public sealed class EnemyAnimator : EnemyAnimatorBase
     {
-        public enum Pose { None, Windup, Strike, Recover, Block, Stagger, Dead }
 
         [Header("Juntas")]
         [SerializeField, Tooltip("Corpo inteiro (inclina, balança e tomba). Pivô no chão.")]
@@ -57,9 +56,9 @@ namespace Athoria.Gameplay.AI
         }
 
         /// <summary>Velocidade horizontal atual em m/s (controla o passo).</summary>
-        public void SetSpeed(float metersPerSecond) => _speed = metersPerSecond;
+        public override void SetSpeed(float metersPerSecond) => _speed = metersPerSecond;
 
-        public void SetPose(Pose pose, EnemyAttackPose attackPose = EnemyAttackPose.Slash)
+        public override void SetPose(Pose pose, EnemyAttackPose attackPose = EnemyAttackPose.Slash, float duration = 0f)
         {
             _pose = pose;
             _attackPose = attackPose;
@@ -75,7 +74,7 @@ namespace Athoria.Gameplay.AI
         }
 
         /// <summary>Volta tudo ao repouso na hora (reaparecer).</summary>
-        public void ResetPose()
+        public override void ResetPose()
         {
             _pose = Pose.None;
             _deathBlend = 0f;

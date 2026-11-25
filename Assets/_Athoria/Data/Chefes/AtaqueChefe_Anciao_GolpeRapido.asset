@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74cdc23d3ccc5734abb063d2ba0c7942, type: 3}
+  m_Name: AtaqueChefe_Anciao_GolpeRapido
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Bosses.BossAttackData
+  id: 74d758d0b3ee366478fc4520e25fc786
+  displayName: "Golpe R\xE1pido"
+  description: Varrida curta e forte para quem fica colado nele.
+  icon: {fileID: 0}
+  kind: 3
+  minRange: 0
+  maxRange: 3.2
+  weight: 1
+  windup: 0.35
+  active: 0.3
+  recovery: 0.9
+  cooldown: 4
+  warningTime: 0
+  damage: 38
+  damageType: 0
+  stagger: 2
+  radius: 1
+  reach: 3
+  arc: 110
+  cloudDuration: 8
+  poisonDps: 8
+  poisonTick: 0.5
+  windupSound: {fileID: 8300000, guid: 36a8cd611b899dd459277ca58052edab, type: 3}
+  impactSound: {fileID: 8300000, guid: 1bd9b092c3a9bae46a8a86499e6e98f5, type: 3}

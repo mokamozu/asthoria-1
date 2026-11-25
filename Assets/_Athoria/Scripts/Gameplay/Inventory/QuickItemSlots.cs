@@ -32,12 +32,15 @@ namespace Athoria.Gameplay.Inventory
         [SerializeField] private PlayerInputReader input;
         [SerializeField] private PlayerInventory inventory;
         [SerializeField] private ConsumableData[] slots = new ConsumableData[Count];
+        private Athoria.Gameplay.Combat.PlayerWeaponView _view;
+        private bool _using;
 
         public ConsumableData Get(int index) => index >= 0 && index < Count ? slots[index] : null;
 
         private void Awake()
         {
             if (input == null) input = GetComponent<PlayerInputReader>();
+            _view = GetComponentInChildren<Athoria.Gameplay.Combat.PlayerWeaponView>(true);
             if (inventory == null) inventory = GetComponent<PlayerInventory>();
             if (slots == null || slots.Length != Count) System.Array.Resize(ref slots, Count);
         }
@@ -76,11 +79,19 @@ namespace Athoria.Gameplay.Inventory
         public void Use(int index)
         {
             var item = Get(index);
-            if (item == null || inventory == null) return;
+            if (item == null || inventory == null || _using) return;
             foreach (var entry in inventory.Grid.Entries)
             {
                 if (entry.Stack.Item != item) continue;
-                inventory.UseOrEquip(entry);
+                // Leva o frasco à boca; o efeito acontece no gole.
+                _using = true;
+                void Drink()
+                {
+                    _using = false;
+                    foreach (var e in inventory.Grid.Entries)
+                        if (e.Stack.Item == item) { inventory.UseOrEquip(e); return; }
+                }
+                if (_view == null || !_view.PlayAction(Athoria.Gameplay.Combat.ViewModelActionId.UseConsumable, false, Drink)) { if (_using) Drink(); }
                 return;
             }
             EventBus.Publish(new GameMessage($"Sem {item.DisplayName}"));

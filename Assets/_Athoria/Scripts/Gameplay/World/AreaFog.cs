@@ -15,6 +15,9 @@ namespace Athoria.Gameplay.World
         [SerializeField, Min(0f), Tooltip("Onde a névoa começa (m).")] private float fogStart = 14f;
         [SerializeField, Min(1f), Tooltip("Onde a névoa fica total (m). A câmera não desenha além disso.")] private float fogEnd = 60f;
         [SerializeField, Tooltip("Fundo com a cor da névoa (estilo N64). Desligado = mostra o céu.")] private bool solidBackground = true;
+        [SerializeField, Tooltip("Névoa exponencial ao quadrado (bruma densa e suave). fogEnd continua sendo onde a câmera para de desenhar.")]
+        private bool exponentialSquared;
+        [SerializeField, Min(0.001f)] private float density = 0.018f;
 
         private Camera _applied;
 
@@ -23,7 +26,8 @@ namespace Athoria.Gameplay.World
         private void OnEnable()
         {
             RenderSettings.fog = true;
-            RenderSettings.fogMode = FogMode.Linear;
+            RenderSettings.fogMode = exponentialSquared ? FogMode.ExponentialSquared : FogMode.Linear;
+            RenderSettings.fogDensity = density;
             RenderSettings.fogColor = fogColor;
             RenderSettings.fogStartDistance = fogStart;
             RenderSettings.fogEndDistance = fogEnd;

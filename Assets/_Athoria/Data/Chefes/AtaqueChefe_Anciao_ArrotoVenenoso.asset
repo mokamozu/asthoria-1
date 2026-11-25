@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74cdc23d3ccc5734abb063d2ba0c7942, type: 3}
+  m_Name: AtaqueChefe_Anciao_ArrotoVenenoso
+  m_EditorClassIdentifier: Athoria.Gameplay::Athoria.Gameplay.Bosses.BossAttackData
+  id: 698fd6370e53013468381e52541a90d4
+  displayName: Arroto Venenoso
+  description: "Puxa o ar e solta uma nuvem t\xF3xica que fica no lugar."
+  icon: {fileID: 0}
+  kind: 2
+  minRange: 3
+  maxRange: 9
+  weight: 0.8
+  windup: 1.4
+  active: 0.8
+  recovery: 1.2
+  cooldown: 12
+  warningTime: 1
+  damage: 0
+  damageType: 4
+  stagger: 0
+  radius: 3.2
+  reach: 0
+  arc: 100
+  cloudDuration: 7
+  poisonDps: 8
+  poisonTick: 0.5
+  windupSound: {fileID: 8300000, guid: c921de6a1bdd7384d9da6a05fcd16a39, type: 3}
+  impactSound: {fileID: 8300000, guid: 7541b8b7d0fbbce44a36d257ae94aa83, type: 3}

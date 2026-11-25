@@ -1,0 +1,474 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: TemposDasArmas
+  m_EditorClassIdentifier: Athoria.Gameplay:Athoria.Gameplay.Combat:WeaponTimingTable
+  entries:
+  - category: 0
+    anticipation: 0.28
+    anticipationHold: 0.12
+    strike: 0.16
+    followThrough: 0.14
+    recovery: 0.42
+    comboWindow: 0.35
+    strikeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.6
+        value: 0.6
+        inSlope: 1.8
+        outSlope: 1.8
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heavyDurationMultiplier: 1.5
+    heavyAnticipation: 0.4
+    hitStopLight: 0.045
+    hitStopHeavy: 0.09
+    hitStopKill: 0.03
+    shakeLight: 0.25
+    shakeHeavy: 0.45
+    trail: 1
+    trailColor: {r: 0.85, g: 0.9, b: 1, a: 0.35}
+    trailStart: 0.35
+    trailLifetime: 0.11
+  - category: 2
+    anticipation: 0.22
+    anticipationHold: 0.05
+    strike: 0.14
+    followThrough: 0.1
+    recovery: 0.54
+    comboWindow: 0.2
+    strikeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.55
+        value: 0.58
+        inSlope: 1.7
+        outSlope: 1.7
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heavyDurationMultiplier: 1.35
+    heavyAnticipation: 0.3
+    hitStopLight: 0.03
+    hitStopHeavy: 0.06
+    hitStopKill: 0.03
+    shakeLight: 0.18
+    shakeHeavy: 0.35
+    trail: 1
+    trailColor: {r: 0.9, g: 0.92, b: 1, a: 0.25}
+    trailStart: 0.35
+    trailLifetime: 0.11
+  - category: 1
+    anticipation: 0.32
+    anticipationHold: 0.18
+    strike: 0.15
+    followThrough: 0.18
+    recovery: 0.35
+    comboWindow: 0.4
+    strikeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.65
+        value: 0.62
+        inSlope: 2
+        outSlope: 2
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heavyDurationMultiplier: 1.6
+    heavyAnticipation: 0.45
+    hitStopLight: 0.06
+    hitStopHeavy: 0.11
+    hitStopKill: 0.03
+    shakeLight: 0.32
+    shakeHeavy: 0.55
+    trail: 1
+    trailColor: {r: 1, g: 0.85, b: 0.7, a: 0.35}
+    trailStart: 0.35
+    trailLifetime: 0.15
+  - category: 3
+    anticipation: 0.36
+    anticipationHold: 0.22
+    strike: 0.14
+    followThrough: 0.2
+    recovery: 0.3
+    comboWindow: 0.45
+    strikeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.7
+        value: 0.64
+        inSlope: 2.2
+        outSlope: 2.2
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heavyDurationMultiplier: 1.7
+    heavyAnticipation: 0.5
+    hitStopLight: 0.07
+    hitStopHeavy: 0.13
+    hitStopKill: 0.03
+    shakeLight: 0.38
+    shakeHeavy: 0.65
+    trail: 1
+    trailColor: {r: 0.95, g: 0.85, b: 0.75, a: 0.3}
+    trailStart: 0.35
+    trailLifetime: 0.15
+  - category: 4
+    anticipation: 0.26
+    anticipationHold: 0.1
+    strike: 0.12
+    followThrough: 0.16
+    recovery: 0.46
+    comboWindow: 0.3
+    strikeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 0.55
+        inSlope: 1.6
+        outSlope: 1.6
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heavyDurationMultiplier: 1.45
+    heavyAnticipation: 0.4
+    hitStopLight: 0.04
+    hitStopHeavy: 0.08
+    hitStopKill: 0.03
+    shakeLight: 0.22
+    shakeHeavy: 0.4
+    trail: 1
+    trailColor: {r: 0.85, g: 0.9, b: 1, a: 0.25}
+    trailStart: 0.6
+    trailLifetime: 0.11
+  - category: 6
+    anticipation: 0.26
+    anticipationHold: 0.1
+    strike: 0.16
+    followThrough: 0.12
+    recovery: 0.46
+    comboWindow: 0.35
+    strikeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.6
+        value: 0.6
+        inSlope: 1.8
+        outSlope: 1.8
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heavyDurationMultiplier: 1.5
+    heavyAnticipation: 0.4
+    hitStopLight: 0.04
+    hitStopHeavy: 0.08
+    hitStopKill: 0.03
+    shakeLight: 0.2
+    shakeHeavy: 0.4
+    trail: 1
+    trailColor: {r: 0.7, g: 0.5, b: 1, a: 0.45}
+    trailStart: 0.35
+    trailLifetime: 0.11
+  - category: 7
+    anticipation: 0.2
+    anticipationHold: 0.05
+    strike: 0.14
+    followThrough: 0.1
+    recovery: 0.56
+    comboWindow: 0.2
+    strikeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.55
+        value: 0.58
+        inSlope: 1.7
+        outSlope: 1.7
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heavyDurationMultiplier: 1.4
+    heavyAnticipation: 0.3
+    hitStopLight: 0.035
+    hitStopHeavy: 0.07
+    hitStopKill: 0.03
+    shakeLight: 0.18
+    shakeHeavy: 0.35
+    trail: 0
+    trailColor: {r: 0, g: 0, b: 0, a: 0}
+    trailStart: 0.35
+    trailLifetime: 0.11
+  - category: 8
+    anticipation: 0.08
+    anticipationHold: 0
+    strike: 0.1
+    followThrough: 0.1
+    recovery: 0.72
+    comboWindow: 0.5
+    strikeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 0.5
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heavyDurationMultiplier: 1.2
+    heavyAnticipation: 0.2
+    hitStopLight: 0.02
+    hitStopHeavy: 0.04
+    hitStopKill: 0.03
+    shakeLight: 0.15
+    shakeHeavy: 0.3
+    trail: 0
+    trailColor: {r: 0, g: 0, b: 0, a: 0}
+    trailStart: 0.35
+    trailLifetime: 0.11
+  - category: 5
+    anticipation: 0.28
+    anticipationHold: 0.1
+    strike: 0.16
+    followThrough: 0.14
+    recovery: 0.42
+    comboWindow: 0.35
+    strikeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.6
+        value: 0.6
+        inSlope: 1.8
+        outSlope: 1.8
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.3
+        outSlope: 0.3
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heavyDurationMultiplier: 1.5
+    heavyAnticipation: 0.4
+    hitStopLight: 0.05
+    hitStopHeavy: 0.09
+    hitStopKill: 0.03
+    shakeLight: 0.25
+    shakeHeavy: 0.45
+    trail: 0
+    trailColor: {r: 0, g: 0, b: 0, a: 0}
+    trailStart: 0.35
+    trailLifetime: 0.11

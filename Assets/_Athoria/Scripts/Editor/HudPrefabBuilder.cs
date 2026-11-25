@@ -77,6 +77,27 @@ namespace Athoria.Editor
                 var mana = Bar(panel, font, "Mana", new Vector2(18, 14), new Vector2(340, 18),
                     new Color(0.16f, 0.32f, 0.72f), new Color(0.7f, 0.8f, 1f), 12);
 
+                // Contaminação da peste (Terras Alagadas): acima dos recursos, só aparece quando há contaminação.
+                var plaguePanel = Child(root.transform, "Peste");
+                plaguePanel.anchorMin = plaguePanel.anchorMax = Vector2.zero;
+                plaguePanel.pivot = Vector2.zero;
+                plaguePanel.anchoredPosition = new Vector2(36, 152);
+                plaguePanel.sizeDelta = new Vector2(430, 40);
+                var plagueGroup = plaguePanel.gameObject.AddComponent<CanvasGroup>();
+                plagueGroup.interactable = false;
+                plagueGroup.blocksRaycasts = false;
+                plagueGroup.alpha = 0f;
+                var plaguePlate = Img(plaguePanel, "Placa", BronzeDark);
+                Stretch(plaguePlate.rectTransform);
+                Stretch(Img(plaguePlate.rectTransform, "Fundo", Back).rectTransform, 3);
+                var plagueBar = Bar(plaguePanel, font, "Peste", new Vector2(18, 10), new Vector2(394, 20),
+                    new Color(0.24f, 0.36f, 0.1f), new Color(0.55f, 0.62f, 0.3f), 12);
+                var plague = plaguePanel.gameObject.AddComponent<PlagueStatusDisplay>();
+                var pso2 = new SerializedObject(plague);
+                pso2.FindProperty("bar").objectReferenceValue = plagueBar;
+                pso2.FindProperty("group").objectReferenceValue = plagueGroup;
+                pso2.ApplyModifiedPropertiesWithoutUndo();
+
                 BuildExperience(root.transform, font);
                 BuildTargetBar(root.transform, font);
                 BuildBanner(root, font);
